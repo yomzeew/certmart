@@ -7,6 +7,9 @@ import { certblue, colorred, colorwhite } from "../../constant/color";
 import { TextInput, Button, RadioButton, Checkbox } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
 import Preloader from "../preloadermodal/preloaderwhite";
+import { registerstudent } from '../../settings/endpoint';
+import axios from "axios"
+import SuccessModal from '../modals/successfulmodal';
 
 const RegisterPage = () => {
     const [Email, setEmail] = useState('');
@@ -15,7 +18,9 @@ const RegisterPage = () => {
     const [Firstname, setFirstname] = useState('');
     const [Gender, setGender] = useState('');
     const [Agreement, setAgreement] = useState(false);
+    const [errormsg,seterrormsg]=useState('')
     const [showloader, setshowloader] = useState(false);
+    const [showsuccessmodal,setshowsuccessmodal]=useState(false)
     const navigation = useNavigation();
     const route = useRoute();
     const { platform } = route.params || {};
@@ -23,12 +28,88 @@ const RegisterPage = () => {
     const handleprevpage = () => {
         navigation.goBack();
     };
+    const handlesubmit=async()=>{
+    setshowloader(true)
+    if(!Surname){
+        seterrormsg('Enter Surname')
+        return
+    }
+    if(!Middlename){
+        seterrormsg('Enter Middlename')
+        return
+    }
+    if(!Firstname){
+        seterrormsg('Enter Firstname')
+        return
+    }
+    if(!Gender){
+        seterrormsg('Select your gender')
+        return
+    }
+    if(!Email){
+        seterrormsg('Enter your Email')
+        return
+    }
+    const data = {
+        surname: Surname,
+        firstname: Firstname,
+        middlename: Middlename,
+        email: Email,
+        gender: Gender.toLowerCase()
+    };
+    console.log(data);
+    
+    try {
+        const response = await axios.post(registerstudent, data, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (response.status === 200) {
+            console.log('Response Status:', response.status);
+            console.log('Response Data:', response.data);
+            setshowsuccessmodal(true)
+        } else {
+            console.log('Unexpected Response Status:', response.status);
+        }
+    } catch (error) {
+        if (error.response) {
+            // Server responded with a status other than 2xx
+            console.error('Error response:', error.response.data);
+            console.error('Error status:', error.response.status);
+            console.error('Error headers:', error.response.headers);
+        } else if (error.request) {
+            // Request was made but no response received
+            console.error('Error request:', error.request);
+        } else {
+            // Something else happened while setting up the request
+            console.error('Error message:', error.message);
+        }
+    }
+    finally{
+        setshowloader(false)
+
+    }
+    
+}
+const handleaction=()=>{
+    navigation.navigate('login')
+}
+   
 
     return (
         <>
             {showloader && <View className="absolute z-50 w-full h-full"><Preloader /></View>}
+            {showsuccessmodal &&<View className="absolute z-50 w-full h-full flex justify-center items-center">
+                <SuccessModal 
+                message={'Registration Successfull check your Email for Password'}
+                action={()=>handleaction()}
+                />
+            </View>
+                }
 
             <SafeAreaView className="flex-1">
+               
                 <KeyboardAvoidingView
                     behavior={Platform.OS === "ios" ? "padding" : "height"}
                     style={{ flex: 1 }}
@@ -128,7 +209,7 @@ const RegisterPage = () => {
                                     <Button
                                         icon="plus"
                                         mode="contained"
-                                        onPress={() => console.log('Pressed')}
+                                        onPress={handlesubmit}
                                         theme={{ colors: { primary: colorred } }}
                                         className="h-12 mt-3 w-3/4 flex justify-center"
                                         textColor="#ffffff"
