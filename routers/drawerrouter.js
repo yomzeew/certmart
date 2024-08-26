@@ -5,6 +5,7 @@ import CustomDrawer from '../screens/drawercontent/drawer';
 import StudentProfile from '../screens/student/dashboardcomponet/studentprofile';
 import Coursedetail from '../screens/student/dashboardcomponet/coursesdetail';
 import ApplyCourses from '../screens/student/dashboardcomponet/applycourses';
+import AllCoursedetail from '../screens/student/dashboardcomponet/allavailablecourses';
 const DrawerWrapper=()=>{
     const Drawer=createDrawerNavigator()
     return(
@@ -24,6 +25,7 @@ const DrawerWrapper=()=>{
        <Drawer.Screen options={{gestureEnabled:false,gestureDirection: 'vertical',}} name="studentprofile" component={StudentProfile} />  
        <Drawer.Screen options={{gestureEnabled:false,gestureDirection:'vertical'}} name="coursesdetail" component={Coursedetail} /> 
        <Drawer.Screen options={{gestureEnabled:false,gestureDirection:'vertical'}} name="applycourses" component={ApplyCourses} /> 
+       <Drawer.Screen options={{gestureEnabled:false,gestureDirection:'vertical'}} name="couseravailable" component={AllCoursedetail} /> 
       </Drawer.Navigator>
 
     )

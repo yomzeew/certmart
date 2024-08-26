@@ -58,11 +58,11 @@ const RegisterPage = () => {
         gender: Gender.toLowerCase()
     };
     console.log(data);
-    
-    try {
+        try {
         const response = await axios.post(registerstudent, data, {
-            headers: {
-                'Content-Type': 'application/json'
+            headers:{
+                'Accept':'application/json',
+                'Content-Type':'application/json'
             }
         });
         if (response.status === 200) {
@@ -76,6 +76,7 @@ const RegisterPage = () => {
         if (error.response) {
             // Server responded with a status other than 2xx
             console.error('Error response:', error.response.data);
+            seterrormsg(error.response.data.message)
             console.error('Error status:', error.response.status);
             console.error('Error headers:', error.response.headers);
         } else if (error.request) {
@@ -128,6 +129,7 @@ const handleaction=()=>{
                             </Text>
                         </View>
                         <View className="items-center mt-5 flex-1">
+                            <View><Text className="text-red-500 text-center">{errormsg}</Text></View>
                             <ScrollView className="w-full">
                                 <View className="items-center">
                                     <TextInput

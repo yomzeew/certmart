@@ -9,6 +9,7 @@ import Login from '../screens/onbaordingscreens/login';
 import RegisterPage from '../screens/onbaordingscreens/register';
 import Dashboard from '../screens/student/dashboardcomponet/dashboard';
 import CustomDrawer from '../screens/drawercontent/drawer';
+import AllCoursedetail from '../screens/student/dashboardcomponet/allavailablecourses';
 
 const StackWrapper=()=>{
     const Stack = createStackNavigator();
@@ -30,6 +31,7 @@ const StackWrapper=()=>{
       <Stack.Screen options={{gestureEnabled:false,gestureDirection: 'vertical',}} name="welcome" component={Welcomepage}/> 
       <Stack.Screen options={{gestureEnabled:false,gestureDirection: 'vertical',}} name="login" component={Login}/> 
       <Stack.Screen options={{gestureEnabled:false,gestureDirection: 'vertical',}} name="register" component={RegisterPage}/>
+     
           
       </Stack.Navigator>
 

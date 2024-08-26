@@ -7,9 +7,13 @@ import { TextInput,Button } from "react-native-paper"
 import { useState } from "react"
 import { StatusBar } from "expo-status-bar"
 import Preloader from "../preloadermodal/preloaderwhite"
+import axios from "axios"
+import { loginstudent } from "../../settings/endpoint"
+import AsyncStorage from '@react-native-async-storage/async-storage'
 const Login = () => {
     const [Email, setEmail] = useState('')
     const [Password, setPassword] = useState('')
+    const [errorMsg,seterrorMsg]=useState('')
     const [showloader,setshowloader]=useState(false)
     const navigation = useNavigation()
     const route = useRoute();
@@ -21,6 +25,59 @@ const Login = () => {
     const navigateToDashboard = () => {
         navigation.navigate('dashboard', { screen: 'dashboardstudent' });
       };
+      const handlesubmit=async()=>{
+        setshowloader(true)
+        if(!Email){
+            seterrorMsg('Enter your Email')
+            return
+
+        }
+        if (!Password){
+            seterrorMsg('Enter your Password')
+        }
+
+        try{
+            const data={
+                email:Email,
+                password:Password
+            }
+            const response=await axios.post(loginstudent,data,{
+                headers:{
+                    'Accept':'application/json',
+                    'Content-Type':'application/json'
+                }
+            })
+            console.log('check')
+            if(response.status===200){
+                const token=response.data.token
+                await AsyncStorage.setItem('token', token)
+                navigateToDashboard()
+            }
+
+
+        }catch (error) {
+            if (error.response) {
+                // Server responded with a status other than 2xx
+                console.error('Error response:', error.response.data);
+                console.log(error.response.data.error)
+                seterrorMsg( error.response.data.error)
+                console.error('Error status:', error.response.status);
+                console.error('Error headers:', error.response.headers);
+            } else if (error.request) {
+                // Request was made but no response received
+                console.error('Error request:', error.request);
+            } else {
+                // Something else happened while setting up the request
+                console.error('Error message:', error.message);
+               
+            }
+        }
+        finally{
+            setshowloader(false)
+    
+        }
+
+      }
 
     return (
         <>
@@ -37,6 +94,9 @@ const Login = () => {
                         
                     </View>
                     <View className="items-center mt-5">
+                        <View>
+                            <Text style={{textColor:colorred}} className={`text-center capitalize text-red-500`}>{errorMsg}</Text>
+                        </View>
                     <View className="w-3/4 mt-3">
                     <TouchableOpacity><Text style={{color:colorred}}>I don't have an account</Text></TouchableOpacity>
                     </View>
@@ -66,7 +126,7 @@ const Login = () => {
                     <Button
                     icon="login" 
                     mode="contained"
-                     onPress={navigateToDashboard}
+                     onPress={handlesubmit}
                      theme={{colors:{primary:colorred}}}
                      className="h-12 mt-3 w-3/4 flex justify-center"
                      textColor="#ffffff"

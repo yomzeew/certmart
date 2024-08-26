@@ -8,8 +8,41 @@ import { Avatar, Divider } from "react-native-paper"
 import { FontAwesome } from "@expo/vector-icons"
 import { ScrollView } from "react-native-gesture-handler"
 import Footer from "./footer"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import axios from "axios"
+import { updatedetails } from "../../../settings/endpoint"
 
 const StudentProfile = () => {
+    const fetchdata=async()=>{
+        try{
+            const token=await AsyncStorage.getItem('token')
+            const response=await axios.post(updatedetails,null,{
+                headers:{
+                    'Authorization':`Bearer ${token}`
+                }
+            })
+
+        }catch(error){
+            if (error.response) {
+                // Server responded with a status other than 2xx
+                console.error('Error response:', error.response.data);
+                console.log(error.response.data.error)
+                console.error('Error status:', error.response.status);
+                console.error('Error headers:', error.response.headers);
+            } else if (error.request) {
+                // Request was made but no response received
+                console.error('Error request:', error.request);
+            } else {
+                // Something else happened while setting up the request
+                console.error('Error message:', error.message);
+               
+            }
+
+        }finally{
+
+        }
+        
+    }
     return (
         <>
             <SafeAreaView style={[styles.andriod, styles.bgcolor]}  className="flex flex-1 w-full">

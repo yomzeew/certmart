@@ -6,20 +6,147 @@ import { colorred, grey } from "../../../constant/color"
 import { FontAwesome5,FontAwesome, MaterialCommunityIcons,Ionicons } from "@expo/vector-icons"
 import { useNavigation } from "@react-navigation/native";
 import { Drawer } from 'react-native-paper';
-import { useState } from "react"
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { useState,useEffect } from "react"
 import Header from "./header"
 import Footer from "./footer"
+import Categories from "./dashboard/categories"
+import PopularCourses from "./dashboard/popularcourses"
+import PopularCoursesdetails from "./dashboard/popularcoursedetails"
+import { coursescategoriesfilter, popularcourses } from "../../../settings/endpoint"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import axios from "axios"
+import Preloader from "../../preloadermodal/preloaderwhite"
+import DisplayModal from "../../modals/datadisplay"
+
 
 const Dashboard = () => {
     const [active, setActive] =useState('');
     const navigation = useNavigation();
-    const handlenavigate=()=>{
-        navigation.navigate('coursesdetail')
+    const [data,setdata]=useState([])
+    const [showpreloader,setshowpreloader]=useState(false)
+    const [showmodalcourse,setshowmodalcourse]=useState(false)
+    const [showopcity,setshowopcity]=useState(false)
+    const [coursesdata,setcoursesdata]=useState([])
+    
+    const fetchdata=async()=>{
+        try{
+            setshowpreloader(true)
+            const token=await AsyncStorage.getItem('token')
+            const response=await axios.get(popularcourses,{
+                headers:{
+                    "Authorization":`Bearer ${token}`
+                }
+    
+            })
+            console.log(response.data.data)
+            setdata(response.data.data)
+
+        }catch(error){
+            if (error.response) {
+                // Server responded with a status other than 2xx
+                console.error('Error response:', error.response.data);
+                console.log(error.response.data.error)
+                console.error('Error status:', error.response.status);
+                console.error('Error headers:', error.response.headers);
+            } else if (error.request) {
+                // Request was made but no response received
+                console.error('Error request:', error.request);
+            } else {
+                // Something else happened while setting up the request
+                console.error('Error message:', error.message);
+               
+            }
+        }finally{
+            setshowpreloader(false)
+        }
+       
+    }
+    useEffect(()=>{
+        fetchdata()
+
+    },[])
+    const translateY = useSharedValue(300);
+    const animatedStyles = useAnimatedStyle(() => ({
+        transform: [{ translateY: translateY.value }],
+    }));
+    const handlepickcategories=async(value)=>{
+        try{
+            setshowpreloader(true)
+            const token=await AsyncStorage.getItem('token')
+            const response=await axios.get(`${coursescategoriesfilter}category=${value}`,{
+                headers:{
+                    "Authorization":`Bearer ${token}`
+                }
+    
+            })
+            const getdata=response.data.data
+            if(getdata.length>0){
+                const getnewfilterarray=getdata.map((item,index)=>(item.course))
+                console.log(getnewfilterarray)
+                const uniqueSubjects = [...new Set(getnewfilterarray)];
+                setcoursesdata(uniqueSubjects)
+            }
+            else{
+                setcoursesdata([])
+                return
+            }
+        
+
+        }catch(error){
+            if (error.response) {
+                // Server responded with a status other than 2xx
+                console.error('Error response:', error.response.data);
+                console.log(error.response.data.error)
+                console.error('Error status:', error.response.status);
+                console.error('Error headers:', error.response.headers);
+            } else if (error.request) {
+                // Request was made but no response received
+                console.error('Error request:', error.request);
+            } else {
+                // Something else happened while setting up the request
+                console.error('Error message:', error.message);
+               
+            }
+        }finally{
+            setshowpreloader(false)
+        }
+        translateY.value = withSpring(0);
+        setshowmodalcourse(!showmodalcourse)
+        setshowopcity(!showopcity)
+       
+    }
+    const handlegetvalue=(value)=>{
+     const getvalue=value
+     console.log(value)
+        setshowmodalcourse(false)
+        setshowopcity(false)
+        translateY.value = withSpring(300);
+        navigation.navigate('couseravailable',{course:value})
+       
+    }
+    const handleclose=(value)=>{
+        setshowopcity(false)
+        setshowmodalcourse(value)
+        translateY.value = withSpring(300);
     }
     return (
-        <>  
+        <> 
+       
+        {showopcity &&<View className="h-full w-full z-50  absolute bg-red-100 opacity-70"/>}
+        {showmodalcourse &&<View className="bottom-0 absolute z-50">
+            <Animated.View style={[animatedStyles]}>
+            <DisplayModal
+            data={coursesdata} 
+            close={(value)=>handleclose(value)}
+            getvaluefunction={(value)=>handlegetvalue(value)}
+           
+            />
+                    </Animated.View>
+            </View>} 
             <SafeAreaView style={[styles.andriod, styles.bgcolor]} className="flex-1 flex w-full">
                 <StatusBar style="auto" />
+                {showpreloader &&<View className="z-50 absolute h-full w-full"><Preloader/></View> }
                 <Header/>
                 <View className="items-center mt-3">
                     <View className="w-full items-center justify-center flex">
@@ -45,56 +172,9 @@ const Dashboard = () => {
                     <ScrollView
                     showsVerticalScrollIndicator={false}
                     >
-                    <View className="px-3 mt-3">
-                    <View className="flex justify-between flex-row items-center">
-                        <Text style={{ fontSize: 16 }} className="font-semibold">
-                            Categories
-                        </Text>
-                        <TouchableOpacity>
-                            <Text style={{ color: colorred, fontSize: 14 }} className="font-semibold">
-                                See all
-                            </Text>
-                        </TouchableOpacity>
-
-                    </View>
-                    <View className="w-full mt-3">
-                        <ScrollView
-                            showsVerticalScrollIndicator={false}
-                            showsHorizontalScrollIndicator={false}
-                            horizontal>
-                            <TouchableOpacity className="h-36 w-44 items-center rounded-2xl">
-                                <Image source={require('../../images/productdesign.jpeg')} resizeMode="cover" className="h-full w-full rounded-2xl absolute" />
-                                    <View className="h-full w-full bg-slate-700  opacity-60 absolute rounded-2xl" />
-                                    <View className="absolute bottom-5 z-50 items-center w-full">
-                                        <Text style={{ fontSize: 16 }} className="text-white font-semibold text-center">{`Product Design\n(UI & UX)`}</Text>
-                                    </View>
-
-                               
-                            </TouchableOpacity>
-                            <TouchableOpacity className="h-36 w-44 items-center rounded-2xl ml-3">
-                                <Image source={require('../../images/webdesign.jpeg')} resizeMode="cover" className="h-full w-full rounded-2xl absolute"/>
-                                    <View className="h-full w-full bg-slate-700  opacity-60 absolute rounded-2xl" />
-                                    <View className="absolute bottom-5 z-50 items-center w-full">
-                                        <Text style={{ fontSize: 16 }} className="text-white font-semibold text-center">{`Web Development`}</Text>
-                                    </View>
-
-                             
-                            </TouchableOpacity>
-                            <TouchableOpacity className="h-36 w-44 items-center rounded-2xl ml-3">
-                                <Image source={require('../../images/datascience.jpeg')} resizeMode="cover" className="h-full w-full rounded-2xl absolute"/>
-                                    <View className="h-full w-full bg-slate-700  opacity-60 absolute rounded-2xl" />
-                                    <View className="absolute bottom-5 z-50 items-center w-full">
-                                        <Text style={{ fontSize: 16 }} className="text-white font-semibold text-center">{`Data Science`}</Text>
-                                    </View>
-
-                            </TouchableOpacity>
-
-                        </ScrollView>
-
-                    </View>
-
-
-                </View>
+                <Categories
+                handlecallbackvalue={(value)=>handlepickcategories(value)}
+                />
                 <View className="px-3 mt-3">
                     <View className="flex justify-between flex-row items-center">
                         <Text style={{ fontSize: 16 }} className="font-semibold">
@@ -110,22 +190,10 @@ const Dashboard = () => {
                         showsHorizontalScrollIndicator={false}
                         horizontal
                     >
-                        <View className="flex flex-row mt-3">
-                            <TouchableOpacity style={{ backgroundColor: grey }} className="flex-shrink rounded-xl h-8 flex flex-row justify-center items-center px-4">
-                                <Text style={{ fontSize: 12 }} className="font-semibold">All</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ backgroundColor: colorred }} className="flex-shrink rounded-xl h-8 flex flex-row justify-center items-center ml-3 px-4">
-                                <Text style={{ fontSize: 12 }} className="font-semibold text-white">Product Design</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ backgroundColor: grey }} className="rounded-xl h-8 flex flex-row justify-center items-center ml-3 flex-shrink px-4">
-                                <Text style={{ fontSize: 12 }} className="font-semibold">Product Management</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{ backgroundColor: grey }} className="rounded-xl h-8 flex flex-row justify-center items-center ml-3 flex-shrink px-4">
-                                <Text style={{ fontSize: 12 }} className="font-semibold">Web Application</Text>
-                            </TouchableOpacity>
-
-
-                        </View>
+                            <PopularCourses
+                            data={data}
+                            />
+                       
 
                     </ScrollView>
                     <View className="mt-3 w-full">
@@ -136,36 +204,9 @@ const Dashboard = () => {
 
 
                         >
-                            <View className="flex flex-row w-full py-2">
-                               <TouchableOpacity onPress={handlenavigate}>
-                               <Card className="w-56 bg-white">
-                                    <Card.Cover source={require('../../images/productmanagment.jpeg')} />
-                                    <Card.Content>
-                                        <Text style={{ color: colorred }} className="font-semibold mt-2" variant="titleLarge">Product Design</Text>
-                                        <Text style={{ fontSize: 13 }} className="font-semibold" variant="bodyMedium">Introduction to Product Design</Text>
-                                        <Text variant="bodyMedium">N35,000 | <FontAwesome5 size={16} color="yellow" name="star" /> 4.2 | 70 std</Text>
-                                    </Card.Content>
-                                </Card>
-                                </TouchableOpacity> 
-                                <Card className="w-56 ml-3 bg-white">
-                                    <Card.Cover source={require('../../images/webdesign.jpeg')} />
-                                    <Card.Content>
-                                        <Text style={{ color: colorred }} className="font-semibold mt-2" variant="titleLarge">Web Application</Text>
-                                        <Text style={{ fontSize: 13 }} className="font-semibold" variant="bodyMedium">Introduction to Product Design</Text>
-                                        <Text variant="bodyMedium">N65,000 | <FontAwesome5 size={16} color="yellow" name="star" /> 4.2 | 70 std</Text>
-                                    </Card.Content>
-                                </Card>
-                                <Card className="w-56 ml-3 bg-white">
-                                    <Card.Cover source={require('../../images/productdesign.jpeg')} />
-                                    <Card.Content>
-                                        <Text style={{ color: colorred }} className="font-semibold mt-2" variant="titleLarge">Product Management</Text>
-                                        <Text style={{ fontSize: 13 }} className="font-semibold" variant="bodyMedium">Introduction to Product Design</Text>
-                                        <Text variant="bodyMedium">N25,000 | <FontAwesome5 size={16} color="yellow" name="star" /> 4.2 | 70 std</Text>
-                                    </Card.Content>
-                                </Card>
-
-
-                            </View>
+                            <PopularCoursesdetails
+                            data={data}
+                            />
 
                         </ScrollView>
 
