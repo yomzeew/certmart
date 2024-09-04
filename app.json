@@ -11,25 +11,39 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff",
       "plugins": [
-      [
-        "expo-document-picker",
-        {
-          "iCloudContainerEnvironment": "Production"
-        }
+        [
+          "expo-document-picker",
+          {
+            "iCloudContainerEnvironment": "Production"
+          }
+        ]
       ]
-    ]
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yomzeew.certmart"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "imageCompression": 1,
+      "imageFormats": [
+        "png",
+        "jpg",
+        "svg"
+      ],
+      "maxResolution": 1080,
+      "package": "com.yomzeew.certmart"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6004e9cd-7ddf-4290-854c-f4c6293d214b"
+      }
     }
   }
 }

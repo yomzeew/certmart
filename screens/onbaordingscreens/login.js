@@ -1,66 +1,70 @@
 import { SafeAreaView, View, Text, TouchableOpacity, Image } from "react-native"
 import { styles } from "../../settings/layoutsetting"
 import { FontAwesome } from "@expo/vector-icons"
-import { useNavigation,useRoute } from "@react-navigation/native"
+import { useNavigation, useRoute } from "@react-navigation/native"
 import { certblue, colorred, colorwhite } from "../../constant/color"
-import { TextInput,Button } from "react-native-paper"
+import { TextInput, Button } from "react-native-paper"
 import { useState } from "react"
 import { StatusBar } from "expo-status-bar"
 import Preloader from "../preloadermodal/preloaderwhite"
 import axios from "axios"
 import { loginstudent } from "../../settings/endpoint"
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import ForgotPasswordEmailModal from "./forgotpassword"
 const Login = () => {
     const [Email, setEmail] = useState('')
     const [Password, setPassword] = useState('')
-    const [errorMsg,seterrorMsg]=useState('')
-    const [showloader,setshowloader]=useState(false)
+    const [errorMsg, seterrorMsg] = useState('')
+    const [showloader, setshowloader] = useState(false)
+    const [showforgotpass, setshowforgotpass] = useState(false)
     const navigation = useNavigation()
     const route = useRoute();
-    const { platform } = route.params || {}; 
+    const { platform } = route.params || {};
     const handleprevpage = () => {
         navigation.goBack()
     }
-    
+
     const navigateToDashboard = () => {
         navigation.navigate('dashboard', { screen: 'dashboardstudent' });
-      };
-      const handlesubmit=async()=>{
+    };
+    const handlesubmit = async () => {
         setshowloader(true)
-        if(!Email){
+        if (!Email) {
             seterrorMsg('Enter your Email')
+            setshowloader(false)
             return
 
         }
-        if (!Password){
+        if (!Password) {
             seterrorMsg('Enter your Password')
+            setshowloader(false)
         }
 
-        try{
-            const data={
-                email:Email,
-                password:Password
+        try {
+            const data = {
+                email: Email,
+                password: Password
             }
-            const response=await axios.post(loginstudent,data,{
-                headers:{
-                    'Accept':'application/json',
-                    'Content-Type':'application/json'
+            const response = await axios.post(loginstudent, data, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 }
             })
             console.log('check')
-            if(response.status===200){
-                const token=response.data.token
+            if (response.status === 200) {
+                const token = response.data.token
                 await AsyncStorage.setItem('token', token)
                 navigateToDashboard()
             }
 
 
-        }catch (error) {
+        } catch (error) {
             if (error.response) {
                 // Server responded with a status other than 2xx
                 console.error('Error response:', error.response.data);
                 console.log(error.response.data.error)
-                seterrorMsg( error.response.data.error)
+                seterrorMsg(error.response.data.error)
                 console.error('Error status:', error.response.status);
                 console.error('Error headers:', error.response.headers);
             } else if (error.request) {
@@ -69,21 +73,32 @@ const Login = () => {
             } else {
                 // Something else happened while setting up the request
                 console.error('Error message:', error.message);
-               
+
             }
         }
-        finally{
+        finally {
             setshowloader(false)
-    
         }
 
-      }
+    }
+    const handleforgowshow = () => {
+        setshowforgotpass(true)
+    }
+    const handleclose = (value) => {
+        setshowforgotpass(value)
+    }
 
     return (
         <>
-       {showloader &&<View className="absolute z-50 w-full h-full"><Preloader/></View>}
-            <View  className="flex-1 flex w-full">
-                <StatusBar style="light"/>
+            {showloader && <View className="absolute z-50 w-full h-full"><Preloader /></View>}
+            {showforgotpass && <View className="absolute z-50 w-full h-full">
+                <ForgotPasswordEmailModal
+                    close={(value) => handleclose(value)}
+                />
+            </View>
+            }
+            <View className="flex-1 flex w-full">
+                <StatusBar style="light" />
                 <View style={{ backgroundColor: colorred }} className="items-center w-full px-3 h-1/6 flex-row flex justify-between">
                     <TouchableOpacity onPress={handleprevpage}><FontAwesome name="arrow-circle-left" size={40} color={colorwhite} /></TouchableOpacity>
                     <Image className="w-20 h-12" resizeMode="contain" source={require('../images/logowhite.png')} />
@@ -91,25 +106,25 @@ const Login = () => {
                 <View className="flex-1">
                     <View className="items-center mt-5">
                         <Text style={{ fontSize: 30 }} className="font-extralight"><FontAwesome name="sign-in" size={30} color={colorred} /> Login as {platform} </Text>
-                        
+
                     </View>
                     <View className="items-center mt-5">
                         <View>
-                            <Text style={{textColor:colorred}} className={`text-center capitalize text-red-500`}>{errorMsg}</Text>
+                            <Text style={{ textColor: colorred }} className={`text-center capitalize text-red-500`}>{errorMsg}</Text>
                         </View>
-                    <View className="w-3/4 mt-3">
-                    <TouchableOpacity><Text style={{color:colorred}}>I don't have an account</Text></TouchableOpacity>
-                    </View>
+                        <View className="w-3/4 mt-3">
+                            <TouchableOpacity><Text style={{ color: colorred }}>I don't have an account</Text></TouchableOpacity>
+                        </View>
                         <TextInput
                             label="Email"
                             mode="outlined"
-                            theme={{ colors: { primary: colorred} }}
+                            theme={{ colors: { primary: colorred } }}
                             onChangeText={text => setEmail(text)}
                             value={Email}
                             className="w-3/4 mt-3 bg-slate-50"
                             textColor="#000000"
-                            
-                            
+
+
 
                         />
                         <TextInput
@@ -123,26 +138,26 @@ const Login = () => {
                             secureTextEntry
 
                         />
-                    <Button
-                    icon="login" 
-                    mode="contained"
-                     onPress={handlesubmit}
-                     theme={{colors:{primary:colorred}}}
-                     className="h-12 mt-3 w-3/4 flex justify-center"
-                     textColor="#ffffff"
-                     
-                     >
-                      <Text style={{fontSize:20}}>Login</Text> 
-                    </Button>
-                    <View className="w-3/4 flex justify-between flex-row mt-3">
-                    <TouchableOpacity><Text style={{color:certblue}}>Switch Your Platform</Text></TouchableOpacity>
-                    <TouchableOpacity><Text style={{color:colorred}}>Forgot Password</Text></TouchableOpacity>
+                        <Button
+                            icon="login"
+                            mode="contained"
+                            onPress={handlesubmit}
+                            theme={{ colors: { primary: colorred } }}
+                            className="h-12 mt-3 w-3/4 flex justify-center"
+                            textColor="#ffffff"
+
+                        >
+                            <Text style={{ fontSize: 20 }}>Login</Text>
+                        </Button>
+                        <View className="w-3/4 flex justify-between flex-row mt-3">
+                            <TouchableOpacity><Text style={{ color: certblue }}>Switch Your Platform</Text></TouchableOpacity>
+                            <TouchableOpacity onPress={handleforgowshow}><Text style={{ color: colorred }}>Forgot Password</Text></TouchableOpacity>
+                        </View>
+
+
                     </View>
-                    
-                    
-                    </View>
-                    
-                   
+
+
 
                 </View>
 

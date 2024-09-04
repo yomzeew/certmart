@@ -13,6 +13,10 @@ import { fetchData } from "../../jsondata/fetchfunction"
 import * as DocumentPicker from 'expo-document-picker';
 import { uploadFile } from "../../uploadfile/uploadfile"
 import InputModal from "../../modals/inputmodal"
+import axios from "axios"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { allcourses } from "../../../settings/endpoint"
+import { countrylist, fecthcountrysate } from "../../jsondata/country-states"
 
 const ApplyCourses = () => {
     const [showphysical,setshowphysical]=useState(false)
@@ -26,6 +30,7 @@ const ApplyCourses = () => {
     const [city,setcity]=useState('')
     const [computerlevel,setcomputerlevel]=useState('')
     const [addinfo,setaddinfo]=useState('')
+    const [datacourse,setdatacourse]=useState([])
     const [countryData, setCountryData] = useState([]);
     const [stateData, setStateData] = useState([]);
     const [cityData, setCityData] = useState([]);
@@ -33,14 +38,51 @@ const ApplyCourses = () => {
     const [selecttype,setselecttpe]=useState('')
     const [cvfilename,setcvfilename]=useState('')
     const [errormsg,seterrormsg]=useState('')
+
+    const fetchdata=async()=>{
+        try{
+           
+            // setshowpreloader(true)
+            const token=await AsyncStorage.getItem('token')
+            const response=await axios.get(allcourses,{
+                headers:{
+                    "Authorization":`Bearer ${token}`
+                }
     
+            })
+            const getdata=response.data.data
+            const getcourse=getdata.map((item,index)=>(
+                `${item.course}-${item.duration}weeks`
+            ))
+            console.log(getcourse)
+            setdatacourse(getcourse)
+             setdata(getcourse)
 
-    const datacourse=['Advance Excel \n6 Weeks','Android App Development\n10 Weeks','Animation and Motion Graphics\n10 Weeks','Artificial Intelligence (AI) with python\n10 Weeks','Autocad\n10 Weeks','C# Programming']
-    const computerliteracy=['Novice','Beginner','Basic','Intermediate','Advanced']
+        }catch(error){
+            if (error.response) {
+                // Server responded with a status other than 2xx
+                console.error('Error response:', error.response.data);
+                console.log(error.response.data.error)
+                console.error('Error status:', error.response.status);
+                console.error('Error headers:', error.response.headers);
+            } else if (error.request) {
+                // Request was made but no response received
+                console.error('Error request:', error.request);
+            } else {
+                // Something else happened while setting up the request
+                console.error('Error message:', error.message);
+               
+            }
+        }finally{
+            // setshowpreloader(false)
+        }
+       
+    }
     useEffect(()=>{
-     setdata(datacourse)
-
+        fetchdata()
+        setdata(datacourse)
     },[])
+    const computerliteracy=['Novice','Beginner','Basic','Intermediate','Advanced']
     useEffect(()=>{
         if(showmodalcourse||showmodalinput){
             setshowopcity(true)
@@ -76,7 +118,8 @@ const ApplyCourses = () => {
     }
     const handlecountry=()=>{
         setselecttpe('country')
-        setdata(countryData)
+        const countrylistone=countrylist
+        setdata(countrylistone)
         translateY.value = withSpring(0);
         setshowmodalcourse(!showmodalcourse)
         setState('')
@@ -84,7 +127,10 @@ const ApplyCourses = () => {
     }
     const handlestate=async()=>{
         setselecttpe('state')
-        const datastate=await fetchData(country)
+        console.log(country)
+        
+        const datastate=await fecthcountrysate(country)
+        console.log(datastate)
         setdata(datastate)
 
         translateY.value = withSpring(0);

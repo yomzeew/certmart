@@ -18,6 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import axios from "axios"
 import Preloader from "../../preloadermodal/preloaderwhite"
 import DisplayModal from "../../modals/datadisplay"
+import Toptrainer from "./dashboard/toptrainer"
 
 
 const Dashboard = () => {
@@ -161,7 +162,7 @@ const Dashboard = () => {
                             theme={{ colors: { primary: grey, outline: grey } }}
                             className="bg-white w-3/4 h-12"
                             textColor="#000000"
-                            left={<TextInput.Icon icon="magnify" color={colorred} />}
+                            
 
                         />
 
@@ -230,45 +231,7 @@ const Dashboard = () => {
                         showsHorizontalScrollIndicator={false}
                         horizontal
                     >
-                        <View className="flex flex-row">
-                            <View className="items-center">
-                            <Avatar.Image source={require('../../images/avatermale.png')}/> 
-                            <Text className="font-semibold">Sojaar</Text>
-
-                            </View>
-                            <View className="items-center ml-3">
-                            <Avatar.Image source={require('../../images/trainer.jpeg')}/> 
-                            <Text className="font-semibold">Sojaar</Text>
-
-                            </View>
-                       
-                            <View className="items-center ml-3">
-                            <Avatar.Image source={require('../../images/avaterfemale.png')}/> 
-                            <Text className="font-semibold">Sojaar</Text>
-
-                            </View>
-                       
-                            <View className="items-center ml-3">
-                            <Avatar.Image source={require('../../images/trainer.jpeg')}/> 
-                            <Text className="font-semibold">Sojaar</Text>
-
-                            </View>
-                       
-                        <View className="items-center ml-3">
-                            <Avatar.Image source={require('../../images/avaterfemale.png')}/> 
-                            <Text className="font-semibold">Sojaar</Text>
-
-                            </View>
-                            <View className="items-center ml-3">
-                            <Avatar.Image source={require('../../images/avatermale.png')}/> 
-                            <Text className="font-semibold">Sojaar</Text>
-
-                            </View>
-                       
-                       
-
-                        </View>
-                
+                       <Toptrainer/>
 
                     </ScrollView>
 

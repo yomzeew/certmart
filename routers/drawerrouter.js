@@ -1,5 +1,6 @@
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import {  TransitionPresets } from '@react-navigation/stack';
+import 'react-native-gesture-handler';
 import Dashboard from '../screens/student/dashboardcomponet/dashboard';
 import CustomDrawer from '../screens/drawercontent/drawer';
 import StudentProfile from '../screens/student/dashboardcomponet/studentprofile';

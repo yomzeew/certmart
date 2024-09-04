@@ -1,6 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator,CardStyleInterpolators} from '@react-navigation/stack'
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import 'react-native-gesture-handler';
 import Home from '../screens/onbaordingscreens/home';
 import Slider from '../screens/onbaordingscreens/slider';
 import Chooseplaform from '../screens/onbaordingscreens/chooseplatform';
@@ -10,6 +11,8 @@ import RegisterPage from '../screens/onbaordingscreens/register';
 import Dashboard from '../screens/student/dashboardcomponet/dashboard';
 import CustomDrawer from '../screens/drawercontent/drawer';
 import AllCoursedetail from '../screens/student/dashboardcomponet/allavailablecourses';
+import OtpPage from '../screens/onbaordingscreens/otppage';
+import NewPasswordPage from '../screens/onbaordingscreens/newpasswordpage';
 
 const StackWrapper=()=>{
     const Stack = createStackNavigator();
@@ -31,6 +34,8 @@ const StackWrapper=()=>{
       <Stack.Screen options={{gestureEnabled:false,gestureDirection: 'vertical',}} name="welcome" component={Welcomepage}/> 
       <Stack.Screen options={{gestureEnabled:false,gestureDirection: 'vertical',}} name="login" component={Login}/> 
       <Stack.Screen options={{gestureEnabled:false,gestureDirection: 'vertical',}} name="register" component={RegisterPage}/>
+      <Stack.Screen options={{gestureEnabled:false,gestureDirection: 'vertical',}} name="otppage" component={OtpPage}/>
+      <Stack.Screen options={{gestureEnabled:false,gestureDirection: 'vertical',}} name="newpassword" component={NewPasswordPage}/>
      
           
       </Stack.Navigator>
