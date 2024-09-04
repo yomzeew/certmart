@@ -10,74 +10,45 @@ import { useNavigation } from "@react-navigation/native"
 
 const ProfileUpdateModal = ({ close, data }) => {
     const currentForm = data[0].title;
-    const [errorMsg, seterrorMsg] = useState('')
-    const [showpreloader, setshowpreloader] = useState(false)
-    const navigation = useNavigation()
+    const [errorMsg, seterrorMsg] = useState('');
+    const [showpreloader, setshowpreloader] = useState(false);
+    const [formData, setFormData] = useState({
+        Surname: data[0].data.Surname,
+        Firstname: data[0].data.Firstname,
+        Middlename: data[0].data.Middlename,
+        Gender: data[0].data.Gender,
+        DateOfBirth: data[0].data.DateOfBirth,
+        Country: data[0].data.Country,
+        State: data[0].data.State,
+        City: data[0].data.City,
+        Address: data[0].data.Address
+    });
+
+    const navigation = useNavigation();
+
     const handleclose = () => {
-        close(false)
-    }
-    const handlesubmit = async (Surname, Firstname, Middlename, Gender, DateOfBirth) => {
-        setshowpreloader(false)
-        console.log(Surname)
-        // if (!Email) {
-        //     seterrorMsg('Enter your Email')
-        //     setshowloader(false)
-        //     return
+        close(false);
+    };
 
-        // }
-        // if (!Password) {
-        //     seterrorMsg('Enter your Password')
-        //     setshowloader(false)
-        // }
+    const handlesubmit = async () => {
+        console.log(formData);
+        // Perform validation, set errors, or submit data here
+    };
 
-        // try {
-        //     const data = {
-        //         email: Email,
-        //         password: Password
-        //     }
-        //     const response = await axios.post(updatedetails, data, {
-        //         headers: {
-        //             'Accept': 'application/json',
-        //             'Content-Type': 'application/json'
-        //         }
-        //     })
-        //     console.log('check')
-        //     if (response.status === 200) {
-        //         const token = response.data.token
-        //         await AsyncStorage.setItem('token', token)
-        //         handleclose
-        //     }
+    const handleCallBackValue = (updatedValues) => {
+        setFormData(prevState => ({
+            ...prevState,
+            ...updatedValues
+        }));
+    };
 
-
-        // } catch (error) {
-        //     if (error.response) {
-        //         // Server responded with a status other than 2xx
-        //         console.error('Error response:', error.response.data);
-        //         console.log(error.response.data.error)
-        //         seterrorMsg(error.response.data.error)
-        //         console.error('Error status:', error.response.status);
-        //         console.error('Error headers:', error.response.headers);
-        //     } else if (error.request) {
-        //         // Request was made but no response received
-        //         console.error('Error request:', error.request);
-        //     } else {
-        //         // Something else happened while setting up the request
-        //         console.error('Error message:', error.message);
-
-        //     }
-        // }
-        // finally {
-        //     setshowpreloader(false)
-        // }
-
-    }
     return (
         <>
             <View className="h-full w-full justify-center flex items-center">
                 <View
                     onStartShouldSetResponder={() => true}
                     onResponderRelease={handleclose}
-                    className="h-full absolute bottom-0 w-full px-2 py-3 opacity-80 bg-red-100  border border-slate-400 rounded-xl shadow-lg"></View>
+                    className="h-full absolute bottom-0 w-full px-2 py-3 opacity-80 bg-red-100 border border-slate-400 rounded-xl shadow-lg"></View>
                 <View style={{ elevation: 6 }} className="w-4/5 relative h-2/3 bg-white shadow-md shadow-slate-400 rounded-2xl flex justify-center items-center">
                     {showpreloader && <View className="absolute z-50 h-full w-full flex justify-center items-center rounded-2xl"><Preloader /></View>}
                     <View className="absolute z-40 right-2 top-2">
@@ -92,18 +63,16 @@ const ProfileUpdateModal = ({ close, data }) => {
                         </View>
 
                         {currentForm === "Biodata" && (
-                            <BiodataUpdateForm data={data}
-                                handleCallBackValue={(Surname, Firstname, Middlename, Gender, DateOfBirth) => handlesubmit(Surname, Firstname, Middlename, Gender, DateOfBirth)}
-                            />
+                            <BiodataUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
                         )}
                         {currentForm === "Address" && (
-                            <AddressUpdateForm data={data} />
+                            <AddressUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
                         )}
                         {currentForm === "Contact" && (
-                            <BiodataUpdateForm data={data} />
+                            <BiodataUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
                         )}
                         {currentForm === "Next of Kin's Details" && (
-                            <BiodataUpdateForm data={data} />
+                            <BiodataUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
                         )}
 
                         <Button
@@ -114,18 +83,14 @@ const ProfileUpdateModal = ({ close, data }) => {
                             className="h-12 mt-3 w-full flex justify-center"
                             textColor="#ffffff"
                         >
-
                             <Text style={{ fontSize: 20 }}>Submit</Text>
                         </Button>
                     </View>
-
                 </View>
-
             </View>
         </>
-
-    )
-}
+    );
+};
 export default ProfileUpdateModal
 
 const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
@@ -134,12 +99,11 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
     const [Middlename, setMiddlename] = useState(data[0].data.Middlename);
     const [Gender, setGender] = useState(data[0].data.Gender);
     const [DateOfBirth, setDateOfBirth] = useState(data[0].data.DateOfBirth);
-    const passCallBackValue = () => {
-        ()=>handleCallBackValue(Surname, Firstname, Middlename, Gender, DateOfBirth)
-    }
-//    useEffect(()=>{
-//     passCallBackValue()
-//    },[Surname, Firstname, Middlename, Gender, DateOfBirth])
+
+    // Directly call handleCallBackValue when input changes
+    const handleInputChange = (key, value) => {
+        handleCallBackValue({ [key]: value });
+    };
 
     return (
         <>
@@ -147,25 +111,23 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
                 label="Firstname"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={text => setFirstname(text)}
+                onChangeText={(text) => { setFirstname(text); handleInputChange('Firstname', text); }}
                 value={Firstname}
                 className="w-full mt-3 bg-slate-50"
-                disabled
             />
             <TextInput
                 label="Surname"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={text => setSurname(text)}
+                onChangeText={(text) => { setSurname(text); handleInputChange('Surname', text); }}
                 value={Surname}
                 className="w-full mt-3 bg-slate-50"
-                disabled
             />
             <TextInput
                 label="Middlename"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={text => setMiddlename(text)}
+                onChangeText={(text) => { setMiddlename(text); handleInputChange('Middlename', text); }}
                 value={Middlename}
                 className="w-full mt-3 bg-slate-50"
             />
@@ -175,18 +137,18 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
                     <RadioButton
                         value="Male"
                         status={Gender === 'Male' ? 'checked' : 'unchecked'}
-                        onPress={() => setGender('Male')}
+                        onPress={() => { setGender('Male'); handleInputChange('Gender', 'Male'); }}
                         color={colorred}
                     />
-                    {Platform.OS === 'ios' && <TouchableOpacity onPress={() => setGender('Male')} style={{ marginRight: 10 }} className="bg-red-300 w-12 items-center h-5 justify-center rounded-xl"><Text>Male</Text></TouchableOpacity>}
+                    {Platform.OS === 'ios' && <TouchableOpacity onPress={() => { setGender('Male'); handleInputChange('Gender', 'Male'); }} style={{ marginRight: 10 }} className="bg-red-300 w-12 items-center h-5 justify-center rounded-xl"><Text>Male</Text></TouchableOpacity>}
                     {Platform.OS === 'android' && <Text style={{ marginRight: 10 }}>Male</Text>}
                     <RadioButton
                         value="Female"
                         status={Gender === 'Female' ? 'checked' : 'unchecked'}
-                        onPress={() => setGender('Female')}
+                        onPress={() => { setGender('Female'); handleInputChange('Gender', 'Female'); }}
                         color={colorred}
                     />
-                    {Platform.OS === 'ios' && <TouchableOpacity onPress={() => setGender('Female')} style={{ marginRight: 10 }} className="bg-red-300 w-12 items-center h-5 justify-center rounded-xl"><Text>Female</Text></TouchableOpacity>}
+                    {Platform.OS === 'ios' && <TouchableOpacity onPress={() => { setGender('Female'); handleInputChange('Gender', 'Female'); }} style={{ marginRight: 10 }} className="bg-red-300 w-12 items-center h-5 justify-center rounded-xl"><Text>Female</Text></TouchableOpacity>}
                     {Platform.OS === 'android' && <Text style={{ marginRight: 10 }}>Female</Text>}
                 </View>
             </View>
@@ -194,55 +156,58 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
                 label="DateOfBirth"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={text => setDateOfBirth(text)}
+                onChangeText={(text) => { setDateOfBirth(text); handleInputChange('DateOfBirth', text); }}
                 value={DateOfBirth}
                 className="w-full mt-3 bg-slate-50"
             />
         </>
-    )
+    );
 }
 
-const AddressUpdateForm = ({ data }) => {
+const AddressUpdateForm = ({ data, handleCallBackValue }) => {
     const [Country, setCountry] = useState(data[0].data.Country);
     const [State, setState] = useState(data[0].data.State);
     const [City, setCity] = useState(data[0].data.City);
     const [Address, setAddress] = useState(data[0].data.Address);
+
+    const handleInputChange = (key, value) => {
+        handleCallBackValue({ [key]: value });
+    };
+
     return (
         <>
             <TextInput
                 label="Country"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={text => setCountry(text)}
                 value={Country}
                 className="w-full mt-3 bg-slate-50"
                 disabled
             />
             <TextInput
-                label="Surname"
+                label="State"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={text => setSurname(text)}
-                value={Surname}
-                className="w-full mt-3 bg-slate-50"
-                disabled
-            />
-            <TextInput
-                label="Middlename"
-                mode="outlined"
-                theme={{ colors: { primary: colorred } }}
-                onChangeText={text => setMiddlename(text)}
-                value={Middlename}
+                onChangeText={(text) => { setState(text); handleInputChange('State', text); }}
+                value={State}
                 className="w-full mt-3 bg-slate-50"
             />
             <TextInput
-                label="DateOfBirth"
+                label="City"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={text => setDateOfBirth(text)}
-                value={DateOfBirth}
+                onChangeText={(text) => { setCity(text); handleInputChange('City', text); }}
+                value={City}
+                className="w-full mt-3 bg-slate-50"
+            />
+            <TextInput
+                label="Address"
+                mode="outlined"
+                theme={{ colors: { primary: colorred } }}
+                onChangeText={(text) => { setAddress(text); handleInputChange('Address', text); }}
+                value={Address}
                 className="w-full mt-3 bg-slate-50"
             />
         </>
-    )
+    );
 }
