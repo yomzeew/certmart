@@ -21,7 +21,11 @@ const ProfileUpdateModal = ({ close, data }) => {
         Country: data[0].data.Country,
         State: data[0].data.State,
         City: data[0].data.City,
-        Address: data[0].data.Address
+        Address: data[0].data.Address,
+        Phone: data[0].data.Phone,
+        Email: data[0].data.Email,
+        NOKName: data[0].data.NOKName,
+        NOKPhone: data[0].data.NOKPhone
     });
 
     const navigation = useNavigation();
@@ -49,7 +53,7 @@ const ProfileUpdateModal = ({ close, data }) => {
                     onStartShouldSetResponder={() => true}
                     onResponderRelease={handleclose}
                     className="h-full absolute bottom-0 w-full px-2 py-3 opacity-80 bg-red-100 border border-slate-400 rounded-xl shadow-lg"></View>
-                <View style={{ elevation: 6 }} className="w-4/5 relative h-2/3 bg-white shadow-md shadow-slate-400 rounded-2xl flex justify-center items-center">
+                <View style={{ elevation: 6 }} className="w-4/5 relative h-fit py-4 overflow-y-scroll bg-white shadow-md shadow-slate-400 rounded-2xl flex justify-center items-center">
                     {showpreloader && <View className="absolute z-50 h-full w-full flex justify-center items-center rounded-2xl"><Preloader /></View>}
                     <View className="absolute z-40 right-2 top-2">
                         <TouchableOpacity onPress={handleclose}><FontAwesome5 name="times" size={24} color={colorred} /></TouchableOpacity>
@@ -69,10 +73,10 @@ const ProfileUpdateModal = ({ close, data }) => {
                             <AddressUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
                         )}
                         {currentForm === "Contact" && (
-                            <BiodataUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
+                            <ContactUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
                         )}
                         {currentForm === "Next of Kin's Details" && (
-                            <BiodataUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
+                            <NOKUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
                         )}
 
                         <Button
@@ -180,6 +184,7 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
                 label="Country"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
+                onChangeText={(text) => { setCountry(text); handleInputChange('State', text); }}
                 value={Country}
                 className="w-full mt-3 bg-slate-50"
                 disabled
@@ -210,4 +215,63 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
             />
         </>
     );
+}
+const ContactUpdateForm = ({ data, handleCallBackValue }) => {
+    const [Phone, setPhone] = useState(data[0].data.Phone);
+    const [Email, setEmail] = useState(data[0].data.Email);
+
+    const handleInputChange = (key, value) => {
+        handleCallBackValue({ [key]: value });
+    };
+
+    return (
+        <>
+            <TextInput
+                label="Phone number"
+                mode="outlined"
+                theme={{ colors: { primary: colorred } }}
+                onChangeText={(text) => { setPhone(text); handleInputChange('State', text); }}
+                value={Phone}
+                className="w-full mt-3 bg-slate-50"
+            />
+            <TextInput
+                label="Email"
+                mode="outlined"
+                theme={{ colors: { primary: colorred } }}
+                onChangeText={(text) => { setEmail(text); handleInputChange('State', text); }}
+                value={Email}
+                className="w-full mt-3 bg-slate-50"
+            />
+        </>
+    )
+}
+
+const NOKUpdateForm = ({ data, handleCallBackValue }) => {
+    const [NOKName, setNOKName] = useState(data[0].data.NOKName);
+    const [NOKPhone, setNOKPhone] = useState(data[0].data.NOKPhone);
+
+    const handleInputChange = (key, value) => {
+        handleCallBackValue({ [key]: value });
+    };
+
+    return (
+        <>
+            <TextInput
+                label="Next of Kin's Name"
+                mode="outlined"
+                theme={{ colors: { primary: colorred } }}
+                onChangeText={(text) => { setNOKName(text); handleInputChange('State', text); }}
+                value={NOKName}
+                className="w-full mt-3 bg-slate-50"
+            />
+            <TextInput
+                label="Next of Kin's phone number"
+                mode="outlined"
+                theme={{ colors: { primary: colorred } }}
+                onChangeText={(text) => { setNOKPhone(text); handleInputChange('State', text); }}
+                value={NOKPhone}
+                className="w-full mt-3 bg-slate-50"
+            />
+        </>
+    )
 }
