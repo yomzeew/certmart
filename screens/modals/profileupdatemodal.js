@@ -13,15 +13,14 @@ const ProfileUpdateModal = ({ close, data }) => {
     const [errorMsg, seterrorMsg] = useState('');
     const [showpreloader, setshowpreloader] = useState(false);
     const [formData, setFormData] = useState({
-        Surname: data[0].data.Surname,
-        Firstname: data[0].data.Firstname,
-        Middlename: data[0].data.Middlename,
-        Gender: data[0].data.Gender,
-        DateOfBirth: data[0].data.DateOfBirth,
-        Country: data[0].data.Country,
-        State: data[0].data.State,
-        City: data[0].data.City,
-        Address: data[0].data.Address
+        Surname:data[0].data.Surname, 
+        Firstname:data[0].data.Firstname, 
+        Middlename:data[0].data.Middlename, 
+        Gender:data[0].data.Gender, 
+        DateOfBirth:data[0].data.DateOfBirth,
+        Country:data[0].data.Country, 
+        State:data[0].data.State, City:data[0].data.City, 
+        Address:data[0].data.Address
     });
 
     const navigation = useNavigation();
@@ -36,10 +35,7 @@ const ProfileUpdateModal = ({ close, data }) => {
     };
 
     const handleCallBackValue = (updatedValues) => {
-        setFormData(prevState => ({
-            ...prevState,
-            ...updatedValues
-        }));
+        setFormData(updatedValues);
     };
 
     return (
@@ -48,7 +44,7 @@ const ProfileUpdateModal = ({ close, data }) => {
                 <View
                     onStartShouldSetResponder={() => true}
                     onResponderRelease={handleclose}
-                    className="h-full absolute bottom-0 w-full px-2 py-3 opacity-80 bg-red-100 border border-slate-400 rounded-xl shadow-lg"></View>
+                    className="h-full absolute bottom-0 w-full px-2 py-3 opacity-80 bg-red-100  border border-slate-400 rounded-xl shadow-lg"></View>
                 <View style={{ elevation: 6 }} className="w-4/5 relative h-2/3 bg-white shadow-md shadow-slate-400 rounded-2xl flex justify-center items-center">
                     {showpreloader && <View className="absolute z-50 h-full w-full flex justify-center items-center rounded-2xl"><Preloader /></View>}
                     <View className="absolute z-40 right-2 top-2">
@@ -100,10 +96,9 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
     const [Gender, setGender] = useState(data[0].data.Gender);
     const [DateOfBirth, setDateOfBirth] = useState(data[0].data.DateOfBirth);
 
-    // Directly call handleCallBackValue when input changes
-    const handleInputChange = (key, value) => {
-        handleCallBackValue({ [key]: value });
-    };
+    useEffect(() => {
+        handleCallBackValue({ Surname, Firstname, Middlename, Gender, DateOfBirth });
+    }, [Surname, Firstname, Middlename, Gender, DateOfBirth]);
 
     return (
         <>
@@ -111,7 +106,7 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
                 label="Firstname"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={(text) => { setFirstname(text); handleInputChange('Firstname', text); }}
+                onChangeText={(text) => setFirstname(text)}
                 value={Firstname}
                 className="w-full mt-3 bg-slate-50"
             />
@@ -119,7 +114,7 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
                 label="Surname"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={(text) => { setSurname(text); handleInputChange('Surname', text); }}
+                onChangeText={(text) => setSurname(text)}
                 value={Surname}
                 className="w-full mt-3 bg-slate-50"
             />
@@ -127,7 +122,7 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
                 label="Middlename"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={(text) => { setMiddlename(text); handleInputChange('Middlename', text); }}
+                onChangeText={(text) => setMiddlename(text)}
                 value={Middlename}
                 className="w-full mt-3 bg-slate-50"
             />
@@ -137,18 +132,18 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
                     <RadioButton
                         value="Male"
                         status={Gender === 'Male' ? 'checked' : 'unchecked'}
-                        onPress={() => { setGender('Male'); handleInputChange('Gender', 'Male'); }}
+                        onPress={() => setGender('Male')}
                         color={colorred}
                     />
-                    {Platform.OS === 'ios' && <TouchableOpacity onPress={() => { setGender('Male'); handleInputChange('Gender', 'Male'); }} style={{ marginRight: 10 }} className="bg-red-300 w-12 items-center h-5 justify-center rounded-xl"><Text>Male</Text></TouchableOpacity>}
+                    {Platform.OS === 'ios' && <TouchableOpacity onPress={() => setGender('Male')} style={{ marginRight: 10 }} className="bg-red-300 w-12 items-center h-5 justify-center rounded-xl"><Text>Male</Text></TouchableOpacity>}
                     {Platform.OS === 'android' && <Text style={{ marginRight: 10 }}>Male</Text>}
                     <RadioButton
                         value="Female"
                         status={Gender === 'Female' ? 'checked' : 'unchecked'}
-                        onPress={() => { setGender('Female'); handleInputChange('Gender', 'Female'); }}
+                        onPress={() => setGender('Female')}
                         color={colorred}
                     />
-                    {Platform.OS === 'ios' && <TouchableOpacity onPress={() => { setGender('Female'); handleInputChange('Gender', 'Female'); }} style={{ marginRight: 10 }} className="bg-red-300 w-12 items-center h-5 justify-center rounded-xl"><Text>Female</Text></TouchableOpacity>}
+                    {Platform.OS === 'ios' && <TouchableOpacity onPress={() => setGender('Female')} style={{ marginRight: 10 }} className="bg-red-300 w-12 items-center h-5 justify-center rounded-xl"><Text>Female</Text></TouchableOpacity>}
                     {Platform.OS === 'android' && <Text style={{ marginRight: 10 }}>Female</Text>}
                 </View>
             </View>
@@ -156,7 +151,7 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
                 label="DateOfBirth"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={(text) => { setDateOfBirth(text); handleInputChange('DateOfBirth', text); }}
+                onChangeText={(text) => setDateOfBirth(text)}
                 value={DateOfBirth}
                 className="w-full mt-3 bg-slate-50"
             />
@@ -164,15 +159,16 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
     );
 }
 
+
 const AddressUpdateForm = ({ data, handleCallBackValue }) => {
     const [Country, setCountry] = useState(data[0].data.Country);
     const [State, setState] = useState(data[0].data.State);
     const [City, setCity] = useState(data[0].data.City);
     const [Address, setAddress] = useState(data[0].data.Address);
 
-    const handleInputChange = (key, value) => {
-        handleCallBackValue({ [key]: value });
-    };
+    useEffect(() => {
+        handleCallBackValue({ Country, State, City, Address });
+    }, [Country, State, City, Address]);
 
     return (
         <>
@@ -180,6 +176,7 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
                 label="Country"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
+                onChangeText={(text) => setCountry(text)}
                 value={Country}
                 className="w-full mt-3 bg-slate-50"
                 disabled
@@ -188,7 +185,7 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
                 label="State"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={(text) => { setState(text); handleInputChange('State', text); }}
+                onChangeText={(text) => setState(text)}
                 value={State}
                 className="w-full mt-3 bg-slate-50"
             />
@@ -196,7 +193,7 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
                 label="City"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={(text) => { setCity(text); handleInputChange('City', text); }}
+                onChangeText={(text) => setCity(text)}
                 value={City}
                 className="w-full mt-3 bg-slate-50"
             />
@@ -204,7 +201,7 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
                 label="Address"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
-                onChangeText={(text) => { setAddress(text); handleInputChange('Address', text); }}
+                onChangeText={(text) => setAddress(text)}
                 value={Address}
                 className="w-full mt-3 bg-slate-50"
             />
