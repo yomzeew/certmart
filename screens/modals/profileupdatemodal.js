@@ -7,21 +7,20 @@ import axios from "axios"
 import { getotp, updatedetails } from "../../settings/endpoint"
 import Preloader from "../preloadermodal/preloaderwhite"
 import { useNavigation } from "@react-navigation/native"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
-const ProfileUpdateModal = ({ close, data }) => {
+const ProfileUpdateModal = ({ close, data, id }) => {
     const currentForm = data[0].title;
     const [errorMsg, seterrorMsg] = useState('');
     const [showpreloader, setshowpreloader] = useState(false);
-    const [formData, setFormData] = useState({
-        Surname:data[0].data.Surname, 
-        Firstname:data[0].data.Firstname, 
-        Middlename:data[0].data.Middlename, 
-        Gender:data[0].data.Gender, 
-        DateOfBirth:data[0].data.DateOfBirth,
-        Country:data[0].data.Country, 
-        State:data[0].data.State, City:data[0].data.City, 
-        Address:data[0].data.Address
-    });
+    const [formData, setFormData] = useState({});
+
+    const requiredData = {
+        surname: data[0].data.surname,
+        firstname: data[0].data.firstname,
+        email: data[0].data.email,
+        gender: data[0].data.gender.toLowerCase()
+    };
 
     const navigation = useNavigation();
 
@@ -30,12 +29,52 @@ const ProfileUpdateModal = ({ close, data }) => {
     };
 
     const handlesubmit = async () => {
-        console.log(formData);
-        // Perform validation, set errors, or submit data here
+        const updatedFormData = {
+            ...formData,
+            ...requiredData
+        };
+        setFormData(updatedFormData);
+        console.log(updatedFormData)
+
+        //! Perform validation, set errors, or submit data here
+        // setshowpreloader(true);
+        const token = await AsyncStorage.getItem('token')
+        try {
+            const data = updatedFormData
+            const response = await axios.put(`${updatedetails}/${id}`, data, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${token}`
+                }
+            })
+            console.log('check')
+            if (response.status === 200) {
+                handleclose()
+            }
+        } catch (error) {
+            if (error.response) {
+                // Server responded with a status other than 2xx
+                console.error('Error response:', error.response.data);
+                console.log(error.response.data.error)
+                seterrorMsg(error.response.data.error)
+                console.error('Error status:', error.response.status);
+                console.error('Error headers:', error.response.headers);
+            } else if (error.request) {
+                // Request was made but no response received
+                console.error('Error request:', error.request);
+            } else {
+                // Something else happened while setting up the request
+                console.error('Error message:', error.message);
+
+            }
+        } finally {
+            // setshowpreloader(false);
+        }
     };
 
     const handleCallBackValue = (updatedValues) => {
-        setFormData(updatedValues);
+        setFormData(updatedValues)
     };
 
     return (
@@ -44,8 +83,8 @@ const ProfileUpdateModal = ({ close, data }) => {
                 <View
                     onStartShouldSetResponder={() => true}
                     onResponderRelease={handleclose}
-                    className="h-full absolute bottom-0 w-full px-2 py-3 opacity-80 bg-red-100  border border-slate-400 rounded-xl shadow-lg"></View>
-                <View style={{ elevation: 6 }} className="w-4/5 relative h-2/3 bg-white shadow-md shadow-slate-400 rounded-2xl flex justify-center items-center">
+                    className="h-full absolute bottom-0 w-full px-2 py-3 opacity-80 bg-red-100 border border-slate-400 rounded-xl shadow-lg"></View>
+                <View style={{ elevation: 6 }} className="w-4/5 relative h-fit py-4 overflow-y-scroll bg-white shadow-md shadow-slate-400 rounded-2xl flex justify-center items-center">
                     {showpreloader && <View className="absolute z-50 h-full w-full flex justify-center items-center rounded-2xl"><Preloader /></View>}
                     <View className="absolute z-40 right-2 top-2">
                         <TouchableOpacity onPress={handleclose}><FontAwesome5 name="times" size={24} color={colorred} /></TouchableOpacity>
@@ -65,10 +104,10 @@ const ProfileUpdateModal = ({ close, data }) => {
                             <AddressUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
                         )}
                         {currentForm === "Contact" && (
-                            <BiodataUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
+                            <ContactUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
                         )}
                         {currentForm === "Next of Kin's Details" && (
-                            <BiodataUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
+                            <NOKUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
                         )}
 
                         <Button
@@ -90,14 +129,20 @@ const ProfileUpdateModal = ({ close, data }) => {
 export default ProfileUpdateModal
 
 const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
-    const [Surname, setSurname] = useState(data[0].data.Surname);
-    const [Firstname, setFirstname] = useState(data[0].data.Firstname);
-    const [Middlename, setMiddlename] = useState(data[0].data.Middlename);
-    const [Gender, setGender] = useState(data[0].data.Gender);
-    const [DateOfBirth, setDateOfBirth] = useState(data[0].data.DateOfBirth);
+    const [Surname, setSurname] = useState(data[0].data.surname);
+    const [Firstname, setFirstname] = useState(data[0].data.firstname);
+    const [Middlename, setMiddlename] = useState(data[0].data.middlename);
+    const [Gender, setGender] = useState(data[0].data.gender);
+    const [DateOfBirth, setDateOfBirth] = useState(data[0].data.dob);
 
     useEffect(() => {
-        handleCallBackValue({ Surname, Firstname, Middlename, Gender, DateOfBirth });
+        handleCallBackValue({
+            surname: Surname,
+            firstname: Firstname,
+            middlename: Middlename,
+            gender: Gender.toLowerCase(),
+            dob: DateOfBirth
+        });
     }, [Surname, Firstname, Middlename, Gender, DateOfBirth]);
 
     return (
@@ -109,6 +154,7 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
                 onChangeText={(text) => setFirstname(text)}
                 value={Firstname}
                 className="w-full mt-3 bg-slate-50"
+                disabled
             />
             <TextInput
                 label="Surname"
@@ -117,6 +163,7 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
                 onChangeText={(text) => setSurname(text)}
                 value={Surname}
                 className="w-full mt-3 bg-slate-50"
+                disabled
             />
             <TextInput
                 label="Middlename"
@@ -161,13 +208,18 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
 
 
 const AddressUpdateForm = ({ data, handleCallBackValue }) => {
-    const [Country, setCountry] = useState(data[0].data.Country);
-    const [State, setState] = useState(data[0].data.State);
-    const [City, setCity] = useState(data[0].data.City);
-    const [Address, setAddress] = useState(data[0].data.Address);
+    const [Country, setCountry] = useState(data[0].data.country);
+    const [State, setState] = useState(data[0].data.state);
+    const [City, setCity] = useState(data[0].data.city);
+    const [Address, setAddress] = useState(data[0].data.address);
 
     useEffect(() => {
-        handleCallBackValue({ Country, State, City, Address });
+        handleCallBackValue({
+            country: Country,
+            state: State,
+            city: City,
+            address: Address
+        });
     }, [Country, State, City, Address]);
 
     return (
@@ -179,7 +231,6 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
                 onChangeText={(text) => setCountry(text)}
                 value={Country}
                 className="w-full mt-3 bg-slate-50"
-                disabled
             />
             <TextInput
                 label="State"
@@ -207,4 +258,69 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
             />
         </>
     );
+}
+const ContactUpdateForm = ({ data, handleCallBackValue }) => {
+    const [Phone, setPhone] = useState(data[0].data.phone);
+    const [Email, setEmail] = useState(data[0].data.email);
+
+    useEffect(() => {
+        handleCallBackValue({
+            phone: Phone,
+            email: Email
+        });
+    }, [Phone, Email]);
+
+    return (
+        <>
+            <TextInput
+                label="Phone number"
+                mode="outlined"
+                theme={{ colors: { primary: colorred } }}
+                onChangeText={(text) => setPhone(text)}
+                value={Phone}
+                className="w-full mt-3 bg-slate-50"
+            />
+            <TextInput
+                label="Email"
+                mode="outlined"
+                theme={{ colors: { primary: colorred } }}
+                onChangeText={(text) => setEmail(text)}
+                value={Email}
+                className="w-full mt-3 bg-slate-50"
+            />
+        </>
+    )
+}
+
+const NOKUpdateForm = ({ data, handleCallBackValue }) => {
+    const [NOKName, setNOKName] = useState(data[0].data.nextOfKinName);
+    const [NOKPhone, setNOKPhone] = useState(data[0].data.nextOfKinPhoneNumber);
+
+    useEffect(() => {
+        handleCallBackValue({
+            nextOfKinName: NOKName,
+            nextOfKinPhoneNumber: NOKPhone
+        });
+    }, [NOKName, NOKPhone]);
+
+    return (
+        <>
+            <TextInput
+                label="Next of Kin's Name"
+                mode="outlined"
+                theme={{ colors: { primary: colorred } }}
+                onChangeText={(text) => setNOKName(text)}
+                value={NOKName}
+                className="w-full mt-3 bg-slate-50"
+            />
+            <TextInput
+                label="Next of Kin's phone number"
+                mode="outlined"
+                theme={{ colors: { primary: colorred } }}
+                onChangeText={(text) => setNOKPhone(text)}
+                value={NOKPhone}
+                className="w-full mt-3 bg-slate-50"
+            />
+        </>
+    )
 }

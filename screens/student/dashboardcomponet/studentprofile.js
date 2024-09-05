@@ -20,6 +20,7 @@ const StudentProfile = () => {
     const [showProfileUpdate, setShowProfileUpdate] = useState(false)
     const [formData, setFormData] = useState([]);
     const [dp, setDp] = useState("");
+    const [id, setId] = useState();
     //biodata
     const [Surname, setSurname] = useState("");
     const [Firstname, setFirstname] = useState("");
@@ -49,19 +50,20 @@ const StudentProfile = () => {
             })
             console.log(response.data)
             setDp(response.data.dp)
-            setSurname(response.data.surname || "---")
-            setFirstname(response.data.firstname || "---")
-            setMiddlename(response.data.middlename || "---")
-            setGender(response.data.gender || "---")
-            setDateOfBirth(response.data.dob || "---")
-            setCountry(response.data.country || "---")
-            setState(response.data.state || "---")
-            setCity(response.data.city || "---")
-            setAddress(response.data.address || "---")
-            setPhone(response.data.phone || "---")
-            setEmail(response.data.email || "---")
-            setNOKName(response.data.nextOfKinName || "---")
-            setNOKPhone(response.data.nextOfKinPhoneNumber || "---")
+            setId(response.data.id)
+            setSurname(response.data.surname)
+            setFirstname(response.data.firstname)
+            setMiddlename(response.data.middlename)
+            setGender(response.data.gender)
+            setDateOfBirth(response.data.dob)
+            setCountry(response.data.country)
+            setState(response.data.state)
+            setCity(response.data.city)
+            setAddress(response.data.address)
+            setPhone(response.data.phone)
+            setEmail(response.data.email)
+            setNOKName(response.data.nextOfKinName)
+            setNOKPhone(response.data.nextOfKinPhoneNumber)
         } catch (error) {
             if (error.response) {
                 // Server responded with a status other than 2xx
@@ -85,8 +87,7 @@ const StudentProfile = () => {
     }
     useEffect(() => {
         fetchdata()
-
-    }, [])
+    }, [showProfileUpdate])
     const handleclose = (value) => {
         setShowProfileUpdate(value)
     }
@@ -96,11 +97,12 @@ const StudentProfile = () => {
             {
                 title: "Biodata",
                 data: {
-                    Surname,
-                    Firstname,
-                    Middlename,
-                    Gender,
-                    DateOfBirth
+                    surname: Surname,
+                    firstname: Firstname,
+                    email: Email,
+                    middlename: Middlename,
+                    gender: Gender,
+                    dob: DateOfBirth
                 }
             }
         ])
@@ -111,10 +113,14 @@ const StudentProfile = () => {
             {
                 title: "Address",
                 data: {
-                    Country,
-                    State,
-                    City,
-                    Address
+                    surname: Surname,
+                    firstname: Firstname,
+                    email: Email,
+                    gender: Gender,
+                    country: Country,
+                    state: State,
+                    city: City,
+                    address: Address
                 }
             }
         ])
@@ -125,8 +131,11 @@ const StudentProfile = () => {
             {
                 title: "Contact",
                 data: {
-                    Phone,
-                    Email
+                    surname: Surname,
+                    firstname: Firstname,
+                    gender: Gender,
+                    phone: Phone,
+                    email: Email
                 }
             }
         ])
@@ -137,8 +146,12 @@ const StudentProfile = () => {
             {
                 title: "Next of Kin's Details",
                 data: {
-                    NOKName,
-                    NOKPhone
+                    surname: Surname,
+                    firstname: Firstname,
+                    email: Email,
+                    gender: Gender,
+                    nextOfKinName: NOKName,
+                    nextOfKinPhoneNumber: NOKPhone
                 }
             }
         ])
@@ -149,6 +162,7 @@ const StudentProfile = () => {
                 <ProfileUpdateModal
                     close={(value) => handleclose(value)}
                     data={formData}
+                    id={id}
                 />
             </View>
             }
@@ -208,7 +222,7 @@ const StudentProfile = () => {
                             </View>
                             <Divider />
                             <View className="mt-3 w-full flex-row items-center  flex justify-between">
-                                <Text style={{ fontSize: 14 }} className="text-slate-500">Date of Birth: {DateOfBirth}</Text>
+                                <Text style={{ fontSize: 14 }} className="text-slate-500">Date of Birth: {DateOfBirth || "---"}</Text>
 
                             </View>
                             <View className="mt-5 flex  flex-row justify-between">
@@ -218,19 +232,19 @@ const StudentProfile = () => {
                             </View>
                             <View className="border-red-500 border-b-1" />
                             <View className="mt-3 w-full flex-row items-center  flex justify-between">
-                                <Text style={{ fontSize: 14 }} className="text-slate-500">Country: {Country}</Text>
-                                <Text style={{ fontSize: 14 }} className="text-slate-500">State: {State}</Text>
+                                <Text style={{ fontSize: 14 }} className="text-slate-500">Country: {Country || "---"}</Text>
+                                <Text style={{ fontSize: 14 }} className="text-slate-500">State: {State || "---"}</Text>
 
 
                             </View>
                             <Divider />
                             <View className="mt-3 w-full flex-row items-center  flex justify-between">
-                                <Text style={{ fontSize: 14 }} className="text-slate-500">City: {City}</Text>
+                                <Text style={{ fontSize: 14 }} className="text-slate-500">City: {City || "---"}</Text>
                             </View>
                             <Divider />
 
                             <View className="mt-3 w-full">
-                                <Text style={{ fontSize: 14 }} className="text-slate-500">Address: {Address}</Text>
+                                <Text style={{ fontSize: 14 }} className="text-slate-500">Address: {Address || "---"}</Text>
                             </View>
                             <Divider />
                             <View className="mt-5 flex  flex-row justify-between">
@@ -240,7 +254,7 @@ const StudentProfile = () => {
                             </View>
                             <View className="border-red-500 border-b-1" />
                             <View className="mt-3 w-full ">
-                                <Text style={{ fontSize: 14 }} className="text-slate-500">Phone: {Phone}</Text>
+                                <Text style={{ fontSize: 14 }} className="text-slate-500">Phone: {Phone || "---"}</Text>
 
                             </View>
                             <Divider />
@@ -254,10 +268,8 @@ const StudentProfile = () => {
                             </View>
                             <View className="border-red-500 border-b-1" />
                             <View className="mt-3 w-full flex-row items-center  flex justify-between">
-                                <Text style={{ fontSize: 14 }} className="text-slate-500">Name: {NOKName}</Text>
-                                <Text style={{ fontSize: 14 }} className="text-slate-500">Phone number: {NOKPhone}</Text>
-
-
+                                <Text style={{ fontSize: 14 }} className="text-slate-500">Name: {NOKName || "---"}</Text>
+                                <Text style={{ fontSize: 14 }} className="text-slate-500">Phone number: {NOKPhone || "---"}</Text>
                             </View>
                             <Divider />
 
