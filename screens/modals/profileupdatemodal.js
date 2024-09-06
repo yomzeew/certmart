@@ -8,6 +8,9 @@ import { getotp, updatedetails } from "../../settings/endpoint"
 import Preloader from "../preloadermodal/preloaderwhite"
 import { useNavigation } from "@react-navigation/native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import DisplayModal from "./datadisplay"
+import { countrylist } from "../jsondata/country-states"
 
 const ProfileUpdateModal = ({ close, data, id }) => {
     const currentForm = data[0].title;
@@ -212,6 +215,9 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
     const [State, setState] = useState(data[0].data.state);
     const [City, setCity] = useState(data[0].data.city);
     const [Address, setAddress] = useState(data[0].data.address);
+    const [showmodalcourse, setshowmodalcourse] = useState(false);
+    const [selectdata, setselectdata] = useState([])
+    const [selecttype, setselecttpe] = useState('')
 
     useEffect(() => {
         handleCallBackValue({
@@ -222,24 +228,101 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
         });
     }, [Country, State, City, Address]);
 
+    const translateY = useSharedValue(300);
+    const animatedStyles = useAnimatedStyle(() => ({
+        transform: [{ translateY: translateY.value }],
+    }));
+    const translateYinput = useSharedValue(300);
+    const animatedStylesinput = useAnimatedStyle(() => ({
+        transform: [{ translateY: translateYinput.value }],
+    }));
+
+    const handlecountry = () => {
+        setselecttpe('country')
+        const countrylistone = countrylist
+        setselectdata(countrylistone)
+        translateY.value = withSpring(0);
+        setshowmodalcourse(!showmodalcourse)
+        setState('')
+        setCity('')
+    }
+    const handlestate = async () => {
+        setselecttpe('state')
+        console.log(Country)
+
+        // const datastate = await fecthcountrysate(country)
+        // console.log(datastate)
+        // setselectdata(datastate)
+
+        translateY.value = withSpring(0);
+        setshowmodalcourse(!showmodalcourse)
+        setCity('')
+
+    }
+
+    const handlegetvalue = (value) => {
+        const getvalue = value
+        if (selecttype === 'country') {
+            setCountry(value)
+
+        }
+        else if (selecttype === 'state') {
+            setState(value)
+
+        }
+        else if (selecttype === 'city') {
+            setCity(value);
+        }
+
+
+        setshowmodalcourse(false)
+        translateY.value = withSpring(300);
+
+    }
+
+    const getvalue = (value) => {
+        setaddinfo(value)
+        setshowmodalinput(false)
+        translateYinput.value = withSpring(300);
+    }
+
     return (
         <>
-            <TextInput
+            {showmodalcourse && <View className="bottom-0 absolute z-50">
+                <Animated.View style={[animatedStyles]}>
+                    <DisplayModal
+                        data={selectdata}
+                        close={(value) => handleclose(value)}
+                        getvaluefunction={(value) => handlegetvalue(value)}
+
+                    />
+                </Animated.View>
+            </View>}
+            {/* <TextInput
                 label="Country"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
                 onChangeText={(text) => setCountry(text)}
                 value={Country}
                 className="w-full mt-3 bg-slate-50"
-            />
-            <TextInput
+            /> */}
+            {/* {Country && <View className="absolute z-50 left-8 -top-2 bg-white"><Text>{Country ? Country : "Select Country"}</Text></View>} */}
+            <TouchableOpacity onPress={handlecountry} className="h-12 rounded-2xl flex justify-center items-start px-3 border border-lightred bg-white">
+
+                <Text style={{ fontSize: 16 }} className="text-black">{Country ? Country : <Text><FontAwesome5 size={20} color={colorred} name="arrow-circle-down" /> Select Country</Text>}</Text>
+            </TouchableOpacity>
+            {/* <TextInput
                 label="State"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
                 onChangeText={(text) => setState(text)}
                 value={State}
                 className="w-full mt-3 bg-slate-50"
-            />
+            /> */}
+            <TouchableOpacity onPress={handlestate} className="h-12 rounded-2xl flex justify-center items-start px-3 border border-lightred bg-white">
+
+                <Text style={{ fontSize: 16 }} className="text-black">{State ? State : <Text><FontAwesome5 size={20} color={colorred} name="arrow-circle-down" /> Select State</Text>}</Text>
+            </TouchableOpacity>
             <TextInput
                 label="City"
                 mode="outlined"
