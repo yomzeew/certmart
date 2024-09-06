@@ -10,11 +10,12 @@ import { ScrollView } from "react-native-gesture-handler"
 import Footer from "./footer"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import axios from "axios"
-import { studentdetails, updatedetails } from "../../../settings/endpoint"
+import { studentdetails, updatedetails, updateProfilePic } from "../../../settings/endpoint"
 import { useEffect, useState } from "react"
 import ProfileUpdateModal from "../../modals/profileupdatemodal"
 import Preloader from "../../preloadermodal/preloaderwhite"
 import * as ImagePicker from 'expo-image-picker';
+import { uploadImage } from "../../uploadfile/uploadfile"
 
 const StudentProfile = () => {
     const [showloader, setshowloader] = useState(false)
@@ -22,6 +23,7 @@ const StudentProfile = () => {
     const [formData, setFormData] = useState([]);
     const [dp, setDp] = useState("");
     const [id, setId] = useState();
+    const [studentid, setstudentid] = useState("");
     //biodata
     const [Surname, setSurname] = useState("");
     const [Firstname, setFirstname] = useState("");
@@ -52,6 +54,7 @@ const StudentProfile = () => {
             console.log(response.data)
             setDp(response.data.dp)
             setId(response.data.id)
+            setstudentid(response.data.studentid)
             setSurname(response.data.surname)
             setFirstname(response.data.firstname)
             setMiddlename(response.data.middlename)
@@ -166,6 +169,7 @@ const StudentProfile = () => {
 
         if (!result.canceled) {
             console.log(result)
+            uploadImage(result.assets[0],studentid,updateProfilePic)
             console.log(result.assets[0].uri)
             //upload file
         } else {
@@ -175,7 +179,7 @@ const StudentProfile = () => {
 
     return (
         <>{showloader && <View className="absolute z-50 w-full h-full"><Preloader /></View>}
-            {showProfileUpdate && <View className="absolute z-50 w-full h-full">
+            {showProfileUpdate && <View className="absolute z-40 w-full h-full">
                 <ProfileUpdateModal
                     close={(value) => handleclose(value)}
                     data={formData}
