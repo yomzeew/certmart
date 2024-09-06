@@ -10,13 +10,76 @@ import { useNavigation } from "@react-navigation/native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import DisplayModal from "./datadisplay"
-import { countrylist } from "../jsondata/country-states"
+import { countrylist, fecthcountrysate } from "../jsondata/country-states"
 
 const ProfileUpdateModal = ({ close, data, id }) => {
     const currentForm = data[0].title;
     const [errorMsg, seterrorMsg] = useState('');
     const [showpreloader, setshowpreloader] = useState(false);
     const [formData, setFormData] = useState({});
+    const [showmodalcourse,setshowmodalcourse]=useState(false)
+    const [selectdata, setselectdata] = useState([])
+    const [State, setState] = useState(data[0].data.state);
+    const [Country, setCountry] = useState(data[0].data.country);
+    const [selecttype, setselecttpe] = useState('')
+    const handleselectfunc=(value)=>{
+        console.log(value)
+        setselecttpe(value)
+
+    }
+
+
+
+    const translateY = useSharedValue(300);
+    const animatedStyles = useAnimatedStyle(() => ({
+        transform: [{ translateY: translateY.value }],
+    }));
+    const handleshowmodallist=async(value)=>{
+        if(selecttype==='country'){
+            console.log('ok')
+            const countrylistone = countrylist
+            setselectdata(countrylistone)
+            setshowmodalcourse(value)
+            translateY.value = withSpring(0);
+            setState('')
+
+        }
+        else if(selecttype==='state'){
+           
+        const datastate = await fecthcountrysate(Country)
+        console.log(datastate)
+        setselectdata(datastate)
+        translateY.value = withSpring(0);
+        setshowmodalcourse(value)
+      
+
+        }
+    
+    }
+    const handlegetvalue = (value) => {
+        const getvalue = value
+        if (selecttype === 'course') {
+            setcourse(getvalue)
+
+        }
+        else if (selecttype === 'country') {
+            setCountry(value)
+
+        }
+        else if (selecttype === 'state') {
+            setState(value)
+
+        }
+    
+
+
+        setshowmodalcourse(false)
+        translateY.value = withSpring(300);
+
+    }
+    const handleclosemodal=()=>{
+        setshowmodalcourse(false)
+    }
 
     const requiredData = {
         surname: data[0].data.surname,
@@ -30,6 +93,7 @@ const ProfileUpdateModal = ({ close, data, id }) => {
     const handleclose = () => {
         close(false);
     };
+  
 
     const handlesubmit = async () => {
         const updatedFormData = {
@@ -82,6 +146,16 @@ const ProfileUpdateModal = ({ close, data, id }) => {
 
     return (
         <>
+        {showmodalcourse && <View className="bottom-0 absolute z-50 ">
+                <Animated.View style={[animatedStyles]}>
+                    <DisplayModal
+                        data={selectdata}
+                        close={(value) => handleclosemodal(value)}
+                        getvaluefunction={(value) => handlegetvalue(value)}
+
+                    />
+                </Animated.View>
+            </View>}
             <View className="h-full w-full justify-center flex items-center">
                 <View
                     onStartShouldSetResponder={() => true}
@@ -104,7 +178,13 @@ const ProfileUpdateModal = ({ close, data, id }) => {
                             <BiodataUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
                         )}
                         {currentForm === "Address" && (
-                            <AddressUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
+                            <AddressUpdateForm
+                            handleshowmodal={(value)=>handleshowmodallist(value)}
+                             data={data} handleCallBackValue={handleCallBackValue}
+                             Country={Country}
+                             State={State}
+                             selecttypefunc={(value)=>handleselectfunc(value)}
+                              />
                         )}
                         {currentForm === "Contact" && (
                             <ContactUpdateForm data={data} handleCallBackValue={handleCallBackValue} />
@@ -210,13 +290,11 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
 }
 
 
-const AddressUpdateForm = ({ data, handleCallBackValue }) => {
-    const [Country, setCountry] = useState(data[0].data.country);
-    const [State, setState] = useState(data[0].data.state);
+const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,State,selecttypefunc }) => {
+   
     const [City, setCity] = useState(data[0].data.city);
     const [Address, setAddress] = useState(data[0].data.address);
     const [showmodalcourse, setshowmodalcourse] = useState(false);
-    const [selectdata, setselectdata] = useState([])
     const [selecttype, setselecttpe] = useState('')
 
     useEffect(() => {
@@ -228,76 +306,66 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
         });
     }, [Country, State, City, Address]);
 
-    const translateY = useSharedValue(300);
-    const animatedStyles = useAnimatedStyle(() => ({
-        transform: [{ translateY: translateY.value }],
-    }));
+   
     const translateYinput = useSharedValue(300);
     const animatedStylesinput = useAnimatedStyle(() => ({
         transform: [{ translateY: translateYinput.value }],
     }));
 
     const handlecountry = () => {
-        setselecttpe('country')
-        const countrylistone = countrylist
-        setselectdata(countrylistone)
-        translateY.value = withSpring(0);
-        setshowmodalcourse(!showmodalcourse)
-        setState('')
-        setCity('')
+        selecttypefunc('country')
+        handleshowmodal(true)
+        
+      
+  
+
     }
     const handlestate = async () => {
-        setselecttpe('state')
+        selecttypefunc('state')
+        handleshowmodal(true)
+        // setselecttpe('state')
         console.log(Country)
 
-        // const datastate = await fecthcountrysate(country)
-        // console.log(datastate)
-        // setselectdata(datastate)
+        
 
+    }
+    const handlecity = async () => {
+        // setselecttpe('city');
+        // const datastate = await fetchData(country, state)
+        // setdata(datastate)
         translateY.value = withSpring(0);
-        setshowmodalcourse(!showmodalcourse)
-        setCity('')
+        setshowmodalcourse(!showmodalcourse);
+    };
 
-    }
+    // const handlegetvalue = (value) => {
+    //     const getvalue = value
+    //     if (selecttype === 'country') {
+    //         setCountry(value)
 
-    const handlegetvalue = (value) => {
-        const getvalue = value
-        if (selecttype === 'country') {
-            setCountry(value)
+    //     }
+    //     else if (selecttype === 'state') {
+    //         setState(value)
 
-        }
-        else if (selecttype === 'state') {
-            setState(value)
-
-        }
-        else if (selecttype === 'city') {
-            setCity(value);
-        }
+    //     }
+    //     else if (selecttype === 'city') {
+    //         setCity(value);
+    //     }
 
 
-        setshowmodalcourse(false)
-        translateY.value = withSpring(300);
+    //     setshowmodalcourse(false)
+    //     translateY.value = withSpring(300);
 
-    }
+    // }
 
-    const getvalue = (value) => {
-        setaddinfo(value)
-        setshowmodalinput(false)
-        translateYinput.value = withSpring(300);
-    }
+    // const getvalue = (value) => {
+    //     setaddinfo(value)
+    //     setshowmodalinput(false)
+    //     translateYinput.value = withSpring(300);
+    // }
 
     return (
         <>
-            {showmodalcourse && <View className="bottom-0 absolute z-50">
-                <Animated.View style={[animatedStyles]}>
-                    <DisplayModal
-                        data={selectdata}
-                        close={(value) => handleclose(value)}
-                        getvaluefunction={(value) => handlegetvalue(value)}
-
-                    />
-                </Animated.View>
-            </View>}
+            
             {/* <TextInput
                 label="Country"
                 mode="outlined"
@@ -307,9 +375,13 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
                 className="w-full mt-3 bg-slate-50"
             /> */}
             {/* {Country && <View className="absolute z-50 left-8 -top-2 bg-white"><Text>{Country ? Country : "Select Country"}</Text></View>} */}
-            <TouchableOpacity onPress={handlecountry} className="h-12 rounded-2xl flex justify-center items-start px-3 border border-lightred bg-white">
-
-                <Text style={{ fontSize: 16 }} className="text-black">{Country ? Country : <Text><FontAwesome5 size={20} color={colorred} name="arrow-circle-down" /> Select Country</Text>}</Text>
+            <TouchableOpacity onPress={handlecountry} className="h-12 rounded-md flex justify-center items-start px-3 border border-lightred bg-white m-2">
+                <Text style={{ fontSize: 16 }} className="text-black">
+                    <Text className="">
+                        <FontAwesome5 size={20} color={colorred} name="arrow-circle-down" />
+                        {Country ? Country : "Select Country"}
+                    </Text>
+                </Text>
             </TouchableOpacity>
             {/* <TextInput
                 label="State"
@@ -319,18 +391,31 @@ const AddressUpdateForm = ({ data, handleCallBackValue }) => {
                 value={State}
                 className="w-full mt-3 bg-slate-50"
             /> */}
-            <TouchableOpacity onPress={handlestate} className="h-12 rounded-2xl flex justify-center items-start px-3 border border-lightred bg-white">
+            <TouchableOpacity onPress={handlestate} className="h-12 rounded-md flex justify-center items-start px-3 border border-lightred bg-white m-2">
 
-                <Text style={{ fontSize: 16 }} className="text-black">{State ? State : <Text><FontAwesome5 size={20} color={colorred} name="arrow-circle-down" /> Select State</Text>}</Text>
+                <Text style={{ fontSize: 16 }} className="text-black">
+                    <Text className="">
+                        <FontAwesome5 size={20} color={colorred} name="arrow-circle-down" />
+                        {State ? State : "Select State"}
+                    </Text>
+                </Text>
             </TouchableOpacity>
-            <TextInput
+            {/* <TextInput
                 label="City"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
                 onChangeText={(text) => setCity(text)}
                 value={City}
                 className="w-full mt-3 bg-slate-50"
-            />
+            /> */}
+            <TouchableOpacity onPress={handlecity} className="h-12 rounded-md flex justify-center items-start px-3 border border-lightred bg-white m-2">
+                <Text style={{ fontSize: 16 }} className="text-black">
+                    <Text>
+                        <FontAwesome5 size={20} color={colorred} name="arrow-circle-down" />
+                        {City ? City : "Select City"}
+                    </Text>
+                </Text>
+            </TouchableOpacity>
             <TextInput
                 label="Address"
                 mode="outlined"
