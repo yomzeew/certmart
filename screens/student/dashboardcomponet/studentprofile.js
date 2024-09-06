@@ -14,6 +14,7 @@ import { studentdetails, updatedetails } from "../../../settings/endpoint"
 import { useEffect, useState } from "react"
 import ProfileUpdateModal from "../../modals/profileupdatemodal"
 import Preloader from "../../preloadermodal/preloaderwhite"
+import * as ImagePicker from 'expo-image-picker';
 
 const StudentProfile = () => {
     const [showloader, setshowloader] = useState(false)
@@ -156,6 +157,22 @@ const StudentProfile = () => {
             }
         ])
     }
+
+    const pickImageAsync = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            quality: 1
+        })
+
+        if (!result.canceled) {
+            console.log(result)
+            console.log(result.assets[0].uri)
+            //upload file
+        } else {
+            alert('You did not select any image')
+        }
+    }
+
     return (
         <>{showloader && <View className="absolute z-50 w-full h-full"><Preloader /></View>}
             {showProfileUpdate && <View className="absolute z-50 w-full h-full">
@@ -179,7 +196,7 @@ const StudentProfile = () => {
                     </LinearGradient>
                     <View className="items-center w-full -mt-10">
                         <View>
-                            <TouchableOpacity className="absolute right-0 bottom-0 z-50 bg-white w-8 h-8 rounded-full flex justify-center items-center">
+                            <TouchableOpacity className="absolute right-0 bottom-0 z-50 bg-white w-8 h-8 rounded-full flex justify-center items-center" onPress={pickImageAsync}>
                                 <FontAwesome size={20} color={colorred} name="pencil" />
 
                             </TouchableOpacity>
