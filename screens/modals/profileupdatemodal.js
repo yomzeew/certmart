@@ -36,6 +36,7 @@ const ProfileUpdateModal = ({ close, data, id }) => {
     }));
     const handleshowmodallist=async(value)=>{
         if(selecttype==='country'){
+            setselectdata([])
             console.log('ok')
             const countrylistone = countrylist
             setselectdata(countrylistone)
@@ -45,7 +46,7 @@ const ProfileUpdateModal = ({ close, data, id }) => {
 
         }
         else if(selecttype==='state'){
-           
+            setselectdata([]) 
         const datastate = await fecthcountrysate(Country)
         console.log(datastate)
         setselectdata(datastate)
