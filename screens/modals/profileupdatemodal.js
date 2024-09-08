@@ -1,4 +1,4 @@
-import { Platform, Text, TouchableOpacity, View } from "react-native"
+import { KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native"
 import { Button, RadioButton, TextInput } from "react-native-paper"
 import { colorred } from "../../constant/color"
 import { useEffect, useState } from "react"
@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import DisplayModal from "./datadisplay"
 import { countrylist, fecthcountrysate } from "../jsondata/country-states"
+import DateModal from "./datemodal"
 
 const ProfileUpdateModal = ({ close, data, id }) => {
     const currentForm = data[0].title;
@@ -22,6 +23,7 @@ const ProfileUpdateModal = ({ close, data, id }) => {
     const [State, setState] = useState(data[0].data.state);
     const [Country, setCountry] = useState(data[0].data.country);
     const [selecttype, setselecttpe] = useState('')
+  
     const handleselectfunc=(value)=>{
         console.log(value)
         setselecttpe(value)
@@ -34,45 +36,29 @@ const ProfileUpdateModal = ({ close, data, id }) => {
     const animatedStyles = useAnimatedStyle(() => ({
         transform: [{ translateY: translateY.value }],
     }));
-    const handleshowmodallist=async(value)=>{
-        if(selecttype==='country'){
-            setselectdata([])
-            console.log('ok')
-            const countrylistone = countrylist
-            setselectdata(countrylistone)
-            setshowmodalcourse(value)
-            translateY.value = withSpring(0);
-            setState('')
-
+    const handlegetdata = async (type) => {
+        if (type === 'country') {
+            const countrylistone = countrylist;
+            setselectdata(countrylistone);
+        } else if (type === 'state') {
+            const datastate = await fecthcountrysate(Country);
+            setselectdata(datastate);
         }
-        else if(selecttype==='state'){
-            setselectdata([]) 
-        const datastate = await fecthcountrysate(Country)
-        console.log(datastate)
-        setselectdata(datastate)
+    };
+
+    const handleshowmodallist = (value) => {
         translateY.value = withSpring(0);
-        setshowmodalcourse(value)
-      
-
-        }
-    
-    }
+        setshowmodalcourse(value);
+    };
     const handlegetvalue = (value) => {
-        const getvalue = value
-        if (selecttype === 'course') {
-            setcourse(getvalue)
-
-        }
-        else if (selecttype === 'country') {
+        if (selecttype === 'country') {
             setCountry(value)
-
+            setState('');
         }
         else if (selecttype === 'state') {
             setState(value)
 
         }
-    
-
 
         setshowmodalcourse(false)
         translateY.value = withSpring(300);
@@ -162,15 +148,24 @@ const ProfileUpdateModal = ({ close, data, id }) => {
                     onStartShouldSetResponder={() => true}
                     onResponderRelease={handleclose}
                     className="h-full absolute bottom-0 w-full px-2 py-3 opacity-80 bg-red-100 border border-slate-400 rounded-xl shadow-lg"></View>
-                <View style={{ elevation: 6 }} className="w-4/5 relative h-fit py-4 overflow-y-scroll bg-white shadow-md shadow-slate-400 rounded-2xl flex justify-center items-center">
+                <View style={{ elevation: 6 }} className="w-4/5 relative h-3/4 py-4 overflow-y-scroll bg-white shadow-md shadow-slate-400 rounded-2xl flex justify-center items-center">
                     {showpreloader && <View className="absolute z-50 h-full w-full flex justify-center items-center rounded-2xl"><Preloader /></View>}
                     <View className="absolute z-40 right-2 top-2">
                         <TouchableOpacity onPress={handleclose}><FontAwesome5 name="times" size={24} color={colorred} /></TouchableOpacity>
                     </View>
-                    <View className="w-full px-5">
-                        <View className="items-center">
+                   
+                     <View className="w-full px-5 flex-1">
+                     <View className="items-center">
                             <Text className="text-xl font-bold uppercase">Update {currentForm}</Text>
                         </View>
+                     <KeyboardAvoidingView        
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // Adjust this if needed
+    >
+                     <ScrollView contentContainerStyle={{ flexGrow: 1 }}
+                keyboardShouldPersistTaps="handled">
+                      
                         <View className="items-center">
                             <Text className="text-sm text-red-500">{errorMsg}</Text>
                         </View>
@@ -185,6 +180,7 @@ const ProfileUpdateModal = ({ close, data, id }) => {
                              Country={Country}
                              State={State}
                              selecttypefunc={(value)=>handleselectfunc(value)}
+                             handlegetdata={(value)=>handlegetdata(value)}
                               />
                         )}
                         {currentForm === "Contact" && (
@@ -204,7 +200,10 @@ const ProfileUpdateModal = ({ close, data, id }) => {
                         >
                             <Text style={{ fontSize: 20 }}>Submit</Text>
                         </Button>
+                        </ScrollView>
+                        </KeyboardAvoidingView>
                     </View>
+                    
                 </View>
             </View>
         </>
@@ -218,6 +217,7 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
     const [Middlename, setMiddlename] = useState(data[0].data.middlename);
     const [Gender, setGender] = useState(data[0].data.gender);
     const [DateOfBirth, setDateOfBirth] = useState(data[0].data.dob);
+    const [showdate,setshowdate]=useState(false)
 
     useEffect(() => {
         handleCallBackValue({
@@ -278,25 +278,26 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
                     {Platform.OS === 'android' && <Text style={{ marginRight: 10 }}>Female</Text>}
                 </View>
             </View>
-            <TextInput
-                label="DateOfBirth"
-                mode="outlined"
-                theme={{ colors: { primary: colorred } }}
-                onChangeText={(text) => setDateOfBirth(text)}
-                value={DateOfBirth}
-                className="w-full mt-3 bg-slate-50"
-            />
+            <TouchableOpacity onPress={()=>setshowdate(true)} className="h-12 rounded-md flex justify-center items-start px-3 border border-lightred bg-white m-2">
+            <Text style={{ fontSize: 16 }} className="text-black">
+            <FontAwesome5 size={20} color={colorred} name="arrow-circle-down" />
+                {DateOfBirth||'---'}
+                </Text>
+            </TouchableOpacity>
+            {showdate &&<DateModal
+            setDateOfBirth={(value)=>setDateOfBirth(value)}
+            DateOfBirth={DateOfBirth}
+            closetwo={(value)=>setshowdate(value)}
+            />}
+      
         </>
     );
 }
 
 
-const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,State,selecttypefunc }) => {
-   
+const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,State,selecttypefunc,handlegetdata }) => {
     const [City, setCity] = useState(data[0].data.city);
     const [Address, setAddress] = useState(data[0].data.address);
-    const [showmodalcourse, setshowmodalcourse] = useState(false);
-    const [selecttype, setselecttpe] = useState('')
 
     useEffect(() => {
         handleCallBackValue({
@@ -313,8 +314,9 @@ const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,
         transform: [{ translateY: translateYinput.value }],
     }));
 
-    const handlecountry = () => {
+    const handlecountry = async() => {
         selecttypefunc('country')
+        await handlegetdata('country'); 
         handleshowmodal(true)
         
       
@@ -323,6 +325,7 @@ const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,
     }
     const handlestate = async () => {
         selecttypefunc('state')
+        await handlegetdata('state'); 
         handleshowmodal(true)
         // setselecttpe('state')
         console.log(Country)
@@ -330,52 +333,10 @@ const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,
         
 
     }
-    const handlecity = async () => {
-        // setselecttpe('city');
-        // const datastate = await fetchData(country, state)
-        // setdata(datastate)
-        translateY.value = withSpring(0);
-        setshowmodalcourse(!showmodalcourse);
-    };
 
-    // const handlegetvalue = (value) => {
-    //     const getvalue = value
-    //     if (selecttype === 'country') {
-    //         setCountry(value)
-
-    //     }
-    //     else if (selecttype === 'state') {
-    //         setState(value)
-
-    //     }
-    //     else if (selecttype === 'city') {
-    //         setCity(value);
-    //     }
-
-
-    //     setshowmodalcourse(false)
-    //     translateY.value = withSpring(300);
-
-    // }
-
-    // const getvalue = (value) => {
-    //     setaddinfo(value)
-    //     setshowmodalinput(false)
-    //     translateYinput.value = withSpring(300);
-    // }
 
     return (
         <>
-            
-            {/* <TextInput
-                label="Country"
-                mode="outlined"
-                theme={{ colors: { primary: colorred } }}
-                onChangeText={(text) => setCountry(text)}
-                value={Country}
-                className="w-full mt-3 bg-slate-50"
-            /> */}
-            {/* {Country && <View className="absolute z-50 left-8 -top-2 bg-white"><Text>{Country ? Country : "Select Country"}</Text></View>} */}
             <TouchableOpacity onPress={handlecountry} className="h-12 rounded-md flex justify-center items-start px-3 border border-lightred bg-white m-2">
                 <Text style={{ fontSize: 16 }} className="text-black">
                     <Text className="">
@@ -384,14 +345,6 @@ const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,
                     </Text>
                 </Text>
             </TouchableOpacity>
-            {/* <TextInput
-                label="State"
-                mode="outlined"
-                theme={{ colors: { primary: colorred } }}
-                onChangeText={(text) => setState(text)}
-                value={State}
-                className="w-full mt-3 bg-slate-50"
-            /> */}
             <TouchableOpacity onPress={handlestate} className="h-12 rounded-md flex justify-center items-start px-3 border border-lightred bg-white m-2">
 
                 <Text style={{ fontSize: 16 }} className="text-black">
@@ -401,22 +354,15 @@ const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,
                     </Text>
                 </Text>
             </TouchableOpacity>
-            {/* <TextInput
+            <TextInput
                 label="City"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
                 onChangeText={(text) => setCity(text)}
                 value={City}
                 className="w-full mt-3 bg-slate-50"
-            /> */}
-            <TouchableOpacity onPress={handlecity} className="h-12 rounded-md flex justify-center items-start px-3 border border-lightred bg-white m-2">
-                <Text style={{ fontSize: 16 }} className="text-black">
-                    <Text>
-                        <FontAwesome5 size={20} color={colorred} name="arrow-circle-down" />
-                        {City ? City : "Select City"}
-                    </Text>
-                </Text>
-            </TouchableOpacity>
+            />
+           
             <TextInput
                 label="Address"
                 mode="outlined"

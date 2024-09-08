@@ -1,4 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from 'axios';
+import { updateProfilePic } from "../../settings/endpoint";
+import { Platform } from "react-native";
 
 export const uploadFile = async (file) => {
   const formData = new FormData();
@@ -30,30 +33,38 @@ export const uploadFile = async (file) => {
   }
 };
 
-export const uploadImage = async (file, studentid, uri) => {
-  const formData = new FormData();
-  formData.append('file', {
-    image: file.uri,
-    studentid: studentid
-  });
 
+
+
+// Function to handle file upload
+export const uploadImage= async (uri, studentid) => {
+  const formData = new FormData();
+
+  // Get the file name and type from the uri
+  const fileName = uri.split('/').pop();
+  const fileType = fileName.split('.').pop();
+  const mimeType = `image/${fileType}`;
+
+  // Ensure compatibility for both Android and iOS
+  const image = {
+    uri: Platform.OS === 'android' ? uri : uri.replace('file://', ''),
+    name: fileName,
+    type: mimeType,
+  };
+
+  // Append the image file and student ID
+  formData.append('image', image); // 'image' is the key expected by your API
+  formData.append('studentid', studentid);
   try {
-    const response = await fetch(uri, {
-      method: 'POST',
-      body: formData,
+    // Make the POST request with Axios
+    const response = await axios.post(updateProfilePic, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
       },
     });
 
-    const result = await response.json();
-    if (response.ok) {
-      // Alert.alert('Success', 'File uploaded successfully.');
-      console.log(result)
-      console.log(response)
-    } else {
-      // Alert.alert('Error', 'File upload failed.');
-    }
+    // Handle success
+    console.log('File uploaded successfully:', response.data);
   } catch (error) {
     if (error.response) {
       // Server responded with a status other than 2xx
@@ -71,3 +82,6 @@ export const uploadImage = async (file, studentid, uri) => {
     }
   }
 };
+
+
+// Usage example:

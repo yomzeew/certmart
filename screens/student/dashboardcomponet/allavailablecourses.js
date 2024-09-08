@@ -89,11 +89,11 @@ const AllCoursedetail=()=>{
                 <ScrollView>
                     <View className="w-full flex flex-row flex-wrap items-center px-3">
                     {data.map((item,index)=>(
-                <View className="p-2 items-center">
+                <View className="p-2 items-center" key={index}>
                         <TouchableOpacity onPress={()=>handlenavigate(item.coursecode)}>
                
                <Card className="w-44 h-64 bg-white">
-                    <Card.Cover source={{uri: `https://certmart.org/icon/${item.icon}.jpeg` }} />
+                    <Card.Cover source={{uri: `https://certmart.org/icon/${item.icon}.jpeg?timestamp=${new Date().getTime()}` }} />
                     <Card.Content>
                         <Text style={{ color: colorred }} className="font-semibold mt-2" variant="titleLarge">{item.course}</Text>
                         <Text variant="bodyMedium">₦{item.cost} | Duration {item.duration} weeks</Text>

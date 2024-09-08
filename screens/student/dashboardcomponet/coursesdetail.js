@@ -76,7 +76,7 @@ const Coursedetail=()=>{
                 <TouchableOpacity onPress={handlegoback} className={`p-3 bg-red-500 w-20`}><Text  className={`${fieldtexttwo} text-white`}>Go Back</Text></TouchableOpacity>
             </View>
           
-            <Image source={{uri: `https://certmart.org/icon/${coursesdata.icon}.jpeg` }} className="h-full w-full"/>
+            <Image source={{uri: `https://certmart.org/icon/${coursesdata.icon}.jpeg?timestamp=${new Date().getTime()}` }} className="h-full w-full"/>
             <View className="px-5 w-full -mt-10">
               <View style={{elevation:6,height:height*0.6}} className="rounded-2xl flex  bg-slate-50 shadow-lg shadow-slate-500 ">
                 <View className="mt-2 flex justify-between flex-row px-5">

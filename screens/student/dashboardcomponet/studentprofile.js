@@ -16,6 +16,7 @@ import ProfileUpdateModal from "../../modals/profileupdatemodal"
 import Preloader from "../../preloadermodal/preloaderwhite"
 import * as ImagePicker from 'expo-image-picker';
 import { uploadImage } from "../../uploadfile/uploadfile"
+import { convertDate } from "../../../settings/dateformat"
 
 const StudentProfile = () => {
     const [showloader, setshowloader] = useState(false)
@@ -42,6 +43,7 @@ const StudentProfile = () => {
     const [NOKName, setNOKName] = useState("");
     const [NOKPhone, setNOKPhone] = useState("");
     const fetchdata = async () => {
+        console.log('ok')
         setshowloader(true)
         try {
             const token = await AsyncStorage.getItem('token')
@@ -59,7 +61,8 @@ const StudentProfile = () => {
             setFirstname(response.data.firstname)
             setMiddlename(response.data.middlename)
             setGender(response.data.gender)
-            setDateOfBirth(response.data.dob)
+            const dobformat=convertDate(response.data.dob)
+            setDateOfBirth(dobformat)
             setCountry(response.data.country)
             setState(response.data.state)
             setCity(response.data.city)
@@ -168,9 +171,21 @@ const StudentProfile = () => {
         })
 
         if (!result.canceled) {
+            console.log('ok')
             console.log(result)
-            uploadImage(result.assets[0],studentid,updateProfilePic)
             console.log(result.assets[0].uri)
+            try{
+                setshowloader(true)
+                await uploadImage(result.assets[0].uri,studentid)
+
+            }catch(error){
+
+            }finally{
+                setshowloader(false)
+
+            }
+            
+            
             //upload file
         } else {
             alert('You did not select any image')
@@ -196,7 +211,7 @@ const StudentProfile = () => {
                         className="h-full w-full rounded-2xl flex flex-row justify-center"
                         style={{ elevation: 4 }}
                     >
-                        <Text style={{ fontSize: 24 }} className="font-extralight text-white mt-8">{Surname}'s Profile</Text>
+                        <Text style={{ fontSize: 24 }} className="font-extralight text-white mt-8">{Firstname}'s Profile</Text>
                     </LinearGradient>
                     <View className="items-center w-full -mt-10">
                         <View>
@@ -206,7 +221,7 @@ const StudentProfile = () => {
                             </TouchableOpacity>
                             {
                                 dp ?
-                                    <Avatar.Image source={{ uri: `https://certmart.org/dps/${dp}.jpg` }} />
+                                    <Avatar.Image source={{ uri:`https://certmart.org/dps/${dp}.jpg?timestamp=${new Date().getTime()}` }} />
                                     :
                                     <Avatar.Image source={require('../../images/avatermale.png')} />
                             }

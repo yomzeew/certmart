@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Avatar, Divider } from 'react-native-paper';
 import { SafeAreaView, View, Text, TouchableOpacity } from 'react-native';
 import { FontAwesome5, FontAwesome } from '@expo/vector-icons';
 import { colorred, colorwhite, lightred } from '../../constant/color';
 import { styles } from '../../settings/layoutsetting';
+import axios from 'axios';
+import { studentdetails } from '../../settings/endpoint';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CustomDrawer = (props) => {
   const [active, setActive] = useState('home');
+  const [dp,setDp]=useState("")
+  const [Firstname,setFirstname]=useState('')
   const navigation = useNavigation();
+
 
   const handlePress = (route, itemName) => {
     setActive(itemName);
@@ -26,13 +32,56 @@ const CustomDrawer = (props) => {
   const getItemIconColor = (itemName) => {
     return active === itemName ? colorwhite : colorred;
   };
+  const fetchdata = async () => {
+    console.log('ok')
+    try {
+        const token = await AsyncStorage.getItem('token')
+        const response = await axios.get(studentdetails, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        console.log(response.data)
+        setDp(response.data.dp)
+        setFirstname(response.data.firstname)
+    } catch (error) {
+        if (error.response) {
+            // Server responded with a status other than 2xx
+            console.error('Error response:', error.response.data);
+            console.log(error.response.data.error)
+            console.error('Error status:', error.response.status);
+            console.error('Error headers:', error.response.headers);
+        } else if (error.request) {
+            // Request was made but no response received
+            console.error('Error request:', error.request);
+        } else {
+            // Something else happened while setting up the request
+            console.error('Error message:', error.message);
+
+        }
+
+    } finally {
+        
+    }
+
+}
+useEffect(() => {
+    fetchdata()
+}, [])
+
+
 
   return (
     <SafeAreaView style={styles.andriod} className="flex flex-1 w-full">
       <View style={{ backgroundColor: colorred }} className="flex justify-center flex-row items-center h-32">
-        <Avatar.Image size={50} source={require('../images/avaterfemale.png')} theme={{ colors: { primary: colorwhite } }} />
+         {
+                                dp ?
+                                    <Avatar.Image size={50} theme={{ colors: { primary: colorwhite } }} source={{ uri:`https://certmart.org/dps/${dp}.jpg?timestamp=${new Date().getTime()}` }}  />
+                                    :
+                                    <Avatar.Image size={50} source={require("../images/avatermale.png")} theme={{ colors: { primary: colorwhite } }} />
+                            }
         <View className="w-2" />
-        <Text style={{ fontSize: 18 }} className="font-light text-white">Welcome Alex C.</Text>
+        <Text style={{ fontSize: 18 }} className="font-light text-white">Welcome {Firstname}.</Text>
       </View>
       <View className="flex-1 mt-3 px-6">
         <TouchableOpacity onPress={() => handlePress('dashboardstudent', 'home')} style={[getItemStyle('home'), styles.item]} className="rounded-2xl h-10 flex px-3 flex-row items-center">

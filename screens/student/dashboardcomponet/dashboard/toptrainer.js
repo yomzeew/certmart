@@ -50,8 +50,8 @@ const Toptrainer=()=>{
     return(
         <View className="flex flex-row">
         {data.map((item,index)=>(
-        <View className="items-center m-1">
-        {item.dp?<Avatar.Image source={{uri:`https://certmart.org/dps/${item.dp}.jpg`}}/>:<Avatar.Image source={require('../../../images/avatermale.png')}/>  }
+        <View className="items-center m-1" key={index}>
+        {item.dp?<Avatar.Image source={{uri:`https://certmart.org/dps/${item.dp}.jpg?timestamp=${new Date().getTime()}`}}/>:<Avatar.Image source={require('../../../images/avatermale.png')}/>  }
         <Text className="font-semibold">{item.surname}</Text>
         </View>
     ))}
