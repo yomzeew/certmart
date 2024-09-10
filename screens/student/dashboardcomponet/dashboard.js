@@ -88,8 +88,6 @@ const Dashboard = () => {
   };
   // to get student id
   const fetchStudentId = async () => {
-    // console.log('ok')
-    // setshowloader(true)
     try {
       const token = await AsyncStorage.getItem("token");
 
@@ -100,7 +98,7 @@ const Dashboard = () => {
       });
       // console.log(response.data)
       if (response.status === 200) {
-        const studentId = response.data.studentId;
+        const studentId = response.data.studentid;
         await AsyncStorage.setItem("studentid", studentId);
         console.log(studentId);
       }
@@ -118,9 +116,7 @@ const Dashboard = () => {
         // Something else happened while setting up the request
         console.error("Error message:", error.message);
       }
-    } finally {
-      // setshowloader(false)
-    }
+    } 
   };
   useEffect(() => {
     fetchdata();

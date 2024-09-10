@@ -25,9 +25,10 @@ import InputModal from "../../modals/inputmodal";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { allcourses, applyAdmission } from "../../../settings/endpoint";
-import { countrylist, fecthcountrysate } from "../../jsondata/country-states";
+import { countrylist, fecthcountrysate, getallcountries, getallstates, getstudycenter } from "../../jsondata/country-states";
 import Preloader from "../../preloadermodal/preloaderwhite";
 import { currentDate } from "../../../utility/get-date-time";
+import SuccessModal from "../../modals/successfulmodal";
 
 const ApplyCourses = () => {
   const [showLoader, setShowLoader] = useState(false);
@@ -35,7 +36,7 @@ const ApplyCourses = () => {
   const [showmodalcourse, setshowmodalcourse] = useState(false);
   const [showmodalinput, setshowmodalinput] = useState(false);
   const [showopcity, setshowopcity] = useState(false);
-  const [classtype, setclasstype] = useState("");
+  const [classtype, setclasstype] = useState("Virtual");
   const [course, setcourse] = useState("");
   const [country, setCountry] = useState("");
   const [state, setState] = useState("");
@@ -52,6 +53,7 @@ const ApplyCourses = () => {
   const [errormsg, seterrormsg] = useState("");
   const [Duration, setDuration] = useState("");
   const [cvnewname, setcvnewname] = useState("");
+  const [showsuccess,setshowsuccess]=useState(false)
 
   const fetchdata = async () => {
     try {
@@ -105,11 +107,11 @@ const ApplyCourses = () => {
   }, [showmodalcourse, showmodalinput]);
 
   const hanleshowphsical = () => {
-    setclasstype("physical");
+    setclasstype("Physical");
     setshowphysical(!showphysical);
   };
   const hanleshowvirtual = () => {
-    setclasstype("virtual");
+    setclasstype("Virtual");
     setshowphysical(!showphysical);
   };
 
@@ -127,10 +129,21 @@ const ApplyCourses = () => {
     translateY.value = withSpring(0);
     setshowmodalcourse(!showmodalcourse);
   };
-  const handlecountry = () => {
+  const handlecountry = async() => {
     setselecttpe("country");
-    const countrylistone = countrylist;
-    setdata(countrylistone);
+    try{
+        setShowLoader(true)
+        const countrylistone = await getallcountries();
+        setdata(countrylistone);
+        
+
+    }catch(error){
+
+    }finally{
+        setShowLoader(false)
+        
+    }
+   
     translateY.value = withSpring(0);
     setshowmodalcourse(!showmodalcourse);
     setState("");
@@ -140,9 +153,20 @@ const ApplyCourses = () => {
     setselecttpe("state");
     console.log(country);
 
-    const datastate = await fecthcountrysate(country);
-    console.log(datastate);
-    setdata(datastate);
+    try{
+        setShowLoader(true)
+       
+        const datastate=await getallstates(country)
+        setdata(datastate)
+        
+
+    }catch(error){
+
+    }finally{
+        setShowLoader(false)
+        
+    }
+   
 
     translateY.value = withSpring(0);
     setshowmodalcourse(!showmodalcourse);
@@ -150,8 +174,21 @@ const ApplyCourses = () => {
   };
   const handlecity = async () => {
     setselecttpe("city");
-    const datastate = await fetchData(country, state);
-    setdata(datastate);
+   
+    try{
+        setShowLoader(true)
+        const datastudy= await getstudycenter(state,country);
+        setdata(datastudy);
+        
+
+    }catch(error){
+
+    }finally{
+        setShowLoader(false)
+        
+    }
+   
+   
     translateY.value = withSpring(0);
     setshowmodalcourse(!showmodalcourse);
   };
@@ -200,13 +237,13 @@ const ApplyCourses = () => {
     const getData = async () => {
       try {
         if (!country) {
-          const data = await fetchData();
+          const data = await getallcountries();
           setCountryData(data);
         } else if (country && !state) {
-          const data = await fetchData(country);
+          const data = await getallstates(country);
           setStateData(data);
         } else if (country && state) {
-          const data = await fetchData(country, state);
+          const data = await getstudycenter(country, state);
           setCityData(data);
         }
       } catch (error) {
@@ -238,54 +275,60 @@ const ApplyCourses = () => {
   };
 
   const handlesubmit = async () => {
-    // 'studentid' => 'required|exists:student,id',
-    //     'state' => 'required|string|max:50',
-    //     'country' => 'required|string|max:50',
-    //     'studycentre' => 'required|string|max:50',
-    //     'course' => 'required|string|max:100',
-    //     'cv' => 'required|string|max:50',
-    //     'comment' => 'required|string',
-    //     'decisioncomment' => 'required|string',
-    //     'applicationdate' => 'required|date',
-    //     'approveddate' => 'required|date',
-    //     'status' => 'required|in:Applied,Approved,Declined',
-    //     'proceesFee' => 'required|in:Pending,Paid',
-    //     'classType' => 'required|in:Physical,Virtual',
-    //     'literacy_level' => 'nullable|string|max:20',
-    // console.log(cvnewname)
-
-    setShowLoader(true);
     const token = await AsyncStorage.getItem("token");
     const studentId = await AsyncStorage.getItem("studentid");
+    console.log(studentId)
+   if(classtype==='Virtual'){
+    setCountry('Virtual')
+    setState('Virtual')
+    setcity('Virtual')
+   }
+   if(!course||!state||!country||!cvnewname||!city||!addinfo){
+    seterrormsg('Fill the empty Field')
+    return
+
+   }
     const formData = {
       studentid: studentId,
       state,
       country,
-      studycenter: cityData,
+      studycentre: city,
       course,
       cv: cvnewname,
       comment: addinfo,
-      decisioncomment: "",
+      decisioncomment: "add decision comment",
       applicationdate: currentDate,
       approveddate: currentDate,
       status: "Applied",
-      processFee: "Pending",
+      proceesFee: "Pending",
       classType: classtype,
       literacy_level: computerlevel, //nullable
     };
     try {
+        setShowLoader(true);
       const data = formData;
       console.log(data);
-      // const response = await axios.put(applyAdmission, data, {
-      //   headers: {
-      //     Accept: "application/json",
-      //     "Content-Type": "application/json",
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      // });
-      // console.log("check");
-      // if (response.status === 200) {
-      // }
+      const response = await axios.post(applyAdmission, data, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (response.status === 201||response.status === 200||response.status === 203) {
+        console.log('ok')
+        setshowsuccess(true)
+        setcity('')
+        setcourse('')
+        setCountry('')
+        setState('')
+        setaddinfo('')
+        setclasstype('Virtual')
+        setcomputerlevel('')
+        setcvnewname('')
+
+      }
     } catch (error) {
       if (error.response) {
         // Server responded with a status other than 2xx
@@ -308,6 +351,13 @@ const ApplyCourses = () => {
 
   return (
     <>
+    {showsuccess && 
+    <View className="absolute z-50 flex justify-center items-center w-full h-full">
+        <SuccessModal
+        message={'Application Successful'}
+        action={()=>setshowsuccess(false)}
+        />
+        </View>}
       {showLoader && (
         <View className="absolute z-50 w-full h-full">
           <Preloader />
@@ -352,6 +402,7 @@ const ApplyCourses = () => {
               Apply for Course
             </Text>
             <Divider theme={{ colors: { primary: colorred } }} />
+            <View className="items-center"><Text style={{ color: colorred }}>{errormsg}</Text></View>
           </View>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View className="px-5 mt-10">
@@ -462,39 +513,20 @@ const ApplyCourses = () => {
                   </TouchableOpacity>
                 </View>
                 <View className="px-5 mt-5">
-                  <TextInput
-                    label="Study City"
-                    mode="outlined"
-                    theme={{ colors: { primary: colorred } }}
-                    onChangeText={(text) => setCityData(text)}
-                    value={cityData}
-                    className="w-full bg-slate-50"
-                  />
-                </View>
-                {/* <View className="px-5 mt-5">
-                                {city && <View className="absolute z-50 left-8 -top-2 bg-white"><Text>Select City</Text></View>}
-                                <TouchableOpacity onPress={handlecity} className="h-12 rounded-2xl flex justify-center items-start px-3 border border-lightred bg-white">
-                                    <Text style={{ fontSize: 16 }} className="text-black">{city ? city : <Text><FontAwesome5 size={20} color={colorred} name="arrow-circle-down" /> Select City</Text>}</Text>
-                                </TouchableOpacity>
-
-
-                            </View> */}
-
-                {/* <View className="px-5 mt-5">
                                 {city && <View className="absolute z-50 left-8 -top-2 bg-white"><Text>Select Study City</Text></View>}
-                                <TouchableOpacity className="h-12 rounded-2xl flex justify-center items-start px-3 border border-lightred bg-white">
+                                <TouchableOpacity onPress={handlecity} className="h-12 rounded-2xl flex justify-center items-start px-3 border border-lightred bg-white">
                                     <Text style={{ fontSize: 16 }} className="text-black">{city ? city : <Text><FontAwesome5 size={20} color={colorred} name="arrow-circle-down" /> Select Study City</Text>}</Text>
                                 </TouchableOpacity>
 
 
-                            </View> */}
+                            </View>
               </View>
             )}
             <View className="mt-3">
               <View className="px-7">
                 <Text>
                   {cvfilename}{" "}
-                  <Text style={{ color: colorred }}>{errormsg}</Text>
+                 
                 </Text>
               </View>
               <View className="px-5">

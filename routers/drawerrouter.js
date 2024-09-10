@@ -7,6 +7,7 @@ import StudentProfile from '../screens/student/dashboardcomponet/studentprofile'
 import Coursedetail from '../screens/student/dashboardcomponet/coursesdetail';
 import ApplyCourses from '../screens/student/dashboardcomponet/applycourses';
 import AllCoursedetail from '../screens/student/dashboardcomponet/allavailablecourses';
+import ApplicationCheckers from '../screens/student/dashboardcomponet/dashboard/applicationchecker';
 const DrawerWrapper=()=>{
     const Drawer=createDrawerNavigator()
     return(
@@ -27,6 +28,7 @@ const DrawerWrapper=()=>{
        <Drawer.Screen options={{gestureEnabled:false,gestureDirection:'vertical'}} name="coursesdetail" component={Coursedetail} /> 
        <Drawer.Screen options={{gestureEnabled:false,gestureDirection:'vertical'}} name="applycourses" component={ApplyCourses} /> 
        <Drawer.Screen options={{gestureEnabled:false,gestureDirection:'vertical'}} name="couseravailable" component={AllCoursedetail} /> 
+       <Drawer.Screen options={{gestureEnabled:false,gestureDirection:'vertical'}} name="coursestatus" component={ApplicationCheckers} /> 
       </Drawer.Navigator>
 
     )
