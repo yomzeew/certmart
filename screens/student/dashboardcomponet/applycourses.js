@@ -38,6 +38,8 @@ const ApplyCourses = () => {
     const [selecttype, setselecttpe] = useState('')
     const [cvfilename, setcvfilename] = useState('')
     const [errormsg, seterrormsg] = useState('')
+    const [Duration,setDuration]=useState('')
+    const [cvnewname,setcvnewname]=useState('')
 
     const fetchdata = async () => {
         try {
@@ -51,12 +53,12 @@ const ApplyCourses = () => {
 
             })
             const getdata = response.data.data
-            const getcourse = getdata.map((item, index) => (
-                `${item.course}-${item.duration}weeks`
-            ))
-            console.log(getcourse)
-            setdatacourse(getcourse)
-            setdata(getcourse)
+            const getcourse = new Set(getdata.map((item, index) => (
+                `${item.course}`
+            )))
+           
+            setdatacourse([...getcourse])
+            setdata([...getcourse])
 
         } catch (error) {
             if (error.response) {
@@ -231,16 +233,31 @@ const ApplyCourses = () => {
             return
         }
         else {
-            uploadFile(result.assets[0])
+            console.log(result.assets[0])
             seterrormsg('')
+            const filename=await uploadFile(result.assets[0])
+            setcvnewname(filename)
+        
 
         }
-        if (result.type === 'success') {
-            // uploadFile(result)
-            console.log('ok')
-            setcvfilename(result.name)
+    }
+    const handlesubmit=()=>{
+        // 'studentid' => 'required|exists:student,id',
+        //     'state' => 'required|string|max:50',
+        //     'country' => 'required|string|max:50',
+        //     'studycentre' => 'required|string|max:50',
+        //     'course' => 'required|string|max:100',
+        //     'cv' => 'required|string|max:50',
+        //     'comment' => 'required|string',
+        //     'decisioncomment' => 'required|string',
+        //     'applicationdate' => 'required|date',
+        //     'approveddate' => 'required|date',
+        //     'status' => 'required|in:Applied,Approved,Declined',
+        //     'proceesFee' => 'required|in:Pending,Paid',
+        //     'classType' => 'required|in:Physical,Virtual',
+        //     'literacy_level' => 'nullable|string|max:20',
+        console.log(cvnewname)
 
-        }
     }
 
     return (
@@ -284,6 +301,19 @@ const ApplyCourses = () => {
 
 
                         </View>
+                        {/* <View className="px-5 mt-5">
+                        <TextInput
+                label="Duration"
+                mode="outlined"
+                theme={{ colors: { primary: colorred } }}
+                onChangeText={(text) => setDuration(text)}
+                value={Duration}
+                className="w-full bg-slate-50"
+               
+            />
+                        </View> */}
+                        
+              
                         <View className="px-5 mt-5">
                             <Text style={{ fontSize: 16 }} className="text-black"> Select Class Type </Text>
                             <View className="w-full flex justify-center flex-row mt-1">
@@ -377,7 +407,7 @@ const ApplyCourses = () => {
 
                         </View>
                         <View className="mt-3 px-5">
-                            <TouchableOpacity style={{ backgroundColor: colorred }} className="h-12 flex justify-center items-center w-full rounded-2xl mt-1">
+                            <TouchableOpacity onPress={handlesubmit} style={{ backgroundColor: colorred }} className="h-12 flex justify-center items-center w-full rounded-2xl mt-1">
                                 <Text style={{ fontSize: 16 }} className="text-white font-semibold">Submit</Text>
                             </TouchableOpacity>
 
