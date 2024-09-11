@@ -438,7 +438,7 @@ const ApplyCourses = () => {
                 <TouchableOpacity
                   onPress={hanleshowvirtual}
                   style={{
-                    backgroundColor: !showphysical ? lightred : colorwhite,
+                    backgroundColor: showphysical ? colorwhite : lightred,
                   }}
                   className="h-12 w-44 flex justify-center items-center"
                 >
