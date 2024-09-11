@@ -7,7 +7,7 @@ import StudentProfile from '../screens/student/dashboardcomponet/studentprofile'
 import Coursedetail from '../screens/student/dashboardcomponet/coursesdetail';
 import ApplyCourses from '../screens/student/dashboardcomponet/applycourses';
 import AllCoursedetail from '../screens/student/dashboardcomponet/allavailablecourses';
-import ApplicationCheckers from '../screens/student/dashboardcomponet/dashboard/applicationchecker';
+import ApplicationCheckers from '../screens/student/dashboardcomponet/applicationchecker';
 const DrawerWrapper=()=>{
     const Drawer=createDrawerNavigator()
     return(

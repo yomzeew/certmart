@@ -1,6 +1,7 @@
 import { View,SafeAreaView } from "react-native"
-import Header from "../header"
-import { styles } from "../../../../settings/layoutsetting"
+import Header from "./header"
+import { styles } from "../../../settings/layoutsetting"
+import CoursesVerifyModal from "../../modals/courseverifyModal"
 
 const ApplicationCheckers=()=>{
     return(
@@ -11,6 +12,9 @@ const ApplicationCheckers=()=>{
         className="flex flex-1 w-full"
       >
             <Header/>
+            <View className="mt-3 px-3">
+                <CoursesVerifyModal/>
+            </View>
     </SafeAreaView>
             
 
