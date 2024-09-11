@@ -10,6 +10,7 @@ export const resetpassword = `${BaseURi}/password/reset`;
 export const studentdetails = `${BaseURi}/students/me`;
 
 export const applyAdmission = `${BaseURi}/admissions`;
+export const getCourseStatus = `${BaseURi}/admissions/status`;
 
 export const coursescategories = `${BaseURi}/courses/categories`;
 export const coursescategoriesfilter = `${BaseURi}/courses?`;
@@ -19,6 +20,6 @@ export const allcourses = `${BaseURi}/courses`;
 
 export const topTrainers = `${BaseURi}/trainers?filter=popular&count=6`;
 
-export const countrieslist=`${BaseURi}/countries`
-export const statelist=`${BaseURi}/states`
-export const studycenter=`${BaseURi}/studycentres`
+export const countrieslist = `${BaseURi}/countries`
+export const statelist = `${BaseURi}/states`
+export const studycenter = `${BaseURi}/studycentres`

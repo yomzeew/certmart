@@ -25,7 +25,13 @@ import InputModal from "../../modals/inputmodal";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { allcourses, applyAdmission } from "../../../settings/endpoint";
-import { countrylist, fecthcountrysate, getallcountries, getallstates, getstudycenter } from "../../jsondata/country-states";
+import {
+  countrylist,
+  fecthcountrysate,
+  getallcountries,
+  getallstates,
+  getstudycenter,
+} from "../../jsondata/country-states";
 import Preloader from "../../preloadermodal/preloaderwhite";
 import { currentDate } from "../../../utility/get-date-time";
 import SuccessModal from "../../modals/successfulmodal";
@@ -53,7 +59,7 @@ const ApplyCourses = () => {
   const [errormsg, seterrormsg] = useState("");
   const [Duration, setDuration] = useState("");
   const [cvnewname, setcvnewname] = useState("");
-  const [showsuccess,setshowsuccess]=useState(false)
+  const [showsuccess, setshowsuccess] = useState(false);
 
   const fetchdata = async () => {
     try {
@@ -129,21 +135,17 @@ const ApplyCourses = () => {
     translateY.value = withSpring(0);
     setshowmodalcourse(!showmodalcourse);
   };
-  const handlecountry = async() => {
+  const handlecountry = async () => {
     setselecttpe("country");
-    try{
-        setShowLoader(true)
-        const countrylistone = await getallcountries();
-        setdata(countrylistone);
-        
-
-    }catch(error){
-
-    }finally{
-        setShowLoader(false)
-        
+    try {
+      setShowLoader(true);
+      const countrylistone = await getallcountries();
+      setdata(countrylistone);
+    } catch (error) {
+    } finally {
+      setShowLoader(false);
     }
-   
+
     translateY.value = withSpring(0);
     setshowmodalcourse(!showmodalcourse);
     setState("");
@@ -153,20 +155,15 @@ const ApplyCourses = () => {
     setselecttpe("state");
     console.log(country);
 
-    try{
-        setShowLoader(true)
-       
-        const datastate=await getallstates(country)
-        setdata(datastate)
-        
+    try {
+      setShowLoader(true);
 
-    }catch(error){
-
-    }finally{
-        setShowLoader(false)
-        
+      const datastate = await getallstates(country);
+      setdata(datastate);
+    } catch (error) {
+    } finally {
+      setShowLoader(false);
     }
-   
 
     translateY.value = withSpring(0);
     setshowmodalcourse(!showmodalcourse);
@@ -174,21 +171,16 @@ const ApplyCourses = () => {
   };
   const handlecity = async () => {
     setselecttpe("city");
-   
-    try{
-        setShowLoader(true)
-        const datastudy= await getstudycenter(state,country);
-        setdata(datastudy);
-        
 
-    }catch(error){
-
-    }finally{
-        setShowLoader(false)
-        
+    try {
+      setShowLoader(true);
+      const datastudy = await getstudycenter(state, country);
+      setdata(datastudy);
+    } catch (error) {
+    } finally {
+      setShowLoader(false);
     }
-   
-   
+
     translateY.value = withSpring(0);
     setshowmodalcourse(!showmodalcourse);
   };
@@ -277,17 +269,16 @@ const ApplyCourses = () => {
   const handlesubmit = async () => {
     const token = await AsyncStorage.getItem("token");
     const studentId = await AsyncStorage.getItem("studentid");
-    console.log(studentId)
-   if(classtype==='Virtual'){
-    setCountry('Virtual')
-    setState('Virtual')
-    setcity('Virtual')
-   }
-   if(!course||!state||!country||!cvnewname||!city||!addinfo){
-    seterrormsg('Fill the empty Field')
-    return
-
-   }
+    console.log(studentId);
+    if (classtype === "Virtual") {
+      setCountry("Virtual");
+      setState("Virtual");
+      setcity("Virtual");
+    }
+    if (!course || !state || !country || !cvnewname || !city || !addinfo) {
+      seterrormsg("Fill the empty Field");
+      return;
+    }
     const formData = {
       studentid: studentId,
       state,
@@ -305,7 +296,7 @@ const ApplyCourses = () => {
       literacy_level: computerlevel, //nullable
     };
     try {
-        setShowLoader(true);
+      setShowLoader(true);
       const data = formData;
       console.log(data);
       const response = await axios.post(applyAdmission, data, {
@@ -315,19 +306,22 @@ const ApplyCourses = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      
-      if (response.status === 201||response.status === 200||response.status === 203) {
-        console.log('ok')
-        setshowsuccess(true)
-        setcity('')
-        setcourse('')
-        setCountry('')
-        setState('')
-        setaddinfo('')
-        setclasstype('Virtual')
-        setcomputerlevel('')
-        setcvnewname('')
 
+      if (
+        response.status === 201 ||
+        response.status === 200 ||
+        response.status === 203
+      ) {
+        console.log("ok");
+        setshowsuccess(true);
+        setcity("");
+        setcourse("");
+        setCountry("");
+        setState("");
+        setaddinfo("");
+        setclasstype("Virtual");
+        setcomputerlevel("");
+        setcvnewname("");
       }
     } catch (error) {
       if (error.response) {
@@ -351,13 +345,14 @@ const ApplyCourses = () => {
 
   return (
     <>
-    {showsuccess && 
-    <View className="absolute z-50 flex justify-center items-center w-full h-full">
-        <SuccessModal
-        message={'Application Successful'}
-        action={()=>setshowsuccess(false)}
-        />
-        </View>}
+      {showsuccess && (
+        <View className="absolute z-50 flex justify-center items-center w-full h-full">
+          <SuccessModal
+            message={"Application Successful"}
+            action={() => setshowsuccess(false)}
+          />
+        </View>
+      )}
       {showLoader && (
         <View className="absolute z-50 w-full h-full">
           <Preloader />
@@ -402,7 +397,9 @@ const ApplyCourses = () => {
               Apply for Course
             </Text>
             <Divider theme={{ colors: { primary: colorred } }} />
-            <View className="items-center"><Text style={{ color: colorred }}>{errormsg}</Text></View>
+            <View className="items-center">
+              <Text style={{ color: colorred }}>{errormsg}</Text>
+            </View>
           </View>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View className="px-5 mt-10">
@@ -441,7 +438,7 @@ const ApplyCourses = () => {
                 <TouchableOpacity
                   onPress={hanleshowvirtual}
                   style={{
-                    backgroundColor: !showphysical ? lightred : colorwhite,
+                    backgroundColor: showphysical ? colorwhite : lightred,
                   }}
                   className="h-12 w-44 flex justify-center items-center"
                 >
@@ -513,21 +510,36 @@ const ApplyCourses = () => {
                   </TouchableOpacity>
                 </View>
                 <View className="px-5 mt-5">
-                                {city && <View className="absolute z-50 left-8 -top-2 bg-white"><Text>Select Study City</Text></View>}
-                                <TouchableOpacity onPress={handlecity} className="h-12 rounded-2xl flex justify-center items-start px-3 border border-lightred bg-white">
-                                    <Text style={{ fontSize: 16 }} className="text-black">{city ? city : <Text><FontAwesome5 size={20} color={colorred} name="arrow-circle-down" /> Select Study City</Text>}</Text>
-                                </TouchableOpacity>
-
-
-                            </View>
+                  {city && (
+                    <View className="absolute z-50 left-8 -top-2 bg-white">
+                      <Text>Select Study City</Text>
+                    </View>
+                  )}
+                  <TouchableOpacity
+                    onPress={handlecity}
+                    className="h-12 rounded-2xl flex justify-center items-start px-3 border border-lightred bg-white"
+                  >
+                    <Text style={{ fontSize: 16 }} className="text-black">
+                      {city ? (
+                        city
+                      ) : (
+                        <Text>
+                          <FontAwesome5
+                            size={20}
+                            color={colorred}
+                            name="arrow-circle-down"
+                          />{" "}
+                          Select Study City
+                        </Text>
+                      )}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
             <View className="mt-3">
               <View className="px-7">
-                <Text>
-                  {cvfilename}{" "}
-                 
-                </Text>
+                <Text>{cvfilename} </Text>
               </View>
               <View className="px-5">
                 <TouchableOpacity
