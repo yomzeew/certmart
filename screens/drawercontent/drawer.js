@@ -169,6 +169,7 @@ const CustomDrawer = (props) => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
+          onPress={()=>handlePress('coursereg','registration')}
           style={[getItemStyle("registration"), styles.item]}
           className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
         >
