@@ -8,6 +8,7 @@ import Coursedetail from "../screens/student/dashboardcomponet/coursesdetail";
 import ApplyCourses from "../screens/student/dashboardcomponet/applycourses";
 import AllCoursedetail from "../screens/student/dashboardcomponet/allavailablecourses";
 import ApplicationCheckers from "../screens/student/dashboardcomponet/applicationchecker";
+import CourseReg from "../screens/student/dashboardcomponet/courseRegistration";
 const DrawerWrapper = () => {
   const Drawer = createDrawerNavigator();
   return (
@@ -57,7 +58,9 @@ const DrawerWrapper = () => {
       options={{gestureEnabled:false,gestureDirection:'vertical'}} 
       name="coursereg" 
       component={CourseReg} /> 
+    
     </Drawer.Navigator>
   );
+
 };
 export default DrawerWrapper; 
