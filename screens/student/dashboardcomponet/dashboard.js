@@ -49,7 +49,6 @@ import DisplayModal from "../../modals/datadisplay";
 import Toptrainer from "./dashboard/toptrainer";
 
 const Dashboard = () => {
-  const [active, setActive] = useState("");
   const navigation = useNavigation();
   const [data, setdata] = useState([]);
   const [showpreloader, setshowpreloader] = useState(false);
@@ -278,7 +277,7 @@ const Dashboard = () => {
             </View>
           </ScrollView>
         </View>
-        <Footer />
+        <Footer currentPage="home" />
       </SafeAreaView>
     </>
   );

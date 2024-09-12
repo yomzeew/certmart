@@ -355,7 +355,7 @@ const StudentProfile = () => {
             </ScrollView>
           </View>
         </View>
-        <Footer />
+        <Footer currentPage="home" />
       </SafeAreaView>
     </>
   );
