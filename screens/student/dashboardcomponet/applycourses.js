@@ -42,7 +42,7 @@ const ApplyCourses = () => {
   const [showmodalcourse, setshowmodalcourse] = useState(false);
   const [showmodalinput, setshowmodalinput] = useState(false);
   const [showopcity, setshowopcity] = useState(false);
-  const [classtype, setclasstype] = useState("Virtual");
+  const [classtype, setclasstype] = useState("");
   const [course, setcourse] = useState("");
   const [country, setCountry] = useState("");
   const [state, setState] = useState("");
@@ -270,15 +270,16 @@ const ApplyCourses = () => {
     const token = await AsyncStorage.getItem("token");
     const studentId = await AsyncStorage.getItem("studentid");
     console.log(studentId);
+    if (!course || !state || !country || !cvnewname || !city || !addinfo || !classtype) {
+      seterrormsg("Fill the empty Field");
+      return;
+    }
     if (classtype === "Virtual") {
       setCountry("Virtual");
       setState("Virtual");
       setcity("Virtual");
     }
-    if (!course || !state || !country || !cvnewname || !city || !addinfo) {
-      seterrormsg("Fill the empty Field");
-      return;
-    }
+   
     const formData = {
       studentid: studentId,
       state,

@@ -1,4 +1,4 @@
-import { View, SafeAreaView, Text, ScrollView } from "react-native";
+import { View, SafeAreaView, Text, ScrollView, RefreshControl } from "react-native";
 import Header from "./header";
 import { styles } from "../../../settings/layoutsetting";
 import CoursesVerifyModal from "../../modals/courseverifyModal";
@@ -13,6 +13,8 @@ import axios from "axios";
 const ApplicationCheckers = () => {
     const [coursesData, setCoursesData] = useState([]);
     const [showLoader, setShowLoader] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+
     const fetchData = async () => {
         try {
             setShowLoader(true);
@@ -46,6 +48,14 @@ const ApplicationCheckers = () => {
     useEffect(() => {
         fetchData();
     }, []);
+ const onRefresh=()=>{
+    setRefreshing(true)
+    fetchData().finally(()=>{
+        setRefreshing(false)
+
+    }
+    )
+ }
     return (
         <>
             {showLoader && (
@@ -65,7 +75,18 @@ const ApplicationCheckers = () => {
                         </Text>
                         <Divider theme={{ colors: { primary: colorred } }} />
                     </View>
-                    <ScrollView className="mt-10 px-3">
+                    <ScrollView className="mt-10 px-3"
+                    refreshControl={
+                        <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={colorred}
+                        colors={[colorred]}
+                        
+                        />
+                    }
+                    >
+                        <View className="flex flex-row flex-wrap ">
                         {coursesData?.map((row, index) => (
                             <CoursesVerifyModal
                                 key={index}
@@ -79,6 +100,9 @@ const ApplicationCheckers = () => {
                                 </Text>
                             </View>
                         )}
+
+                        </View>
+                       
                     </ScrollView>
                 </SafeAreaView>
             </View>

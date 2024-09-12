@@ -133,7 +133,7 @@ const ProfileUpdateModal = ({ close, data, id }) => {
 
     return (
         <>
-        {showmodalcourse && <View className="bottom-0 absolute z-50 ">
+        {showmodalcourse && <View style={{zIndex:12000}} className="bottom-0 absolute">
                 <Animated.View style={[animatedStyles]}>
                     <DisplayModal
                         data={selectdata}
