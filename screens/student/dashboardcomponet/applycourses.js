@@ -625,7 +625,7 @@ const ApplyCourses = () => {
             </View>
           </ScrollView>
         </View>
-        <Footer />
+        <Footer currentPage="home" />
       </SafeAreaView>
     </>
   );

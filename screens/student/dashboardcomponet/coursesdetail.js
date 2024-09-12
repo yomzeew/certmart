@@ -278,7 +278,7 @@ const Coursedetail = () => {
                     </View>
                 </View>
             </View>
-            <Footer />
+            <Footer currentPage="home" />
         </View>
     );
 };
