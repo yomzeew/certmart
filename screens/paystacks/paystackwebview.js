@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import { View, Button, Text,TouchableOpacity } from 'react-native';
+import { View, Button, Text,TouchableOpacity,Alert } from 'react-native';
 import  { Paystack }  from 'react-native-paystack-webview';
 import { conversion, payreg } from '../../settings/endpoint';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,15 +8,28 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const PaymentScreen = ({amount,currency,email,classtype,studentid,eventcode,close,setshowsuccess }) => {
 const [showPaystack, setShowPaystack] = useState(false);
 console.log(amount,email,currency,classtype)
+const [loadingTimeout, setLoadingTimeout] = useState(null);
 
-const handlepayment=()=>{
-  setShowPaystack(true)
+  const timeoutDuration = 360000; // 360 seconds
 
-}
+  const handlepayment = () => {
+    setShowPaystack(true);
+
+    // Set a timeout for loading the payment page
+    const timeout = setTimeout(() => {
+      setShowPaystack(false);
+      Alert.alert('Error', 'The payment page took too long to load. Please try again.');
+    }, timeoutDuration);
+
+    setLoadingTimeout(timeout);
+  };
+
 const handleSuccess = async (transactionDetails) => {
   console.log('Transaction Successful:', transactionDetails);
   console.log(eventcode);
+  if (loadingTimeout) clearTimeout(loadingTimeout);
   setShowPaystack(false);
+
 
   try {
       const data = {
@@ -51,6 +64,13 @@ const handleSuccess = async (transactionDetails) => {
       }
   }
 };
+const handleCancel = () => {
+  console.log('Payment Canceled');
+  setShowPaystack(false);
+
+  // Clear any existing timeout
+  if (loadingTimeout) clearTimeout(loadingTimeout);
+};
 
   return (
 
@@ -64,8 +84,7 @@ const handleSuccess = async (transactionDetails) => {
        activityIndicatorColor="green"
        channels={["card", "bank", "ussd", "qr", "mobile_money", "bank_transfer", "eft", "apple_pay"]}
        onCancel={(e) => {
-        console.log(setShowPaystack(false))
-         // handle response here
+        handleCancel()
        }}
        onSuccess={(res) => {
         handleSuccess(res)

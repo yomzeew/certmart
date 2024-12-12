@@ -1,4 +1,4 @@
-import { View, SafeAreaView, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
+import { View, SafeAreaView, Text, ScrollView, TouchableOpacity, Platform ,RefreshControl } from "react-native";
 import Header from "./header";
 import { styles } from "../../../settings/layoutsetting";
 import CoursesVerifyModal from "../../modals/courseverifyModal";
@@ -24,6 +24,7 @@ const CourseReg = () => {
     const [currency,setCurrency]=useState('')
     const [showpayment,setshowpayment]=useState(false)
     const [showsuccess,setshowsuccess]=useState(false)
+    const [refreshing, setRefreshing] = useState(false);
 
     const toggleModal = (index) => {
         try{
@@ -75,7 +76,13 @@ const CourseReg = () => {
     
       useEffect(() => {
         fetchData();
-      }, []);
+      }, [selectedCourse]);
+
+      const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchData().finally(() => setRefreshing(false));
+      }, [fetchData]);
+    
 
       
   
@@ -126,7 +133,7 @@ const CourseReg = () => {
                     </View>
                     <View className="items-center flex-row mt-3 justify-center">
                         <View className="flex-row items-center">
-                            <FontAwesome name="warning" size={16} color="red" />
+                        <FontAwesome name="check-circle" size={30} color="orange" />
                             <Text className="text-red-500 ml-2">Await Payment</Text>
                         </View>
                         <View className="bg-slate-200 w-1 h-8 ml-2 mr-2" />
@@ -135,15 +142,17 @@ const CourseReg = () => {
                             <Text className="text-red-500 ml-2">Payment</Text>
                         </View>
                     </View>
-                    <ScrollView className="mt-10 px-3">
+                    <ScrollView 
+                     style={{ marginTop: 16, paddingHorizontal: 12 }}
+                     refreshControl={
+                       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colorred]} />
+                     }
+                    className="mt-10 px-3">
                         {datareg.map((item, index) => (
                             <View key={index} className="items-center w-full">
                                 <View className="relative flex justify-center items-center h-28">
-                                    <View className="absolute right-0 z-50 bg-slate-50 rounded-full top-0">
-                                        <FontAwesome name="check-circle" size={30} color="green" />
-                                    </View>
-                                 
-                                    <View className="rounded-2xl h-20 bg-red-200 w-[75vw] flex-row justify-center items-center">
+                               
+                                    <View className={`${selectedCourse===index?'bg-red-300':'bg-red-200'} rounded-2xl h-20 w-[75vw] flex-row justify-center items-center`}>
                                         <TouchableOpacity
                                             onPress={() => toggleModal(index)}
                                             className="items-center"
@@ -158,11 +167,13 @@ const CourseReg = () => {
                                 {/* Conditionally render the modal only for the selected course */}
                                 {selectedCourse === index && (
                                     <View className="w-full items-center">
+                                        
                                         <AvailableCourses
                                         setshowpayment={setshowpayment}
                                         item={item}
                                         setShowLoader={setShowLoader}
                                         setSelected={(value)=>setSelected(value)}
+                                        showsuccess={showsuccess}
                                          />
                                     </View>
                                 )}

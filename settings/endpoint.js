@@ -21,6 +21,7 @@ export const popularcourses = `${BaseURi}/courses?filter=popular&count=6`;
 export const allcourses = `${BaseURi}/courses?field=coursecode,course`;
 
 export const topTrainers = `${BaseURi}/trainers?filter=popular&count=6`;
+export const allTrainers=`${BaseURi}/trainers`
 
 export const countrieslist = `${BaseURi}/countries`
 export const statelist = `${BaseURi}/states`
