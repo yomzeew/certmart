@@ -26,3 +26,4 @@ console.error('There has been a problem with your fetch operation:', error);
 return []; // Return an empty array or appropriate fallback data
 }
   }
+

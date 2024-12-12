@@ -42,8 +42,9 @@ const ApplyCourses = () => {
   const [showmodalcourse, setshowmodalcourse] = useState(false);
   const [showmodalinput, setshowmodalinput] = useState(false);
   const [showopcity, setshowopcity] = useState(false);
-  const [classtype, setclasstype] = useState("");
+  const [classtype, setclasstype] = useState("Virtual");
   const [course, setcourse] = useState("");
+  const [courseid, setcourseid] = useState("");
   const [country, setCountry] = useState("");
   const [state, setState] = useState("");
   const [city, setcity] = useState("");
@@ -53,6 +54,7 @@ const ApplyCourses = () => {
   const [countryData, setCountryData] = useState([]);
   const [stateData, setStateData] = useState([]);
   const [cityData, setCityData] = useState([]);
+  const [rawdata,setrawdata]=useState([])
   const [data, setdata] = useState([]);
   const [selecttype, setselecttpe] = useState("");
   const [cvfilename, setcvfilename] = useState("");
@@ -60,7 +62,8 @@ const ApplyCourses = () => {
   const [Duration, setDuration] = useState("");
   const [cvnewname, setcvnewname] = useState("");
   const [showsuccess, setshowsuccess] = useState(false);
-
+  const [countryid,setcountryid]=useState('')
+  const [stateid,setstateid]=useState('')
   const fetchdata = async () => {
     try {
       // setshowpreloader(true)
@@ -71,6 +74,8 @@ const ApplyCourses = () => {
         },
       });
       const getdata = response.data.data;
+      console.log(getdata)
+      setrawdata(getdata)
       const getcourse = new Set(getdata.map((item, index) => `${item.course}`));
 
       setdatacourse([...getcourse]);
@@ -131,6 +136,7 @@ const ApplyCourses = () => {
   }));
   const handlecourses = () => {
     setdata(datacourse);
+    console.log(datacourse)
     setselecttpe("course");
     translateY.value = withSpring(0);
     setshowmodalcourse(!showmodalcourse);
@@ -175,7 +181,11 @@ const ApplyCourses = () => {
     try {
       setShowLoader(true);
       const datastudy = await getstudycenter(state, country);
-      setdata(datastudy);
+
+      setdata(datastudy[0]);
+      const datastudycity=datastudy[1]
+      setcountryid(datastudycity[0].country_id)
+      setstateid(datastudycity[0].id)
     } catch (error) {
     } finally {
       setShowLoader(false);
@@ -206,6 +216,14 @@ const ApplyCourses = () => {
   const handlegetvalue = (value) => {
     const getvalue = value;
     if (selecttype === "course") {
+      if(rawdata.length>0){
+        const newArray=rawdata.filter((item,index)=>(
+          item.course===getvalue
+        ))
+        setcourseid(newArray[0].coursecode)
+
+      }
+
       setcourse(getvalue);
     } else if (selecttype === "country") {
       setCountry(value);
@@ -241,6 +259,7 @@ const ApplyCourses = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
       }
+      console.log(classtype)
     };
 
     getData();
@@ -266,26 +285,27 @@ const ApplyCourses = () => {
     }
   };
 
-  const handlesubmit = async () => {
+  const handlesubmit = async () => {  
+    
     const token = await AsyncStorage.getItem("token");
     const studentId = await AsyncStorage.getItem("studentid");
     console.log(studentId);
-    if (!course || !state || !country || !cvnewname || !city || !addinfo || !classtype) {
+    if (!course) {
       seterrormsg("Fill the empty Field");
       return;
     }
-    if (classtype === "Virtual") {
+    if(!city){
       setCountry("Virtual");
       setState("Virtual");
       setcity("Virtual");
+
     }
-   
-    const formData = {
+    let formData = {
       studentid: studentId,
-      state,
-      country,
+      state:stateid,
+      country:countryid,
       studycentre: city,
-      course,
+      course:courseid,
       cv: cvnewname,
       comment: addinfo,
       decisioncomment: "add decision comment",
@@ -296,6 +316,23 @@ const ApplyCourses = () => {
       classType: classtype,
       literacy_level: computerlevel, //nullable
     };
+    if (classtype === "Virtual") {
+      
+     formData = {
+      studentid: studentId,
+      course:courseid,
+      cv: cvnewname,
+      comment: addinfo,
+      decisioncomment: "add decision comment",
+      applicationdate: currentDate,
+      approveddate: currentDate,
+      status: "Applied",
+      proceesFee: "Pending",
+      classType: classtype,
+      literacy_level: computerlevel, //nullable
+    };
+    }
+   
     try {
       setShowLoader(true);
       const data = formData;

@@ -27,60 +27,68 @@ const Login = () => {
     const navigateToDashboard = () => {
         navigation.navigate('dashboard', { screen: 'dashboardstudent' });
     };
+    
+
     const handlesubmit = async () => {
-        setshowloader(true)
+        setshowloader(true);
+    
         if (!Email) {
-            seterrorMsg('Enter your Email')
-            setshowloader(false)
-            return
-
+            seterrorMsg('Enter your Email');
+            setshowloader(false);
+            return;
         }
+    
         if (!Password) {
-            seterrorMsg('Enter your Password')
-            setshowloader(false)
+            seterrorMsg('Enter your Password');
+            setshowloader(false);
+            return;
         }
-
+    
         try {
             const data = {
                 email: Email,
-                password: Password
-            }
-            const response = await axios.post(loginstudent, data, {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            console.log('check')
+                password: Password,
+            };
+    
+            // Set timeout for the network request
+            const response = await Promise.race([
+                axios.post(loginstudent, data, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    timeout: 20000, // Timeout in milliseconds (10 seconds)
+                }),
+                new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout")), 10000)),
+            ]);
+    
             if (response.status === 200) {
-                const token = response.data.token
-                await AsyncStorage.setItem('token', token)
-                navigateToDashboard()
+                const token = response.data.token;
+                await AsyncStorage.setItem('token', token);
+                navigateToDashboard();
             }
-
-
         } catch (error) {
-            if (error.response) {
+            if (error.message === "Network Timeout") {
+                console.error("Request timed out.");
+                seterrorMsg("The request timed out. Please try again.");
+            } else if (error.response) {
                 // Server responded with a status other than 2xx
                 console.error('Error response:', error.response.data);
-                console.log(error.response.data.error)
-                seterrorMsg(error.response.data.error)
-                console.error('Error status:', error.response.status);
-                console.error('Error headers:', error.response.headers);
+                seterrorMsg(error.response.data.error);
             } else if (error.request) {
                 // Request was made but no response received
                 console.error('Error request:', error.request);
+                seterrorMsg("No response from server. Please try again.");
             } else {
                 // Something else happened while setting up the request
                 console.error('Error message:', error.message);
-
+                seterrorMsg("An error occurred. Please try again.");
             }
+        } finally {
+            setshowloader(false);
         }
-        finally {
-            setshowloader(false)
-        }
-
-    }
+    };
+    
     const handleforgowshow = () => {
         setshowforgotpass(true)
     }

@@ -1,27 +1,89 @@
-import { View, SafeAreaView, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, SafeAreaView, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
 import Header from "./header";
 import { styles } from "../../../settings/layoutsetting";
 import CoursesVerifyModal from "../../modals/courseverifyModal";
 import Preloader from "../../preloadermodal/preloaderwhite";
-import { Divider } from "react-native-paper";
+import { Avatar, Divider,RadioButton } from "react-native-paper";
 import { colorred } from "../../../constant/color";
-import { useState } from 'react';
+import { useState,useCallback,useEffect } from 'react';
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
-import { CoursesRegModalParttwo } from "../../modals/coursesRegmodal";
+import { AvailableCourses, CoursesRegModalParttwo } from "../../modals/coursesRegmodal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { getCourseStatus } from "../../../settings/endpoint";
+import PaymentScreenModal from "./dashboard/paymentScreen";
+import SuccessModal from "../../modals/successfulmodal";
 
 const CourseReg = () => {
     const [showLoader, setShowLoader] = useState(false);
-    const [datareg, setdatareg] = useState([2, 3, 4, 5]);
+    const [datareg, setdatareg] = useState([]);
+    const [data,setData]=useState([])
+    const [coursesData,setCoursesData]=useState([])
     const [selectedCourse, setSelectedCourse] = useState(null); // Store the index of the selected course
+    const [selected,setSelected]=useState('')
+    const [currency,setCurrency]=useState('')
+    const [showpayment,setshowpayment]=useState(false)
+    const [showsuccess,setshowsuccess]=useState(false)
 
     const toggleModal = (index) => {
-        if (selectedCourse === index) {
-            setSelectedCourse(null); // Close the modal if the same course is clicked again
-        } else {
-            setSelectedCourse(index); // Open the modal for the selected course
-        }
-    };
+        try{
+            setShowLoader(true);
+            if (selectedCourse === index) {
+                setSelectedCourse(null); // Close the modal if the same course is clicked again
+            } else {
+                setSelectedCourse(index); // Open the modal for the selected course
+            }
 
+        }catch(error){
+
+        }finally{
+            setShowLoader(false)
+
+        }
+       
+    };
+    const fetchData = useCallback(async () => {
+        try {
+          setShowLoader(true);
+          const token = await AsyncStorage.getItem("token");
+          const studentId = await AsyncStorage.getItem("studentid");
+          const response = await axios.get(`${getCourseStatus}/approved?studentid=${studentId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setData(response.data);
+          setCoursesData(response.data); // Default to all courses
+          const dataall=response.data
+          if(dataall.length>0){
+            const newArray=dataall.filter((item,index)=>(
+                item.status==='Approved'
+
+            ))
+            setdatareg(newArray)
+          }
+          else{
+            setCoursesData([])
+          }
+   
+        } catch (error) {
+          console.error("Error fetching data:", error.message);
+        } finally {
+          setShowLoader(false);
+        }
+      }, []);
+    
+      useEffect(() => {
+        fetchData();
+      }, []);
+
+      
+  
+
+     const handlecancel=()=>{
+        setshowsuccess(false)
+
+     }
     return (
         <>
             {showLoader && (
@@ -29,7 +91,28 @@ const CourseReg = () => {
                     <Preloader />
                 </View>
             )}
-            <View className="w-full h-full">
+            
+            <View className="w-full h-full justify-center items-center ">
+            {showsuccess &&
+             <View className="absolute z-50 h-full w-full items-center justify-center">
+            <SuccessModal
+            message={'Payment Successful'}
+            action={()=>handlecancel()}
+            />
+
+            </View>
+          
+
+}
+                {showpayment &&
+                    <PaymentScreenModal
+                    selected={selected}
+                    setshowpayment={setshowpayment}
+                    setShowLoader={setShowLoader}
+                    setshowsuccess={setshowsuccess}
+                    />
+
+                } 
                 <SafeAreaView
                     style={[styles.andriod, styles.bgcolor]}
                     className="flex flex-1 w-full"
@@ -59,35 +142,28 @@ const CourseReg = () => {
                                     <View className="absolute right-0 z-50 bg-slate-50 rounded-full top-0">
                                         <FontAwesome name="check-circle" size={30} color="green" />
                                     </View>
-                                    <View className="rounded-full h-24 w-24 bg-red-300 absolute -left-5 z-50 flex justify-center items-center">
-                                        <TouchableOpacity className="w-24 items-center">
-                                            <FontAwesome5 name="file" size={30} />
-                                            <Text className="text-xs text-center">View Course Outlined</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View className="rounded-2xl h-20 bg-red-200 w-5/6 flex-row justify-center items-center">
+                                 
+                                    <View className="rounded-2xl h-20 bg-red-200 w-[75vw] flex-row justify-center items-center">
                                         <TouchableOpacity
                                             onPress={() => toggleModal(index)}
-                                            className="px-3 w-56 items-center"
+                                            className="items-center"
                                         >
                                             <Text style={{ fontSize: 16 }} className="font-semibold text-center">
-                                                Introduction to Machine Learning & AI
+                                                {item.course}
                                             </Text>
-                                            <View className="flex-row items-center justify-center mt-2">
-                                                <FontAwesome5 name="user" size={16} />
-                                                <Text className="text-xs ml-2">Adewale Femi</Text>
-                                                <View className="ml-2 flex-row">
-                                                    <Text className="mr-1">4.2</Text>
-                                                    <FontAwesome name="star" size={14} color="orange" />
-                                                </View>
-                                            </View>
+                                         
                                         </TouchableOpacity>
                                     </View>
                                 </View>
                                 {/* Conditionally render the modal only for the selected course */}
                                 {selectedCourse === index && (
                                     <View className="w-full items-center">
-                                        <CoursesRegModalParttwo />
+                                        <AvailableCourses
+                                        setshowpayment={setshowpayment}
+                                        item={item}
+                                        setShowLoader={setShowLoader}
+                                        setSelected={(value)=>setSelected(value)}
+                                         />
                                     </View>
                                 )}
                             </View>

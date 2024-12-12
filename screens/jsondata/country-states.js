@@ -83,7 +83,7 @@ export const getstudycenter=async(state,country)=>{
 
   ))
   console.log(newdata)
-  return newdata
+  return [newdata,newarraystate]
 
 
 
