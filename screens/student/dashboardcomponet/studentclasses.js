@@ -28,15 +28,23 @@ const Classes=()=>{
                     axios.get(`${getCourseStatus}/approved?studentid=${studentId}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }).then((res) => res.data),
+                    
                     axios.get(`${classes}/students?id=${studentId}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }).then((res) => res.data),
                     axios.get(allTrainers).then((res) => res.data),
+
                 ]);
-                console.log('ok',paidCourses)
+               
+                const trainerAvailabilitiesPromises = approvedCourses.map((course) =>
+                    axios.get(`${BaseURi}/traineravailabilites/${course.courseid}?orderBy=${course.classtype}`)
+                        .then((res) => res.data)
+                        .catch(() => null) // Handle failures gracefully
+                );
+                const trainerAvailabilities = await Promise.all(trainerAvailabilitiesPromises);
         
                 const combinedData = paidCourses.map((classItem) => {
-                    const matchingCourse = approvedCourses.find(
+                    const matchingCourse = trainerAvailabilities.find(
                         (course) => course.eventcode === classItem.eventid && course?.paymentstatus === 1
                     );
 
