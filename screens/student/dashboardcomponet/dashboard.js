@@ -1,11 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import {
-  Avatar,
-  Surface,
+
   TextInput,
-  Chip,
-  Card,
-  Button,
+
 } from "react-native-paper";
 import {
   SafeAreaView,
@@ -13,19 +10,10 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  Image,
-  ImageBackground,
 } from "react-native";
 import { styles } from "../../../settings/layoutsetting";
 import { colorred, grey } from "../../../constant/color";
-import {
-  FontAwesome5,
-  FontAwesome,
-  MaterialCommunityIcons,
-  Ionicons,
-} from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { Drawer } from "react-native-paper";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -47,6 +35,8 @@ import axios from "axios";
 import Preloader from "../../preloadermodal/preloaderwhite";
 import DisplayModal from "../../modals/datadisplay";
 import Toptrainer from "./dashboard/toptrainer";
+import { fetchallavailablecourse } from "./fetchdata";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 const Dashboard = () => {
   const navigation = useNavigation();
@@ -55,6 +45,8 @@ const Dashboard = () => {
   const [showmodalcourse, setshowmodalcourse] = useState(false);
   const [showopcity, setshowopcity] = useState(false);
   const [coursesdata, setcoursesdata] = useState([]);
+  const [showModal, setshowModal] = useState(false)
+  const [availablecourse,setavailablecourse]=useState([])
 
   const fetchdata = async () => {
     try {
@@ -115,7 +107,7 @@ const Dashboard = () => {
         // Something else happened while setting up the request
         console.error("Error message:", error.message);
       }
-    } 
+    }
   };
   useEffect(() => {
     fetchdata();
@@ -181,8 +173,54 @@ const Dashboard = () => {
     setshowmodalcourse(value);
     translateY.value = withSpring(300);
   };
+  const handlecloseallcourse = () => {
+    setshowModal(false)
+  }
+  const handlegetallcourses=()=>{
+    fetchallavailablecourse(setshowpreloader)
+  .then((courses) => {
+    setavailablecourse(courses)
+    console.log("Available Courses:", courses);
+  })
+  .catch((error) => {
+    console.error("Failed to fetch courses:", error);
+  });
+  }
+  useEffect(()=>{
+   handlegetallcourses()
+  },[])
   return (
     <>
+      {showModal &&
+      <>
+       <View className="h-full w-full z-50  absolute bg-red-100 opacity-70" />
+          <View className="h-[70vh] w-full bg-white bottom-0 absolute z-50">
+          <View className="items-end p-3">
+                            <TouchableOpacity onPress={handlecloseallcourse}><FontAwesome5 size={20} color={colorred} name="times-circle" /></TouchableOpacity>
+                        </View>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+            >
+              {availablecourse.length > 0 ?availablecourse.map((item, index) => {
+                return (
+                  <TouchableOpacity key={index} onPress={() => handlegetvalue(item)} className="bg-slate-50 px-5 h-12 flex justify-center w-full border-b border-t border-lightred mt-2">
+                    <Text style={{ fontSize: 16 }}>
+                      {item}
+                    </Text>
+                  </TouchableOpacity>
+
+                )
+              }) : <View><Text>No Records Found</Text></View>
+
+              }
+
+            </ScrollView>
+
+          </View>
+          </>
+
+
+      }
       {showopcity && (
         <View className="h-full w-full z-50  absolute bg-red-100 opacity-70" />
       )}
@@ -231,20 +269,15 @@ const Dashboard = () => {
           <ScrollView showsVerticalScrollIndicator={false}>
             <Categories
               handlecallbackvalue={(value) => handlepickcategories(value)}
+              setshowModal={setshowModal}
+              showModal={showModal}
+              handleactionseeall={handlegetallcourses}
             />
             <View className="px-3 mt-3">
               <View className="flex justify-between flex-row items-center">
                 <Text style={{ fontSize: 16 }} className="font-semibold">
                   Popular Courses
                 </Text>
-                <TouchableOpacity>
-                  <Text
-                    style={{ color: colorred, fontSize: 14 }}
-                    className="font-semibold"
-                  >
-                    See all
-                  </Text>
-                </TouchableOpacity>
               </View>
               <ScrollView showsHorizontalScrollIndicator={false} horizontal>
                 <PopularCourses data={data} />

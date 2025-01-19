@@ -22,14 +22,14 @@ const Chooseplaform=()=>{
             <FontAwesome5 name="user-graduate" size={60} color={colorred} />
             <Text style={{fontSize:16}} className="font-semibold">Student</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handlenavigate('trainer')} className="w-32 h-32 items-center mt-3 rounded-xl bg-green-200 justify-center">
+            {/* <TouchableOpacity onPress={handlenavigate('trainer')} className="w-32 h-32 items-center mt-3 rounded-xl bg-green-200 justify-center">
             <FontAwesome5 name="user" size={60} color={greencolor} />
             <Text style={{fontSize:16}} className="font-semibold">Trainer</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handlenavigate('study-center')} className="w-32 h-32 items-center mt-3 rounded-xl bg-cyan-200 justify-center">
             <FontAwesome6 name="building-columns" size={60} color={bluecolor} />
             <Text style={{fontSize:16}} className="font-semibold">Study Center</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
 
         </View>

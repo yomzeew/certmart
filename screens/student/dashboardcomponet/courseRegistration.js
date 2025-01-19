@@ -13,6 +13,7 @@ import axios from "axios";
 import { getCourseStatus } from "../../../settings/endpoint";
 import PaymentScreenModal from "./dashboard/paymentScreen";
 import SuccessModal from "../../modals/successfulmodal";
+import { CourseDetailsModal } from "../../modals/coursesdetailsModal";
 
 const CourseReg = () => {
     const [showLoader, setShowLoader] = useState(false);
@@ -25,6 +26,8 @@ const CourseReg = () => {
     const [showpayment,setshowpayment]=useState(false)
     const [showsuccess,setshowsuccess]=useState(false)
     const [refreshing, setRefreshing] = useState(false);
+    const [content, setcontent] = useState('')
+    const [showcontent, setshowcontent] = useState(false)
 
     const toggleModal = (index) => {
         try{
@@ -93,6 +96,13 @@ const CourseReg = () => {
      }
     return (
         <>
+        {showcontent && 
+        <CourseDetailsModal
+        content={content} 
+        setshowcontent={setshowcontent}
+        showcontent={showcontent}
+        /> 
+        }
             {showLoader && (
                 <View className="z-50 absolute h-full w-full">
                     <Preloader />
@@ -157,9 +167,10 @@ const CourseReg = () => {
                                             onPress={() => toggleModal(index)}
                                             className="items-center"
                                         >
-                                            <Text style={{ fontSize: 16 }} className="font-semibold text-center">
-                                                {item.course}
-                                            </Text>
+                                            <View >
+                                                <Text style={{ fontSize: 20 }} className="font-semibold text-center">Select</Text>
+                                                <Text style={{ fontSize: 14 }} className="font-semibold text-center">{item.course}</Text>
+                                            </View>
                                          
                                         </TouchableOpacity>
                                     </View>
@@ -174,6 +185,10 @@ const CourseReg = () => {
                                         setShowLoader={setShowLoader}
                                         setSelected={(value)=>setSelected(value)}
                                         showsuccess={showsuccess}
+                                        showcontent={showcontent}
+                                        setshowcontent={setshowcontent}
+                                        content={content}
+                                        setcontent={setcontent}
                                          />
                                     </View>
                                 )}

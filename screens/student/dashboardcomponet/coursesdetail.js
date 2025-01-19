@@ -5,6 +5,7 @@ import {
     View,
     Text,
     TouchableOpacity,
+    Pressable,
 } from "react-native";
 import { styles } from "../../../settings/layoutsetting";
 import { StatusBar } from "expo-status-bar";
@@ -14,13 +15,15 @@ import { ScrollView } from "react-native-gesture-handler";
 import { Avatar, Divider } from "react-native-paper";
 import Header from "./header";
 import Footer from "./footer";
-import { allcourses } from "../../../settings/endpoint";
+import { allavailablecourse } from "../../../settings/endpoint";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Preloader from "../../preloadermodal/preloaderwhite";
 import { fieldtexttwo } from "../../../settings/fontsetting";
+import { AvailableCourses } from "../../modals/coursesRegmodal";
+import { CourseDetailsModal } from "../../modals/coursesdetailsModal";
 
 const Coursedetail = () => {
     const { height } = Dimensions.get("window");
@@ -29,17 +32,29 @@ const Coursedetail = () => {
     const { course } = route.params;
     const [coursesdata, setcoursesdata] = useState([]);
     const [showpreloader, setshowpreloader] = useState(false);
+    const [courseTitle,setcourseTitle]=useState('')
+    const [content, setcontent] = useState('')
+    const [showcontent, setshowcontent] = useState(false)
     const fetchdata = async () => {
         try {
             setshowpreloader(true);
             const token = await AsyncStorage.getItem("token");
-            const response = await axios.get(`${allcourses}/${course}`, {
+            const response = await axios.get(`${allavailablecourse}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log(response.data.data);
-            setcoursesdata(response.data.data);
+        
+            
+            const newArray=response.data.filter((item,index)=>(
+                item.courses===course
+              ))
+              console.log(newArray)
+
+            
+              setcoursesdata(newArray);
+              setcourseTitle(newArray[0].course)
+
         } catch (error) {
             if (error.response) {
                 // Server responded with a status other than 2xx
@@ -65,6 +80,15 @@ const Coursedetail = () => {
         navigation.goBack();
     };
     return (
+        <>
+         {showcontent && 
+        <CourseDetailsModal
+        content={content} 
+        setshowcontent={setshowcontent}
+        showcontent={showcontent}
+        /> 
+        }
+
         <View style={[styles.bgcolor]} className="flex-1 w-full">
             <StatusBar style="auto" />
             {showpreloader && (
@@ -72,8 +96,8 @@ const Coursedetail = () => {
                     <Preloader />
                 </View>
             )}
-            <View className="flex-1">
-                <View style={{ height: height * 0.3 }} className="w-full">
+          <View className="flex-1">
+              <View style={{ height: height * 0.2 }} className="w-full">
                     <View className="absolute z-50 top-10 w-full">
                         <View className="bg-slate-100 opacity-80 py-2">
                             <Header />
@@ -85,20 +109,51 @@ const Coursedetail = () => {
                             <Text className={`${fieldtexttwo} text-white`}>Go Back</Text>
                         </TouchableOpacity>
                     </View>
-
-                    <Image
-                        source={{
-                            uri: `https://certmart.org/icon/${coursesdata.icon
-                                }.jpeg?timestamp=${new Date().getTime()}`,
-                        }}
-                        className="h-full w-full"
-                    />
-                    <View className="px-5 w-full -mt-10">
+                    </View>
+                    <View className="px-5 w-full">
                         <View
-                            style={{ elevation: 6, height: height * 0.6 }}
-                            className="rounded-2xl flex  bg-slate-50 shadow-lg shadow-slate-500 "
+                            style={{ elevation: 6, maxHeight: height * 0.7 }}
+                            className="rounded-2xl flex px-2 py-3  bg-slate-50 shadow-lg shadow-slate-500 "
                         >
-                            <View className="mt-2 flex justify-between flex-row px-5">
+                            <View className="h-16 item-center  justify-center w-full">
+                                    <Text className="text-2xl text-center">{courseTitle}</Text>
+                                </View>
+                            <View className="h-5/6 w-full">
+                                <ScrollView>
+                            {coursesdata.length>0&&coursesdata.map((item,index)=>
+                             <View className="w-full items-center">          
+                             <AvailableCourses
+                            //  setshowpayment={setshowpayment}
+                             item={item}
+                             setShowLoader={setshowpreloader}
+                             setSelected={(value)=>setSelected(value)}
+                             showcontent={showcontent}
+                             setshowcontent={setshowcontent}
+                             content={content}
+                             setcontent={setcontent}
+                            //  showsuccess={showsuccess}
+                              />
+                         </View>
+                            // <TouchableOpacity key={index} className="mt-3">
+                            //     <View className="bg-red-300 h-20 w-full rounded-2xl flex-row items-center justify-around ">
+                            //         <View className="h-12 w-12 rounded-full bg-red- items-center justify-center"><Text>{index+1}</Text></View>
+                            //         <Text>N{item.cost}</Text>
+                            //         <View className="items-center">
+                            //         <Text>{item.duration}weeks</Text>
+                            //         <Text>{item.classType}</Text>
+                            //         </View>
+                            //         <View className="items-center">
+                            //         <Text>Trainer Name</Text>
+                            //         <Text className="font-bold">{item.tfirstname+' '+item.tsurname}</Text>
+                            //         </View>
+                            //     </View>    
+                            // </TouchableOpacity>
+                            )}
+                            </ScrollView>
+
+                            </View>
+                         
+                            {/* <View className="mt-2 flex justify-between flex-row px-5">
                                 <Text style={{ fontSize: 16, color: colorred }} className="">
                                     {coursesdata.category}
                                 </Text>
@@ -273,13 +328,13 @@ const Coursedetail = () => {
                                         </View>
                                     </View>
                                 </ScrollView>
-                            </View>
-                        </View>
+                            </View> */}
                     </View>
                 </View>
-            </View>
+            </View> 
             <Footer currentPage="home" />
         </View>
+        </>
     );
 };
 export default Coursedetail;

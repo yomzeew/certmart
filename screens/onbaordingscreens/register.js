@@ -17,6 +17,7 @@ const RegisterPage = () => {
     const [Middlename, setMiddlename] = useState('');
     const [Firstname, setFirstname] = useState('');
     const [Gender, setGender] = useState('');
+    const [phonenumber,setphonenumber]=useState('')
     const [Agreement, setAgreement] = useState(false);
     const [errormsg,seterrormsg]=useState('')
     const [showloader, setshowloader] = useState(false);
@@ -186,6 +187,15 @@ const handleaction=()=>{
                                         theme={{ colors: { primary: colorred } }}
                                         onChangeText={text => setEmail(text)}
                                         value={Email}
+                                        className="w-3/4 mt-3 bg-slate-50"
+                                        textColor="#000000"
+                                    />
+                                     <TextInput
+                                        label="Phone Number"
+                                        mode="outlined"
+                                        theme={{ colors: { primary: colorred } }}
+                                        onChangeText={text => setphonenumber(text)}
+                                        value={phonenumber}
                                         className="w-3/4 mt-3 bg-slate-50"
                                         textColor="#000000"
                                     />

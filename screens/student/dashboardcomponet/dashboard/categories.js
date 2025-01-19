@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { colorred } from '../../../../constant/color'
 import {View,Text,TouchableOpacity,ScrollView} from 'react-native'
 
-const Categories=({handlecallbackvalue})=>{
+const Categories=({handlecallbackvalue,showModal,setshowModal,handleactionseeall})=>{
     const [categorydata,setcategorydata]=useState([])
     const fetchdata=async()=>{
         try{
@@ -45,13 +45,17 @@ const Categories=({handlecallbackvalue})=>{
     const handlepickvalue=(value)=>{
         handlecallbackvalue(value)
     }
+    const handleshowmodal=()=>{
+        handleactionseeall()
+        setshowModal(!showModal)
+    }
     return(
         <View className="px-3 mt-3">
         <View className="flex justify-between flex-row items-center">
             <Text style={{ fontSize: 16 }} className="font-semibold">
                 Categories
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleshowmodal}>
                 <Text style={{ color: colorred, fontSize: 14 }} className="font-semibold">
                     See all
                 </Text>
@@ -67,14 +71,16 @@ const Categories=({handlecallbackvalue})=>{
                    { if(item !== ''){
                     return(
                         <View className="p-3">
-                             <TouchableOpacity onPress={()=>handlepickvalue(item)} style={{elevation:5}} className="p-5 items-center rounded-2xl flex justify-center bg-white shadow-sm shadow-slate-500">
+                             <TouchableOpacity onPress={()=>handlepickvalue(item)} style={{elevation:5}} className="h-28 w-28 items-center rounded-2xl flex justify-center bg-white shadow-sm shadow-slate-500">
                          {item==='ACAD'&&<Ionicons name="school" size={40} color={colorred} />}
                          {item==='TECH'&&<FontAwesome5 name="cogs" size={40} color={colorred} />}
                          {item==='VOC'&&<MaterialIcons name="engineering" size={40} color={colorred} />}
+                         {item==='OTHER'&&<Text className="text-sm font-bold">Other</Text>}
                                  <View className=" items-center w-full">
                                      {item==='ACAD' &&<Text style={{ fontSize: 16 }} className="text-black font-semibold text-center">Academy</Text>}
                                      {item==='TECH' &&<Text style={{ fontSize: 16 }} className="text-black font-semibold text-center">Tech</Text>}
                                      {item==='VOC' &&<Text style={{ fontSize: 16 }} className="text-black font-semibold text-center">Vocational</Text>}
+                                     {item==='OTHER' &&<Text style={{ fontSize: 16 }} className="text-black font-semibold text-center">Vocational</Text>}
                                  </View>
          
                             

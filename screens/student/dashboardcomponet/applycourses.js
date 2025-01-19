@@ -15,7 +15,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useCallback } from "react";
 import Footer from "./footer";
 import DisplayModal from "../../modals/datadisplay";
 import { fetchData } from "../../jsondata/fetchfunction";
@@ -24,7 +24,7 @@ import { uploadFile } from "../../uploadfile/uploadfile";
 import InputModal from "../../modals/inputmodal";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { allcourses, applyAdmission } from "../../../settings/endpoint";
+import { allavailablecourse, allcourses, applyAdmission } from "../../../settings/endpoint";
 import {
   countrylist,
   fecthcountrysate,
@@ -64,40 +64,39 @@ const ApplyCourses = () => {
   const [showsuccess, setshowsuccess] = useState(false);
   const [countryid,setcountryid]=useState('')
   const [stateid,setstateid]=useState('')
-  const fetchdata = async () => {
+  const fetchdata = useCallback(async () => {
     try {
-      // setshowpreloader(true)
+     setShowLoader(true);
       const token = await AsyncStorage.getItem("token");
-      const response = await axios.get(allcourses, {
+      const response = await axios.get(allavailablecourse, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      const getdata = response.data.data;
-      console.log(getdata)
-      setrawdata(getdata)
-      const getcourse = new Set(getdata.map((item, index) => `${item.course}`));
-
+  
+      const getdata = response.data;
+      console.log(getdata);
+  
+      setrawdata(getdata);
+  
+      const getcourse = new Set(getdata.map((item) => `${item.course}`));
+  
       setdatacourse([...getcourse]);
       setdata([...getcourse]);
     } catch (error) {
       if (error.response) {
-        // Server responded with a status other than 2xx
         console.error("Error response:", error.response.data);
-        console.log(error.response.data.error);
         console.error("Error status:", error.response.status);
         console.error("Error headers:", error.response.headers);
       } else if (error.request) {
-        // Request was made but no response received
         console.error("Error request:", error.request);
       } else {
-        // Something else happened while setting up the request
         console.error("Error message:", error.message);
       }
     } finally {
-      // setshowpreloader(false)
+      setShowLoader(false);
     }
-  };
+  }, [allavailablecourse, setrawdata, setdatacourse, setdata]);
   useEffect(() => {
     fetchdata();
     setdata(datacourse);
@@ -220,7 +219,7 @@ const ApplyCourses = () => {
         const newArray=rawdata.filter((item,index)=>(
           item.course===getvalue
         ))
-        setcourseid(newArray[0].coursecode)
+        setcourseid(newArray[0].courses)
 
       }
 
@@ -300,6 +299,11 @@ const ApplyCourses = () => {
       setcity("Virtual");
 
     }
+  if(!cvnewname){
+    seterrormsg("Fill the empty Field");
+    return
+
+  }
     let formData = {
       studentid: studentId,
       state:stateid,

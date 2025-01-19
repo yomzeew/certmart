@@ -1,8 +1,8 @@
-import { SafeAreaView,View,Text, Linking, ScrollView } from "react-native"
+import { SafeAreaView, View, Text, Linking, ScrollView } from "react-native"
 import Header from "./header"
 import { Avatar, Divider } from "react-native-paper"
 import { colorred } from "../../../constant/color"
-import { allTrainers, classes, getCourseStatus } from "../../../settings/endpoint"
+import { allTrainers, BaseURi, classes, getCourseStatus } from "../../../settings/endpoint"
 import { useCallback, useEffect, useState } from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import axios from "axios"
@@ -12,9 +12,11 @@ import { FontAwesome } from "@expo/vector-icons"
 
 
 
-const Classes=()=>{
+const Classes = () => {
 
-    const [data,setdata]=useState([])
+    const [data, setdata] = useState([])
+    const [currentindex, setcurrentindex] = useState('')
+    const [objectdata, setobjectdata] = useState('')
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -28,31 +30,38 @@ const Classes=()=>{
                     axios.get(`${getCourseStatus}/approved?studentid=${studentId}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }).then((res) => res.data),
-                    
+
                     axios.get(`${classes}/students?id=${studentId}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     }).then((res) => res.data),
                     axios.get(allTrainers).then((res) => res.data),
 
                 ]);
-               
+
                 const trainerAvailabilitiesPromises = approvedCourses.map((course) =>
                     axios.get(`${BaseURi}/traineravailabilites/${course.courseid}?orderBy=${course.classtype}`)
                         .then((res) => res.data)
-                        .catch(() => null) // Handle failures gracefully
+                        .catch((error) => {
+                            console.error(`Failed to get availability for course ${course.courseid}`, error.message);
+                            return null; // Return null if the request fails
+                        })
                 );
+
                 const trainerAvailabilities = await Promise.all(trainerAvailabilitiesPromises);
-        
+                // filter where payment paid
+               
                 const combinedData = paidCourses.map((classItem) => {
-                    const matchingCourse = trainerAvailabilities.find(
-                        (course) => course.eventcode === classItem.eventid && course?.paymentstatus === 1
-                    );
+                    const validAvailabilities = trainerAvailabilities.filter(courseList => Array.isArray(courseList));
 
-
+                        const matchingCourse=validAvailabilities[0].length>0 && validAvailabilities[0].filter((a)=>(
+                            a.eventcode===classItem.eventid
+                        ))
+                        console.log(matchingCourse[0]?.duration )
                     const matchingTrainer = trainers.data.find(
                         (trainer) => trainer.trainerid === classItem.t_id
                     );
-
+                 
+                    
                     return {
                         course: classItem.course,
                         amount: classItem.amountpaid,
@@ -67,16 +76,15 @@ const Classes=()=>{
                         state: classItem.c_state,
                         startdate: classItem.startdate,
                         canceled: classItem.canceled,
-                        duration: matchingCourse?.duration || classItem.duration || null,
-                        days: matchingCourse?.days || classItem.days || null,
-                        classType: matchingCourse?.classType || classItem.classtype || null,
+                        duration: matchingCourse[0]?.duration || classItem.duration || null,
+                        days: matchingCourse[0]?.days || classItem.days || null,
+                        classType: matchingCourse[0]?.classType || classItem.classtype || null,
                         trainerName: matchingTrainer?.name || null,
                         trainerDp: matchingTrainer?.dp || null,
                         trainerEmail: matchingTrainer?.email,
                         trainerPhone: matchingTrainer?.phone,
                     };
                 });
-                
 
                 setdata(combinedData);
             } catch (error) {
@@ -86,45 +94,62 @@ const Classes=()=>{
 
         fetchData();
     }, []);
-  
-  
-    
-return(
-    <>
-    <View className="h-full w-full">
-    <SafeAreaView >
-        <Header/>
-        <View className="px-5">
-                        <Text style={{ fontSize: 20, color: colorred }} className="font-semibold">
-                            Available Classes
-                        </Text>
-                        <Divider theme={{ colors: { primary: colorred } }} />
-        </View>
-        <View className="px-3">
-        <TouchableOpacity className="relative mt-3">
-            <View className="w-16 h-16 rounded-full items-center justify-center bg-red-400 absolute left-0 z-50">
-                <Text className="text-lg">01</Text>
-            </View>
-            <View className="bg-red-200 h-16 w-full rounded-full justify-center items-center">
-                <Text className="text-lg">Web Design</Text>
-            </View>
-        </TouchableOpacity>
-        <View className="mt-5">
-            <ClassesDetails/>
-        </View>
+    const handleshowdetails = (object, index) => {
+        setcurrentindex(index)
+        setobjectdata(object)
 
-        </View>
-        
-    </SafeAreaView>
-    </View>
+    }
 
-    </>
-)}
+
+    return (
+        <>
+            <View className="h-full w-full">
+                <View className="mt-[44px]">
+                    <Header />
+                </View>
+
+                <View className="px-5">
+                    <Text style={{ fontSize: 20, color: colorred }} className="font-semibold">
+                        Available Classes
+                    </Text>
+                    <Divider theme={{ colors: { primary: colorred } }} />
+                </View>
+                <View className="flex-1">
+                    <ScrollView className="px-3 pb-20">
+                        {data.length > 0 &&
+                            data.map((item, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    onPress={() => handleshowdetails(item, index)}
+                                    className="relative mt-3"
+                                >
+                                    <View className="w-16 h-16 rounded-full items-center justify-center bg-red-400 absolute left-0 z-50">
+                                        <Text className="text-lg">{index + 1}</Text>
+                                    </View>
+                                    <View className="bg-red-200 h-16 w-full rounded-full justify-center items-center pl-5">
+                                        <Text className="text-sm">{item.course}</Text>
+                                    </View>
+                                    {currentindex === index && (
+                                        <View className="mt-5">
+                                            <ClassesDetails item={item} />
+                                        </View>
+                                    )}
+                                </TouchableOpacity>
+                            ))}
+                    </ScrollView>
+
+                </View>
+
+            </View>
+
+        </>
+    )
+}
 export default Classes
 
-const ClassesDetails=()=>{
-    const item=0
-  
+const ClassesDetails = ({ item }) => {
+
+
     const handleEmailPress = () => {
         Linking.openURL('mailto:yomzeew@gmail.com');
     };
@@ -132,66 +157,78 @@ const ClassesDetails=()=>{
     const handlePhonePress = () => {
         Linking.openURL('tel:08166564618');
     };
-    return(
+ const getDateEnddate=(inputDate,weeks)=>{
+    const baseDate = new Date(inputDate);
+baseDate.setDate(baseDate.getDate() + weeks*7 ); // Add 14 days
+
+const resultDate = baseDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+return resultDate;
+
+    }
+    return (
         <>
-        <View className="h-auto py-3 w-full bg-red-100 rounded-2xl">
-            <View className="flex-row justify-around">
-                <TouchableOpacity className="flex-row justify-around w-32 bg-red-400 h-8 items-center rounded-2xl -mt-3">
-                    <Text>Course Details</Text>
-                </TouchableOpacity>
-                <TouchableOpacity className="flex-row justify-center w-32 bg-red-300 h-8 items-center rounded-2xl -mt-3">
-                    <FontAwesome name="book" size={16} />
-                    <Text>Receipt</Text>
-                </TouchableOpacity>
+            <View className="h-auto py-3 w-full bg-red-100 rounded-2xl">
+                <View className="flex-row justify-around">
+                    <TouchableOpacity className="flex-row justify-around w-32 bg-red-400 h-8 items-center rounded-2xl -mt-3">
+                        <Text>Course Details</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity className="flex-row justify-center w-32 bg-red-300 h-8 items-center rounded-2xl -mt-3">
+                        <FontAwesome name="book" size={16} />
+                        <Text>Receipt</Text>
+                    </TouchableOpacity>
 
 
-            </View>
-            <View className="w-full py-5 justify-center flex-row items-center"> 
-            {item===1?<Avatar.Image source={{uri:`https://certmart.org/dps/${item.dp}.jpg?timestamp=${new Date().getTime()}`}}/>:<Avatar.Image source={require('../../images/avatermale.png')}/>}
-            <View className="w-2" />
-            <View className="items-center">
-                <Text className="text-lg">Oluwasuyi Babayomi | Jit/t/0444</Text>
-                <Text className="mt-1"><TouchableOpacity className="bg-red-300 py-1 rounded-2xl px-3" onPress={handleEmailPress}><Text>yomzeew@gmail.com</Text></TouchableOpacity>  <TouchableOpacity className="bg-red-300 py-1 rounded-2xl px-3"onPress={handlePhonePress}><Text>08166564618</Text></TouchableOpacity></Text>
-            </View>
-            </View>
-            <View className="">
-            <View className="items-center flex-row justify-between px-3 ">
-                <Text className="text-xs">Class Type:Physical</Text>
-                <View className="w-2" />
-                <Text className="text-xs">No 1 Road 202 FHE </Text>
-            </View>
-            <View className="items-center flex-row justify-between px-3 ">
-                <Text className="text-xs">Akure, Ondo State</Text>
-                <View className="w-2" />
-                <Text className="text-xs">Nigeria</Text>
-            </View>
-
-            </View>
-            <View className="px-3 w-full mt-3">
-            <View className=" flex-row justify-between">
-                <Text>Start Date</Text>
-                <Text>End Date</Text>
-            </View>
-            <View className="flex-row justify-between items-center">
-                <View className="w-5 h-5 rounded-full bg-orange-500"/>
-                <View className="bg-orange-200 flex-1 h-4">
-                <View style={{ width:'80%'}} className="bg-green-500 h-4 items-end">
-                    <Text>Day 15</Text>
+                </View>
+                <View className="w-full py-5 justify-center flex-row items-center">
+                    {item === 1 ? <Avatar.Image source={{ uri: `https://certmart.org/dps/${item.dp}.jpg?timestamp=${new Date().getTime()}` }} /> : <Avatar.Image source={require('../../images/avatermale.png')} />}
+                    <View className="w-2" />
+                    <View className="items-center">
+                        <Text className="text-lg">{item.trainerSurname} {item.trainerFirstname} | {item.trainerId}</Text>
+                        <Text className="mt-1"><TouchableOpacity className="bg-red-300 py-1 rounded-2xl px-3" onPress={handleEmailPress}><Text>{item.trainerEmail}</Text></TouchableOpacity>  <TouchableOpacity className="bg-red-300 py-1 rounded-2xl px-3" onPress={handlePhonePress}><Text>{item.trainerPhone}</Text></TouchableOpacity></Text>
                     </View>
                 </View>
-                
-                <View className="w-5 h-5 rounded-full bg-green-500"/>
-            </View>
+                <View className="">
+                    <View className="items-center flex-row justify-between px-3 ">
+                        <Text className="text-xs">Class Type:{item.classType}</Text>
+                        {item.classType !== 'Virtual' && (
+                            <>
+                                <View className="w-2" />
+                                <Text className="text-xs">
+                                    {item.hubaddress}
+                                </Text>
+                            </>
+                        )}
+                    </View>
+                      {item.classType !== 'Virtual' && (<View className="items-center flex-row justify-between px-3 ">
+                        <Text className="text-xs">{item.city}</Text>
+                        <View className="w-2" />
+                        <Text className="text-xs">{item.country}</Text>
+                    </View>)}
 
+                </View>
+                <View className="px-3 w-full mt-3">
+                    <View className=" flex-row justify-between">
+                        <Text>{item.startdate.split(" ")[0]}</Text>
+                        <Text>{getDateEnddate(item.startdate.split(" ")[0],item.duration)}</Text>
+                    </View>
+                    <View className="flex-row justify-between items-center">
+                        <View className="w-5 h-5 rounded-full bg-orange-500" />
+                        <View className="bg-orange-200 flex-1 h-4">
+                            <View style={{ width: '80%' }} className="bg-green-500 h-4 items-end">
+                                <Text>Day 15</Text>
+                            </View>
+                        </View>
+
+                        <View className="w-5 h-5 rounded-full bg-green-500" />
+                    </View>
+                </View> 
+                <DayBooks />
+                <View className="mt-3 flex-row justify-around">
+                    <Text>Time:12:00-3:00</Text>
+                    <Text>Duration:3hours</Text>
+                </View>
 
             </View>
-            <DayBooks/>
-            <View className="mt-3 flex-row justify-around">
-                <Text>Time:12:00-3:00</Text>
-                <Text>Duration:3hours</Text>
-            </View>
-            
-        </View>
         </>
     )
 }
@@ -237,9 +274,8 @@ const DayBooks = ({ day }) => {
                             return (
                                 <TouchableOpacity
                                     key={index}
-                                    className={`w-12 h-24 ${
-                                        isBooked ? 'bg-green-300' : 'bg-red-300'
-                                    } rounded-2xl ml-1 items-center justify-center`}
+                                    className={`w-12 h-24 ${isBooked ? 'bg-green-300' : 'bg-red-300'
+                                        } rounded-2xl ml-1 items-center justify-center`}
                                 >
                                     <Text>{item}</Text>
                                     <Text>{weekDates[index]}</Text>

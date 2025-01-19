@@ -19,6 +19,8 @@ export const coursescategoriesfilter = `${BaseURi}/courses?`;
 export const coursesall = `${BaseURi}/courses`;
 export const popularcourses = `${BaseURi}/courses?filter=popular&count=6`;
 export const allcourses = `${BaseURi}/courses?field=coursecode,course`;
+//list availablibities courses
+export const allavailablecourse=`${BaseURi}/traineravailabilities`
 
 export const topTrainers = `${BaseURi}/trainers?filter=popular&count=6`;
 export const allTrainers=`${BaseURi}/trainers`

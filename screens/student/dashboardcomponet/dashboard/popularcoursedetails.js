@@ -5,7 +5,7 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useNavigation } from "@react-navigation/native";
 import { colorred, grey } from '../../../../constant/color'
-import {View,Text,TouchableOpacity,ScrollView} from 'react-native'
+import {View,Text,TouchableOpacity,ScrollView, Pressable} from 'react-native'
 import { Card } from 'react-native-paper'
 const PopularCoursesdetails=({data})=>{
     const navigation = useNavigation();
@@ -18,11 +18,11 @@ const PopularCoursesdetails=({data})=>{
                 <View className="p-2" key={index}>
                         <TouchableOpacity onPress={()=>handlenavigate(item.coursecode)}>
                
-               <Card className="w-56 h-64 bg-white">
+               <Card className="w-56 h-auto bg-white">
                     <Card.Cover source={{uri: `https://certmart.org/icon/${item.icon}.jpeg?timestamp=${new Date().getTime()}` }} />
                     <Card.Content>
                         <Text style={{ color: colorred }} className="font-semibold mt-2" variant="titleLarge">{item.course}</Text>
-                        <Text variant="bodyMedium">₦{item.cost} | Duration {item.duration} weeks</Text>
+                       
                     </Card.Content>
                 </Card>
                 </TouchableOpacity> 

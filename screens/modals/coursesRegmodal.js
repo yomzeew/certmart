@@ -133,14 +133,13 @@ export const CoursesRegModalParttwo = ({ item }) => {
 
     )
 }
-export const AvailableCourses = ({ setshowpayment, item, setShowLoader, setSelected, showsuccess }) => {
-    const courseid = item.courseid
-    console.log(courseid)
+export const AvailableCourses = ({ setshowpayment, item, setShowLoader, setSelected, showsuccess,showcontent,content,setcontent,setshowcontent }) => {
+    const courseid = item?.courseid || item?.courses
+    console.log('coursenew',courseid)
     const classtype = item.classtype
     const [data, setdata] = useState([])
     const [trainerdata, settrainerdata] = useState([])
-    const [content, setcontent] = useState('')
-    const [showcontent, setshowcontent] = useState(false)
+
 
     const fetchlistcourse = async () => {
         try {
@@ -151,7 +150,6 @@ export const AvailableCourses = ({ setshowpayment, item, setShowLoader, setSelec
             );
 
             setdata(response.data); // Set initial data
-            console.log(response.data)
             if (response.data.length === 0) {
                 Alert.alert('No Trainer available for this course at this time');
             }
@@ -184,7 +182,6 @@ export const AvailableCourses = ({ setshowpayment, item, setShowLoader, setSelec
             );
 
             const paidCourses = response.data;
-            console.log("Fetched paid courses:", paidCourses);
 
             if (Array.isArray(paidCourses) && paidCourses.length > 0) {
                 setdata((prevData) => {
@@ -202,8 +199,6 @@ export const AvailableCourses = ({ setshowpayment, item, setShowLoader, setSelec
 
                         return course;
                     });
-
-                    console.log("Updated data after merge:", updatedData);
                     if (updatedData.length > 0) {
                         return updatedData;
                     }
@@ -225,7 +220,7 @@ export const AvailableCourses = ({ setshowpayment, item, setShowLoader, setSelec
     useEffect(() => {
         fetchlistcourse();
         getalleventidforpaidcourse()
-    }, []);
+    }, [courseid]);
 
     useEffect(() => {
         getalleventidforpaidcourse()
@@ -234,7 +229,7 @@ export const AvailableCourses = ({ setshowpayment, item, setShowLoader, setSelec
     const handleshow = (value = '') => {
         setcontent(value)
         setshowcontent(!showcontent)
-
+        console.log('fd')
     }
     const handlepayment = (item) => {
         setshowpayment(true)
@@ -243,53 +238,7 @@ export const AvailableCourses = ({ setshowpayment, item, setShowLoader, setSelec
     }
     return (
         <>
-            {showcontent && <View className="h-auto  justify-center bg-red-300 rounded-2xl   w-full absolute z-50 flex items-center py-3">
-
-
-                <View className="absolute right-0 -top-2">
-                    <TouchableOpacity onPress={() => handleshow()}><AntDesign name="upcircle" size={30} color="red" /></TouchableOpacity>
-                </View>
-                <View className="items-start">
-                    <View className="flex-row items-center">
-                        <View className="items-center">
-                            {content.dp ? <Avatar.Image source={{ uri: `https://certmart.org/dps/${content.dp}.jpg?timestamp=${new Date().getTime()}` }} /> : <Avatar.Image source={require('../images/avatermale.png')} />}
-                            <View className="ml-2 flex-row">
-                                <Text className="mr-1">{content.avg_rating}</Text>
-                                <FontAwesome name="star" size={14} color="orange" />
-                            </View>
-                        </View>
-                        <View className="w-2" />
-                        <View>
-                            <View className="flex-row items-center  mt-2">
-                                <FontAwesome5 name="user" size={16} />
-                                <Text className="text-xs ml-2">{content.firstname} {content.surname}</Text>
-
-                            </View>
-
-                            <View className="mt-2">
-                                <Text>{content.classType} </Text>
-                                <Text>Duration:{content.duration}weeks</Text>
-                            </View>
-                            <View className="mt-2">
-                                <Text>{content.days} </Text>
-                                <Text>Time:{content.starttime}-{content.endtime} {content.timezone}</Text>
-                                <Text></Text>
-                            </View>
-
-                        </View>
-
-                    </View>
-                    <View className="w-[75vw] border border-red-200" />
-                    <View><Text className="font-semibold">Description:</Text></View>
-                    <View className="bg-white px-3 py-3 rounded-2xl w-5/6 ">
-                        <Text>{content.description}</Text>
-
-                    </View>
-
-                </View>
-
-
-            </View>}
+           
             <ScrollView>
                 {data.length > 0 && data.map((item, index) =>
 
@@ -299,7 +248,7 @@ export const AvailableCourses = ({ setshowpayment, item, setShowLoader, setSelec
                             {item?.paymentstatus === undefined ? <FontAwesome name="check-circle" size={30} color="orange" /> : <FontAwesome name="check-circle" size={30} color="green" />}
                         </View>
                         <View className="flex-row relative items-center">
-                            <View className="rounded-full h-24 w-24 bg-red-300 absolute -right-5 z-50 flex justify-center items-center">
+                            <View className="rounded-full h-24 w-24 bg-red-300 absolute -right-5 z-40 flex justify-center items-center">
                                 <TouchableOpacity onPress={() => handleshow(item)} className="w-24 items-center">
                                     <FontAwesome5 name="file" size={30} />
                                     <Text className="text-sm text-center">View More Details</Text>
