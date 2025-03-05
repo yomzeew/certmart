@@ -1,17 +1,13 @@
 import { NavigationContainer } from "@react-navigation/native";
 import "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import StackWrapper from "./routers/stackrouter";
 import DrawerWrapper from "./routers/drawerrouter";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Calendar from "./screens/student/dashboardcomponet/calendar/calendar";
-import Chats from "./screens/student/dashboardcomponet/chats/chats";
-import Profile from "./screens/student/dashboardcomponet/profile/profile";
+import BottomNav from "./screens/student/dashboardcomponet/bottomtab";
 
 export default function App() {
   const Stack = createStackNavigator();
@@ -44,21 +40,7 @@ export default function App() {
               name="dashboard"
               component={DrawerWrapper}
             />
-            <Stack.Screen
-              options={{ gestureEnabled: false, gestureDirection: "vertical" }}
-              name="calendar"
-              component={Calendar}
-            />
-            <Stack.Screen
-              options={{ gestureEnabled: false, gestureDirection: "vertical" }}
-              name="chats"
-              component={Chats}
-            />
-            <Stack.Screen
-              options={{ gestureEnabled: false, gestureDirection: "vertical" }}
-              name="profile"
-              component={Profile}
-            />
+           
           </Stack.Navigator>
         </NavigationContainer>
       </GestureHandlerRootView>
@@ -66,11 +48,3 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

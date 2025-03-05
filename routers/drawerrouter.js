@@ -10,13 +10,14 @@ import AllCoursedetail from "../screens/student/dashboardcomponet/allavailableco
 import ApplicationCheckers from "../screens/student/dashboardcomponet/applicationchecker";
 import CourseReg from "../screens/student/dashboardcomponet/courseRegistration";
 import Classes from "../screens/student/dashboardcomponet/studentclasses";
+import BottomNav from "../screens/student/dashboardcomponet/bottomtab";
 const DrawerWrapper = () => {
   const Drawer = createDrawerNavigator();
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawer {...props} />}
       drawerPosition="bottom"
-      initialRouteName="dashboardstudent"
+      initialRouteName="bottomnav"
       navigationOption=""
       screenOptions={{
         headerTitle: null, // Remove the title for all screens
@@ -24,16 +25,10 @@ const DrawerWrapper = () => {
         ...TransitionPresets.SlideFromRightIOS,
       }}
     >
-      {/* <Stack.Screen  name="start" component={Home} /> */}
-      <Drawer.Screen
+        <Drawer.Screen
         options={{ gestureEnabled: false, gestureDirection: "vertical" }}
-        name="dashboardstudent"
-        component={Dashboard}
-      />
-      <Drawer.Screen
-        options={{ gestureEnabled: false, gestureDirection: "vertical" }}
-        name="studentprofile"
-        component={StudentProfile}
+        name="bottomnav"
+        component={BottomNav}
       />
       <Drawer.Screen
         options={{ gestureEnabled: false, gestureDirection: "vertical" }}
@@ -58,12 +53,7 @@ const DrawerWrapper = () => {
       <Drawer.Screen 
       options={{gestureEnabled:false,gestureDirection:'vertical'}} 
       name="coursereg" 
-      component={CourseReg} /> 
-       <Drawer.Screen 
-      options={{gestureEnabled:false,gestureDirection:'vertical'}} 
-      name="classes" 
-      component={Classes} /> 
-      
+      component={CourseReg} />
       
     
     </Drawer.Navigator>

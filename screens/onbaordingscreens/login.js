@@ -25,7 +25,8 @@ const Login = () => {
     }
 
     const navigateToDashboard = () => {
-        navigation.navigate('dashboard', { screen: 'dashboardstudent' });
+        
+        navigation.navigate('dashboard', { screen: 'bottomnav' });
     };
     
 

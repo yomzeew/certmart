@@ -235,6 +235,7 @@ const Dashboard = () => {
           </Animated.View>
         </View>
       )}
+      <View className="h-full w-full flex-1">
       <SafeAreaView
         style={[styles.andriod, styles.bgcolor]}
         className="flex-1 flex w-full"
@@ -310,8 +311,8 @@ const Dashboard = () => {
             </View>
           </ScrollView>
         </View>
-        <Footer currentPage="home" />
       </SafeAreaView>
+      </View>
     </>
   );
 };
