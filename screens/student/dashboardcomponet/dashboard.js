@@ -201,6 +201,7 @@ const Dashboard = () => {
             <ScrollView
               showsVerticalScrollIndicator={false}
             >
+              {/* use courseCard */}
               {availablecourse.length > 0 ?availablecourse.map((item, index) => {
                 return (
                   <TouchableOpacity key={index} onPress={() => handlegetvalue(item)} className="bg-slate-50 px-5 h-12 flex justify-center w-full border-b border-t border-lightred mt-2">

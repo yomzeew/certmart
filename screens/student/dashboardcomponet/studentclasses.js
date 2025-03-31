@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import axios from "axios"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { FontAwesome } from "@expo/vector-icons"
+import moment from "moment"; 
 
 
 
@@ -165,9 +166,16 @@ const resultDate = baseDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
 return resultDate;
 
     }
+    
+
+const startDate = moment(item.startdate.split(" ")[0], "YYYY-MM-DD");
+const today = moment();
+const totalDays = item.duration; // Total duration in days
+const daysUsed = today.diff(startDate, "days"); // Get the number of days elapsed
+const percentageUsed = Math.min((daysUsed / totalDays) * 100, 100); // Ensure max is 100%
     return (
         <>
-            <View className="h-auto py-3 w-full bg-red-100 rounded-2xl">
+            <View className="h-auto py-3 w-full bg-red-100 rounded-2xl px-3">
                 <View className="flex-row justify-around">
                     <TouchableOpacity className="flex-row justify-around w-32 bg-red-400 h-8 items-center rounded-2xl -mt-3">
                         <Text>Course Details</Text>
@@ -179,12 +187,12 @@ return resultDate;
 
 
                 </View>
-                <View className="w-full py-5 justify-center flex-row items-center">
+                <View className="w-full py-5 justify-center flex-row items-center ">
                     {item === 1 ? <Avatar.Image source={{ uri: `https://certmart.org/dps/${item.dp}.jpg?timestamp=${new Date().getTime()}` }} /> : <Avatar.Image source={require('../../images/avatermale.png')} />}
                     <View className="w-2" />
                     <View className="items-center">
                         <Text className="text-lg">{item.trainerSurname} {item.trainerFirstname} | {item.trainerId}</Text>
-                        <Text className="mt-1"><TouchableOpacity className="bg-red-300 py-1 rounded-2xl px-3" onPress={handleEmailPress}><Text>{item.trainerEmail}</Text></TouchableOpacity>  <TouchableOpacity className="bg-red-300 py-1 rounded-2xl px-3" onPress={handlePhonePress}><Text>{item.trainerPhone}</Text></TouchableOpacity></Text>
+                        <View className="mt-1"><TouchableOpacity className="bg-red-300 py-1 rounded-2xl px-3 items-center" onPress={handleEmailPress}><Text>{item.trainerEmail}</Text></TouchableOpacity>  <TouchableOpacity className="bg-red-300 py-1 rounded-2xl px-3 mt-3 items-center" onPress={handlePhonePress}><Text>{item.trainerPhone}</Text></TouchableOpacity></View>
                     </View>
                 </View>
                 <View className="">
@@ -206,7 +214,7 @@ return resultDate;
                     </View>)}
 
                 </View>
-                <View className="px-3 w-full mt-3">
+                {/* <View className="px-3 w-full mt-3">
                     <View className=" flex-row justify-between">
                         <Text>{item.startdate.split(" ")[0]}</Text>
                         <Text>{getDateEnddate(item.startdate.split(" ")[0],item.duration)}</Text>
@@ -221,7 +229,25 @@ return resultDate;
 
                         <View className="w-5 h-5 rounded-full bg-green-500" />
                     </View>
-                </View> 
+                </View>  */}
+                <View className="px-3 w-full mt-3">
+    <View className="flex-row justify-between">
+        <Text>{startDate.format("YYYY-MM-DD")}</Text>
+        <Text>{startDate.add(totalDays, "days").format("YYYY-MM-DD")}</Text>
+    </View>
+
+    <View className="flex-row justify-between items-center">
+        <View className="w-5 h-5 rounded-full bg-orange-500" />
+        
+        <View className="bg-orange-200 flex-1 h-4">
+            <View style={{ width: `${percentageUsed}%` }} className="bg-green-500 h-4 items-end">
+                <Text className="text-white text-xs">{daysUsed} days</Text>
+            </View>
+        </View>
+
+        <View className="w-5 h-5 rounded-full bg-green-500" />
+    </View>
+</View>
                 <DayBooks />
                 <View className="mt-3 flex-row justify-around">
                     <Text>Time:12:00-3:00</Text>

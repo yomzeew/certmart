@@ -15,16 +15,20 @@ import { ScrollView } from "react-native-gesture-handler";
 import { Avatar, Card, Divider } from "react-native-paper";
 import Header from "./header";
 import Footer from "./footer";
-import { allcourses } from "../../../settings/endpoint";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Preloader from "../../preloadermodal/preloaderwhite";
 import { fieldtextfour, fieldtexttwo } from "../../../settings/fontsetting";
+import PaymentScreenModal from "./dashboard/paymentScreen";
+import { allavailablecourse } from "../../../settings/endpoint";
 
 const AllCoursedetail = () => {
     const { height } = Dimensions.get("window");
+    const [showpayment, setshowpayment] = useState(false)
+    const [selected, setSelected] = useState('')
+    const [showsuccess, setshowsuccess] = useState(false)
     const route = useRoute();
     const navigation = useNavigation();
     const { course } = route.params;
@@ -35,35 +39,35 @@ const AllCoursedetail = () => {
         try {
             setshowpreloader(true);
             const token = await AsyncStorage.getItem("token");
-            const response = await axios.get(allcourses, {
+            const response = await axios.get(`${allavailablecourse}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log(response.data.data);
-            const alldata = response.data.data;
-            if (alldata.length > 0) {
-                const getfiltercourse = alldata.filter(
-                    (item) => item.course.toLowerCase() === course.toLowerCase()
-                );
-                setdata(getfiltercourse);
-            } else {
-                setdata([]);
-            }
+            console.log(response.data,'ppp')
+    
+            const filteredCourses = response.data.filter((item) => item.course === course);
+            console.log(filteredCourses)
+            
+            // Using a Set to remove duplicates
+            const uniqueSet = new Set();
+            const uniqueCourses = filteredCourses.filter((item) => {
+                const key = `${item.tfirstname}-${item.tsurname}-${item.classType}-${item.duration}`;
+                if (uniqueSet.has(key)) {
+                    return false;
+                }
+                uniqueSet.add(key);
+                return true;
+            });
+            console.log(uniqueCourses,'ooooook')
+    
+            setdata(uniqueCourses);
+
+            
+            
+    
         } catch (error) {
-            if (error.response) {
-                // Server responded with a status other than 2xx
-                console.error("Error response:", error.response.data);
-                console.log(error.response.data.error);
-                console.error("Error status:", error.response.status);
-                console.error("Error headers:", error.response.headers);
-            } else if (error.request) {
-                // Request was made but no response received
-                console.error("Error request:", error.request);
-            } else {
-                // Something else happened while setting up the request
-                console.error("Error message:", error.message);
-            }
+            console.error("Error:", error);
         } finally {
             setshowpreloader(false);
         }
@@ -74,67 +78,96 @@ const AllCoursedetail = () => {
     const handlenavigate = (value) => {
         navigation.navigate("coursesdetail", { course: value });
     };
+    const handleselectItem = (value) => {
+        setSelected(value)
+    }
+    const handlegoback = () => {
+        navigation.goBack();
+    };
 
     return (
-        <View style={[styles.bgcolor]} className="flex-1 w-full">
-            <StatusBar style="auto" />
-            {showpreloader && (
-                <View className="z-50 absolute h-full w-full">
-                    <Preloader />
-                </View>
-            )}
-            <SafeAreaView s className="flex-1 w-full">
-                <View>
-                    <Header />
-                </View>
-                <View className="flex-1 w-full">
-                    <View>
-                        <Text
-                            style={{ color: colorred, fontSize: 20 }}
-                            className={`font-semibold px-5`}
-                        >
-                            {course}
-                        </Text>
+        <>
+            {showpayment &&
+                <PaymentScreenModal
+                    selected={selected}
+                    setshowpayment={setshowpayment}
+                    setShowLoader={setshowpreloader}
+                    setshowsuccess={setshowsuccess}
+                />
+
+            }
+            <View style={[styles.bgcolor]} className="flex-1 w-full">
+                <StatusBar style="auto" />
+                {showpreloader && (
+                    <View className="z-50 absolute h-full w-full">
+                        <Preloader />
                     </View>
-                    <ScrollView>
-                        <View className="w-full flex flex-row flex-wrap items-center px-3">
-                            {data.map((item, index) => (
-                                <View className="p-2 items-center" key={index}>
-                                    <TouchableOpacity
-                                        onPress={() => handlenavigate(item.coursecode)}
-                                    >
-                                        <Card className="w-44 h-64 bg-white">
-                                            <Card.Cover
-                                                source={{
-                                                    uri: `https://certmart.org/icon/${item.icon
-                                                        }.jpeg?timestamp=${new Date().getTime()}`,
-                                                }}
-                                            />
-                                            <Card.Content>
-                                                <Text
-                                                    style={{ color: colorred }}
-                                                    className="font-semibold mt-2"
-                                                    variant="titleLarge"
-                                                >
-                                                    {item.course}
-                                                </Text>
-                                                <Text variant="bodyMedium">
-                                                    ₦{item.cost} | Duration {item.duration} weeks
-                                                </Text>
-                                            </Card.Content>
-                                        </Card>
-                                    </TouchableOpacity>
-                                </View>
-                            ))}
+                )}
+                <SafeAreaView s className="flex-1 w-full">
+                    <View>
+                        <Header />
+                        <TouchableOpacity
+                            onPress={handlegoback}
+                            className={`p-3 bg-red-500 w-20`}
+                        >
+                            <Text className={`${fieldtexttwo} text-white`}>Go Back</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View className="flex-1 w-full">
+                        <View>
+                            <Text
+                                style={{ color: colorred, fontSize: 20 }}
+                                className={`font-semibold px-5`}
+                            >
+                                {course}
+                            </Text>
                         </View>
-                    </ScrollView>
-                </View>
-                <Footer currentPage="home" />
-            </SafeAreaView>
-        </View>
+                        <ScrollView>
+                            <View className="w-full flex-row items-center px-3">
+                                {data.map((item, index) => (
+                                    <View className="p-2 items-center" key={index}>
+                                        <TouchableOpacity
+                                            onPress={() => handlenavigate(item.coursecode)}
+                                        >
+                                            <Card className="w-44 h-64 bg-white">
+                                                <Card.Cover
+                                                    source={{
+                                                        uri: `https://certmart.org/icon/${item.icon
+                                                            }.jpeg?timestamp=${new Date().getTime()}`,
+                                                    }}
+                                                />
+                                                <Card.Content>
+                                                    <Text
+                                                        style={{ color: colorred }}
+                                                        className="font-semibold mt-2"
+                                                        variant="titleLarge"
+                                                    >
+                                                        {item.course}
+                                                    </Text>
+                                                    <Text variant="bodyMedium">
+                                                        ₦{item.cost} | Duration {item.duration} weeks
+                                                    </Text>
+                                                </Card.Content>
+                                                <TouchableOpacity onPress={() => handleselectItem(item)} className="bg-red-500 px-2 py-2">
+                                                    <Text className="text-white">Register</Text>
+                                                </TouchableOpacity>
+                                            </Card>
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
+                            </View>
+                        </ScrollView>
+                    </View>
+                    <Footer currentPage="home" />
+                </SafeAreaView>
+            </View>
+        </>
+
     );
 };
+
 export default AllCoursedetail;
+
 const stylecustom = {
     spacetop: {
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,

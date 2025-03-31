@@ -8,6 +8,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNav from "./screens/student/dashboardcomponet/bottomtab";
+import { Provider } from "react-redux";
+import store from "./store/store";
 
 export default function App() {
   const Stack = createStackNavigator();
@@ -25,6 +27,7 @@ export default function App() {
   }, []);
 
   return (
+    <Provider store={store}>
     <PaperProvider>
       <GestureHandlerRootView>
         <NavigationContainer>
@@ -45,6 +48,7 @@ export default function App() {
         </NavigationContainer>
       </GestureHandlerRootView>
     </PaperProvider>
+    </Provider>
   );
 }
 

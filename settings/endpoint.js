@@ -34,3 +34,7 @@ export const conversion=`${BaseURi}/currency/convert_to`
 export const payreg=`${BaseURi}/courseregs`
 export const classes=`${BaseURi}/courseregs`
 
+export const issuesURL=`${BaseURi}/issues`
+
+
+

@@ -8,12 +8,16 @@ import { styles } from "../../settings/layoutsetting";
 import axios from "axios";
 import { studentdetails } from "../../settings/endpoint";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDispatch } from "react-redux";
+import { setEmail } from "../../store/sliceReducer";
+
 
 const CustomDrawer = (props) => {
   const [active, setActive] = useState("home");
   const [dp, setDp] = useState("");
   const [Firstname, setFirstname] = useState("");
   const navigation = useNavigation();
+  const dispatch=useDispatch()
 
   const handlePress = (route, itemName) => {
     setActive(itemName);
@@ -42,9 +46,12 @@ const CustomDrawer = (props) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data);
+      console.log(response.data,'okkkhkhkhkhkhk');
+
       setDp(response.data.dp);
       setFirstname(response.data.firstname);
+      dispatch(setEmail(response.data.email));
+
     } catch (error) {
       if (error.response) {
         // Server responded with a status other than 2xx
