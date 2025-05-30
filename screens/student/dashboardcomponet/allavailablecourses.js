@@ -44,11 +44,9 @@ const AllCoursedetail = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log(response.data,'ppp')
-    
+
             const filteredCourses = response.data.filter((item) => item.course === course);
-            console.log(filteredCourses)
-            
+
             // Using a Set to remove duplicates
             const uniqueSet = new Set();
             const uniqueCourses = filteredCourses.filter((item) => {
@@ -59,13 +57,13 @@ const AllCoursedetail = () => {
                 uniqueSet.add(key);
                 return true;
             });
-            console.log(uniqueCourses,'ooooook')
-    
+
+console.log(uniqueCourses)
             setdata(uniqueCourses);
 
-            
-            
-    
+
+
+
         } catch (error) {
             console.error("Error:", error);
         } finally {
@@ -123,37 +121,41 @@ const AllCoursedetail = () => {
                             </Text>
                         </View>
                         <ScrollView>
-                            <View className="w-full flex-row items-center px-3">
+                            <View className="w-full  items-center">
                                 {data.map((item, index) => (
-                                    <View className="p-2 items-center" key={index}>
-                                        <TouchableOpacity
-                                            onPress={() => handlenavigate(item.coursecode)}
-                                        >
-                                            <Card className="w-44 h-64 bg-white">
-                                                <Card.Cover
-                                                    source={{
-                                                        uri: `https://certmart.org/icon/${item.icon
-                                                            }.jpeg?timestamp=${new Date().getTime()}`,
-                                                    }}
-                                                />
-                                                <Card.Content>
-                                                    <Text
-                                                        style={{ color: colorred }}
-                                                        className="font-semibold mt-2"
-                                                        variant="titleLarge"
-                                                    >
-                                                        {item.course}
-                                                    </Text>
-                                                    <Text variant="bodyMedium">
-                                                        ₦{item.cost} | Duration {item.duration} weeks
-                                                    </Text>
-                                                </Card.Content>
-                                                <TouchableOpacity onPress={() => handleselectItem(item)} className="bg-red-500 px-2 py-2">
-                                                    <Text className="text-white">Register</Text>
-                                                </TouchableOpacity>
-                                            </Card>
-                                        </TouchableOpacity>
+                                    <View key={index} className="mt-3 w-full">
+                                        <CardCourse item={item} />
                                     </View>
+
+                                    //     <View className="p-2 items-center" key={index}>
+                                    //         <TouchableOpacity
+                                    //             onPress={() => handlenavigate(item.coursecode)}
+                                    //         >
+                                    //             <Card className="w-44 h-64 bg-white">
+                                    //                 <Card.Cover
+                                    //                     source={{
+                                    //                         uri: `https://certmart.org/icon/${item.icon
+                                    //                             }.jpeg?timestamp=${new Date().getTime()}`,
+                                    //                     }}
+                                    //                 />
+                                    //                 <Card.Content>
+                                    //                     <Text
+                                    //                         style={{ color: colorred }}
+                                    //                         className="font-semibold mt-2"
+                                    //                         variant="titleLarge"
+                                    //                     >
+                                    //                         {item.course}
+                                    //                     </Text>
+                                    //                     <Text variant="bodyMedium">
+                                    //                         ₦{item.cost} | Duration {item.duration} weeks
+                                    //                     </Text>
+                                    //                 </Card.Content>
+                                    //                 <TouchableOpacity onPress={() => handleselectItem(item)} className="bg-red-500 px-2 py-2">
+                                    //                     <Text className="text-white">Register</Text>
+                                    //                 </TouchableOpacity>
+                                    //             </Card>
+                                    //         </TouchableOpacity>
+                                    //   </View>
                                 ))}
                             </View>
                         </ScrollView>
@@ -167,6 +169,50 @@ const AllCoursedetail = () => {
 };
 
 export default AllCoursedetail;
+
+const CardCourse = ({ item }) => {
+    const navigation = useNavigation()
+
+    const handleselectItem = (item) => {
+        
+
+        navigation.navigate('applycourses', { courseCodeName: item.courses, courseName: item.course })
+
+    }
+    return (
+        <>
+            <View className="w-full h-72 bg-black">
+                <Image
+                    className="h-[80%] w-full"
+                    resizeMode="cover"
+                    source={{
+                        uri: `https://certmart.org/icon/${item.icon
+                            }.jpeg?timestamp=${new Date().getTime()}`,
+                    }}
+                />
+                <View style={{ backgroundColor: colorred }} className="h-[20%] w-full">
+                    <View className="flex-row items-center justify-between h-full px-3">
+                        <View>
+                            <Text style={{ color: "#ffffff" }} variant="bodyMedium">
+                                ₦{item.cost} | Duration {item.duration} weeks
+                            </Text>
+
+                        </View>
+
+                        <TouchableOpacity onPress={() => handleselectItem(item)} className="bg-red-500 px-2 py-2">
+                            <Text className="text-white">Register</Text>
+                        </TouchableOpacity>
+
+
+                    </View>
+
+
+                </View>
+
+            </View>
+        </>
+    )
+}
 
 const stylecustom = {
     spacetop: {

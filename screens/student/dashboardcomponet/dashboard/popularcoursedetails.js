@@ -1,8 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { coursescategories, popularcourses } from '../../../../settings/endpoint'
-import { FontAwesome, FontAwesome5,Ionicons,MaterialCommunityIcons,MaterialIcons } from '@expo/vector-icons'
-import axios from 'axios'
-import { useEffect, useState } from 'react'
 import { useNavigation } from "@react-navigation/native";
 import { colorred, grey } from '../../../../constant/color'
 import {View,Text,TouchableOpacity,ScrollView, Pressable} from 'react-native'

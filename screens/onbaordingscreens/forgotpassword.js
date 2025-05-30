@@ -74,15 +74,18 @@ const ForgotPasswordEmailModal = ({close}) => {
                 <View className="items-center">
                     <Text className="text-sm text-red-500">{errorMsg}</Text>
                 </View>
-             
-                    <TextInput
+             <View className="mt-3/4 mt-3">
+             <TextInput
                         label="Email"
                         mode="outlined"
                         theme={{ colors: { primary: colorred } }}
                         onChangeText={text => setEmail(text)}
                         value={Email}
-                        className="w-full mt-3 bg-slate-50"
+                        className="w-full mt-3"
                     />
+
+             </View>
+                   
                     
                     <Button
                         icon="login"
@@ -92,7 +95,6 @@ const ForgotPasswordEmailModal = ({close}) => {
                         className="h-12 mt-3 w-full flex justify-center"
                         textColor="#ffffff"
                     >
-
                         <Text style={{ fontSize: 20 }}>Submit</Text>
                     </Button>
                     </View>

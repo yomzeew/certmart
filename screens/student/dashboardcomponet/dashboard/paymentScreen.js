@@ -27,14 +27,11 @@ import { conversion, studentdetails } from "../../../../settings/endpoint";
      
         try {
             const token = await AsyncStorage.getItem("token");
-            console.log(token)
             const response = await axios.get(studentdetails, {
                 headers: { "Authorization": `Bearer ${token}` },
             });
-            console.log(response.data)
             setEmail(response.data.email || ""); // Handle missing email
             setstudentid(response.data.studentid)
-            console.log('ok')
         } catch (error) {
             console.error("Error fetching student details:", error);
         } finally {
@@ -80,10 +77,13 @@ import { conversion, studentdetails } from "../../../../settings/endpoint";
 
     return(
                 <>
+                <View  style={{ zIndex: 40, elevation: 40 }} className="bg-red-300 opacity-70 h-full w-full absolute z-40"/>
+                <View  style={{ zIndex: 50, elevation: 50 }} className="absolute w-full justify-center h-full items-center ">
+                <View className=" w-5/6  justify-center bg-white rounded-2xl h-auto border border-red-300 p-3">
+                 <TouchableOpacity  style={{ zIndex: 50, elevation: 50 }} onPress={()=>setshowpayment(false)} className="absolute right-2 top-0 "><FontAwesome5 color={colorred} size={24} name="times" /></TouchableOpacity>
+                 <View className="absolute w-full">
 
-                <View className="bg-red-300 opacity-70 h-full w-full absolute z-40"/>
-                 <View className="z-50 absolute w-5/6  justify-center bg-white rounded-2xl h-auto border border-red-300 p-3">
-                 <TouchableOpacity onPress={()=>setshowpayment(false)} className="absolute right-2 top-0"><FontAwesome5 color={colorred} size="24" name="times" /></TouchableOpacity>
+                 </View>
                 
                 <View className="items-center mt-10">
                     <Text>
@@ -109,7 +109,7 @@ import { conversion, studentdetails } from "../../../../settings/endpoint";
                                     {showcurrency &&<View className="bg-red-200  h-40 rounded-2xl w-full items-center justify-center py-3 px-3 mt-3">
                                         <ScrollView showsVerticalScrollIndicator={false} className="w-full">
                                            {currencydata.length>0 && currencydata.map((item,index)=>
-                                           <TouchableOpacity onPress={()=>handleCurrency(item)} className="bg-red-300 mt-2 w-full items-center justify-center rounded-full h-8">
+                                           <TouchableOpacity  onPress={()=>handleCurrency(item)} className="bg-red-300 mt-2 w-full items-center justify-center rounded-full h-8">
                                             <Text className="text-sm">{item.code}-<Text className="text-xs">{item.country}</Text></Text>
                                            </TouchableOpacity>
                                            )}
@@ -138,6 +138,9 @@ import { conversion, studentdetails } from "../../../../settings/endpoint";
    
 
             </View>
+                    
+                </View>
+                
                 </>
                
     

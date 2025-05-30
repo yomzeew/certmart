@@ -1,7 +1,6 @@
-import { SafeAreaView,View,Text } from "react-native"
+import { SafeAreaView,View,Text,TouchableOpacity } from "react-native"
 import { styles } from "../../settings/layoutsetting"
 import { FontAwesome5,FontAwesome6 } from '@expo/vector-icons';
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { bluecolor, colorred, greencolor } from "../../constant/color";
 import { useNavigation } from '@react-navigation/native';
 

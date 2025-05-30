@@ -212,6 +212,7 @@ const CustomDrawer = (props) => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
+          onPress={()=>handlePress('eResources','eResources')}
           style={[getItemStyle("eResources"), styles.item]}
           className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
         >
@@ -229,6 +230,7 @@ const CustomDrawer = (props) => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
+         onPress={()=>handlePress('certificates','certificates')}
           style={[getItemStyle("certificates"), styles.item]}
           className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
         >
@@ -246,6 +248,7 @@ const CustomDrawer = (props) => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
+         onPress={()=>handlePress('issues','issues')}
           style={[getItemStyle("issues"), styles.item]}
           className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
         >
@@ -263,7 +266,9 @@ const CustomDrawer = (props) => {
           </Text>
         </TouchableOpacity>
       </View>
-      <View className="px-4">
+
+      <View className="mb-20">
+ <View className="px-4 ">
         <TouchableOpacity className="flex flex-row">
           <FontAwesome size={20} color={colorred} name="share" />
           <View className="w-2" />
@@ -281,6 +286,8 @@ const CustomDrawer = (props) => {
         </TouchableOpacity>
         <Divider className="border-1 bg-red-300 border-red-200 w-full mt-3" />
       </View>
+      </View>
+     
     </SafeAreaView>
   );
 };

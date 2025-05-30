@@ -17,7 +17,6 @@ const Categories=({handlecallbackvalue,showModal,setshowModal,handleactionseeall
                 }
     
             })
-            console.log(response.data.categories)
             setcategorydata(response.data.categories)
 
         }catch(error){
@@ -70,7 +69,7 @@ const Categories=({handlecallbackvalue,showModal,setshowModal,handleactionseeall
                    {categorydata.map((item,index)=>
                    { if(item !== ''){
                     return(
-                        <View className="p-3">
+                        <View key={index} className="p-3">
                              <TouchableOpacity onPress={()=>handlepickvalue(item)} style={{elevation:5}} className="h-28 w-28 items-center rounded-2xl flex justify-center bg-white shadow-sm shadow-slate-500">
                          {item==='ACAD'&&<Ionicons name="school" size={40} color={colorred} />}
                          {item==='TECH'&&<FontAwesome5 name="cogs" size={40} color={colorred} />}

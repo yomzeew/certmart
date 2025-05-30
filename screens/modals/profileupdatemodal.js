@@ -133,7 +133,7 @@ const ProfileUpdateModal = ({ close, data, id }) => {
 
     return (
         <>
-        {showmodalcourse && <View style={{zIndex:12000}} className="bottom-0 absolute">
+        {showmodalcourse && <View style={{zIndex:12000,elevation:12000}} className="bottom-0 absolute">
                 <Animated.View style={[animatedStyles]}>
                     <DisplayModal
                         data={selectdata}
@@ -231,32 +231,38 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
 
     return (
         <>
+    <View className="w-full mt-3">
             <TextInput
                 label="Firstname"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
                 onChangeText={(text) => setFirstname(text)}
                 value={Firstname}
-                className="w-full mt-3 bg-slate-50"
+                className="w-full mt-3 "
                 disabled
             />
+             </View>
+             <View className="w-full mt-3">
             <TextInput
                 label="Surname"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
                 onChangeText={(text) => setSurname(text)}
                 value={Surname}
-                className="w-full mt-3 bg-slate-50"
+                className="w-full mt-3 "
                 disabled
             />
+            </View>
+            <View className="w-full mt-3">
             <TextInput
                 label="Middlename"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
                 onChangeText={(text) => setMiddlename(text)}
                 value={Middlename}
-                className="w-full mt-3 bg-slate-50"
+                className="w-full mt-3 "
             />
+            </View>
             <View className="w-3/4 mt-3">
                 <Text style={{ fontSize: 16 }}>Choose your Gender</Text>
                 <View className="flex flex-row items-center mt-2">
@@ -354,23 +360,26 @@ const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,
                     </Text>
                 </Text>
             </TouchableOpacity>
+            <View className="w-full mt-3">
             <TextInput
                 label="City"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
                 onChangeText={(text) => setCity(text)}
                 value={City}
-                className="w-full mt-3 bg-slate-50"
+                className="w-full mt-3 "
             />
-           
+            </View>
+            <View className="w-full mt-3 mb-3">
             <TextInput
                 label="Address"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
                 onChangeText={(text) => setAddress(text)}
                 value={Address}
-                className="w-full mt-3 bg-slate-50"
+                className="w-full mt-3 "
             />
+            </View>
         </>
     );
 }

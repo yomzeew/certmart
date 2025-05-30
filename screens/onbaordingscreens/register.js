@@ -101,8 +101,8 @@ const handleaction=()=>{
 
     return (
         <>
-            {showloader && <View className="absolute z-50 w-full h-full"><Preloader /></View>}
-            {showsuccessmodal &&<View className="absolute z-50 w-full h-full flex justify-center items-center">
+            {showloader && <View style={{zIndex:50,elevation:50}} className="absolute  w-full h-full"><Preloader /></View>}
+            {showsuccessmodal &&<View style={{zIndex:50,elevation:50}}  className="absolute  w-full h-full flex justify-center items-center">
                 <SuccessModal 
                 message={'Registration Successfull check your Email for Password'}
                 action={()=>handleaction()}
@@ -133,33 +133,39 @@ const handleaction=()=>{
                             <View><Text className="text-red-500 text-center">{errormsg}</Text></View>
                             <ScrollView className="w-full">
                                 <View className="items-center">
+                                <View className="w-3/4 mt-3">
                                     <TextInput
                                         label="Surname"
                                         mode="outlined"
                                         theme={{ colors: { primary: colorred } }}
                                         onChangeText={text => setSurname(text)}
                                         value={Surname}
-                                        className="w-3/4 mt-3 bg-slate-50"
+                                        className="w-full"
                                         textColor="#000000"
                                     />
+                                    </View>
+                                    <View className="w-3/4 mt-3">
                                     <TextInput
                                         label="Firstname"
                                         mode="outlined"
                                         theme={{ colors: { primary: colorred } }}
                                         onChangeText={text => setFirstname(text)}
                                         value={Firstname}
-                                        className="w-3/4 mt-3 bg-slate-50"
+                                        className="w-full"
                                         textColor="#000000"
                                     />
+                                    </View>
+                                    <View className="w-3/4 mt-3">
                                     <TextInput
                                         label="Middlename"
                                         mode="outlined"
                                         theme={{ colors: { primary: colorred } }}
                                         onChangeText={text => setMiddlename(text)}
                                         value={Middlename}
-                                        className="w-3/4 mt-3 bg-slate-50"
+                                        className="w-full "
                                         textColor="#000000"
                                     />
+                                    </View>
                                     <View className="w-3/4 mt-3">
                                         <Text style={{ fontSize: 16 }}>Choose your Gender</Text>
                                         <View className="flex flex-row items-center mt-2">
@@ -181,24 +187,28 @@ const handleaction=()=>{
                                             {Platform.OS === 'android' && <Text style={{ marginRight: 10 }}>Female</Text>}
                                         </View>
                                     </View>
+                                    <View className="w-3/4 mt-3">
                                     <TextInput
                                         label="Email"
                                         mode="outlined"
                                         theme={{ colors: { primary: colorred } }}
                                         onChangeText={text => setEmail(text)}
                                         value={Email}
-                                        className="w-3/4 mt-3 bg-slate-50"
+                                        className="w-full"
                                         textColor="#000000"
                                     />
+                                    </View>
+                                    <View className="w-3/4 mt-3">
                                      <TextInput
                                         label="Phone Number"
                                         mode="outlined"
                                         theme={{ colors: { primary: colorred } }}
                                         onChangeText={text => setphonenumber(text)}
                                         value={phonenumber}
-                                        className="w-3/4 mt-3 bg-slate-50"
+                                        className="w-full"
                                         textColor="#000000"
                                     />
+                                    </View>
                                     <View className="w-3/4 flex flex-row  items-center ">
                                         <Checkbox
                                             status={Agreement ? 'checked' : 'unchecked'}
@@ -217,17 +227,20 @@ const handleaction=()=>{
 
 
                                     </View>
-
-                                    <Button
+                                     <View className="w-3/4 mt-3">
+                                     <Button
                                         icon="plus"
                                         mode="contained"
                                         onPress={handlesubmit}
                                         theme={{ colors: { primary: colorred } }}
-                                        className="h-12 mt-3 w-3/4 flex justify-center"
+                                        className="h-12 w-full flex justify-center"
                                         textColor="#ffffff"
                                     >
                                         <Text style={{ fontSize: 20 }}>Register</Text>
                                     </Button>
+                                     </View>
+
+                                    
                                 </View>
                                 <View className="items-center">
                                     <View className="w-3/4 flex justify-between  flex-row mt-3">

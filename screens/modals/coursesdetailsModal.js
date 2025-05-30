@@ -9,8 +9,8 @@ export const CourseDetailsModal = ({ content, setshowcontent, showcontent }) => 
 
     return (
         <>
-        <View className="h-full w-full z-50  absolute bg-red-100 opacity-70" />
-        <View className="h-[70vh] bottom-0 justify-center bg-red-200 rounded-2xl w-full absolute z-50 flex items-center py-3">
+        <View  style={{ zIndex: 50, elevation: 50 }} className="h-full w-full  absolute bg-red-100 opacity-70" />
+        <View  style={{ zIndex: 50, elevation: 50 }} className="h-[70vh] bottom-0 justify-center bg-red-200 rounded-2xl w-full absolute  flex items-center py-3">
             
             {/* Close Button */}
             <View className="absolute right-5 top-10">

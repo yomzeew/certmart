@@ -10,6 +10,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNav from "./screens/student/dashboardcomponet/bottomtab";
 import { Provider } from "react-redux";
 import store from "./store/store";
+import "./global.css"
 
 export default function App() {
   const Stack = createStackNavigator();

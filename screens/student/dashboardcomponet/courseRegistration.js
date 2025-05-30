@@ -104,14 +104,14 @@ const CourseReg = () => {
         /> 
         }
             {showLoader && (
-                <View className="z-50 absolute h-full w-full">
+                <View style={{zIndex:50,elevation:50}}  className="absolute h-full w-full">
                     <Preloader />
                 </View>
             )}
             
             <View className="w-full h-full justify-center items-center ">
             {showsuccess &&
-             <View className="absolute z-50 h-full w-full items-center justify-center">
+             <View style={{zIndex:50,elevation:50}}  className="absolute  h-full w-full items-center justify-center">
             <SuccessModal
             message={'Payment Successful'}
             action={()=>handlecancel()}

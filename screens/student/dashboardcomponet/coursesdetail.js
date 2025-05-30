@@ -25,6 +25,7 @@ import { fieldtexttwo } from "../../../settings/fontsetting";
 import { AvailableCourses } from "../../modals/coursesRegmodal";
 import { CourseDetailsModal } from "../../modals/coursesdetailsModal";
 import { DirectPayment } from "../../modals/coursedetailwithamount";
+import PaymentScreenModal from "./dashboard/paymentScreen";
 
 const Coursedetail = () => {
     const { height } = Dimensions.get("window");
@@ -36,6 +37,10 @@ const Coursedetail = () => {
     const [courseTitle,setcourseTitle]=useState('')
     const [content, setcontent] = useState('')
     const [showcontent, setshowcontent] = useState(false)
+    const [showpayment,setshowpayment]=useState(false)
+    const [showloader,setShowLoader]=useState(false)
+    const [selected,setSelected]=useState('')
+    const [showsuccess,setshowsuccess]=useState(false)
     const fetchdata = async () => {
         try {
             setshowpreloader(true);
@@ -47,7 +52,7 @@ const Coursedetail = () => {
             });
     
             const filteredCourses = response.data.filter((item) => item.courses === course);
-            console.log(filteredCourses)
+            
             
             // Using a Set to remove duplicates
             const uniqueSet = new Set();
@@ -81,20 +86,19 @@ const Coursedetail = () => {
         setcoursesdata([])
         navigation.goBack();
     };
+    const handleshowpayment=(value)=>{
+        setshowpayment(true)
+        setSelected(value)
+    }
     return (
-        <>
-         {showcontent && 
-        <CourseDetailsModal
-        content={content} 
-        setshowcontent={setshowcontent}
-        showcontent={showcontent}
-        /> 
-        }
+        <> 
+            
+       
 
         <View style={[styles.bgcolor]} className="flex-1 w-full">
             <StatusBar style="auto" />
             {showpreloader && (
-                <View className="z-50 absolute h-full w-full">
+                <View style={{zIndex:50,elevation:50}}  className=" absolute h-full w-full">
                     <Preloader />
                 </View>
             )}
@@ -125,12 +129,13 @@ const Coursedetail = () => {
                             {coursesdata.length>0&&coursesdata.map((item,index)=>
                              <View className="w-full items-center">          
                              <DirectPayment
-                             item={item}
+                             item={item}   
                              setShowLoader={setshowpreloader}
                              showcontent={showcontent}
                              setshowcontent={setshowcontent}
                              content={content}
                              setcontent={setcontent}
+                             onClickPayment={(textdata)=>handleshowpayment(textdata)}
                               />
                          </View>
                             )}
@@ -143,6 +148,22 @@ const Coursedetail = () => {
             </View> 
             <Footer currentPage="home" />
         </View>
+        {showcontent && 
+        <CourseDetailsModal //attention neeeded
+        content={content} 
+        setshowcontent={setshowcontent}
+        showcontent={showcontent}
+        /> 
+        }
+        {showpayment &&
+                    <PaymentScreenModal
+                    selected={selected}
+                    setshowpayment={setshowpayment}
+                    setShowLoader={setShowLoader}
+                    setshowsuccess={setshowsuccess}
+                          />
+
+                }    
         </>
     );
 };

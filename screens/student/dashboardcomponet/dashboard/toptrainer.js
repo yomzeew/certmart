@@ -19,7 +19,6 @@ const Toptrainer=()=>{
                 }
     
             })
-            console.log(response.data)
             setdata(response.data)
     
         }catch(error){

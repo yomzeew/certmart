@@ -42,12 +42,14 @@
       "package": "com.yomzeew.certmart"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "extra": {
       "eas": {
         "projectId": "6004e9cd-7ddf-4290-854c-f4c6293d214b"
       }
     }
+    
   }
 }

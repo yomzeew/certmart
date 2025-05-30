@@ -11,6 +11,9 @@ import ApplicationCheckers from "../screens/student/dashboardcomponet/applicatio
 import CourseReg from "../screens/student/dashboardcomponet/courseRegistration";
 import Classes from "../screens/student/dashboardcomponet/studentclasses";
 import BottomNav from "../screens/student/dashboardcomponet/bottomtab";
+import Eresources from "../screens/student/dashboardcomponet/eresourses";
+import Certificate from "../screens/student/dashboardcomponet/certificate";
+import Issues from "../screens/student/dashboardcomponet/issues/issues";
 const DrawerWrapper = () => {
   const Drawer = createDrawerNavigator();
   return (
@@ -39,6 +42,7 @@ const DrawerWrapper = () => {
         options={{ gestureEnabled: false, gestureDirection: "vertical" }}
         name="applycourses"
         component={ApplyCourses}
+        initialParams={{ courseName: '', courseCodeName: '' }}
       />
       <Drawer.Screen
         options={{ gestureEnabled: false, gestureDirection: "vertical" }}
@@ -50,10 +54,23 @@ const DrawerWrapper = () => {
         name="coursestatus"
         component={ApplicationCheckers}
       />
-      <Drawer.Screen 
+       <Drawer.Screen 
       options={{gestureEnabled:false,gestureDirection:'vertical'}} 
       name="coursereg" 
       component={CourseReg} />
+        <Drawer.Screen 
+      options={{gestureEnabled:false,gestureDirection:'vertical'}} 
+      name="eResources" 
+      component={Eresources} />
+
+       <Drawer.Screen 
+      options={{gestureEnabled:false,gestureDirection:'vertical'}} 
+      name="certificates" 
+      component={Certificate} />
+        <Drawer.Screen 
+      options={{gestureEnabled:false,gestureDirection:'vertical'}} 
+      name="issues" 
+      component={Issues} />
       
     
     </Drawer.Navigator>

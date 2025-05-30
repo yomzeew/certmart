@@ -216,10 +216,10 @@ const StudentProfile = () => {
         <StatusBar style="auto" />
         <Header />
         <View className="px-5 h-1/6 mt-3">
-          <LinearGradient
-            colors={[colorred, colorredmedium, colorreddark]}
+          <View
             className="h-full w-full rounded-2xl flex flex-row justify-center"
-            style={{ elevation: 4 }}
+            style={{ elevation: 4,backgroundColor:colorreddark }}
+          
           >
             <Text
               style={{ fontSize: 24 }}
@@ -227,11 +227,12 @@ const StudentProfile = () => {
             >
               {Firstname}'s Profile
             </Text>
-          </LinearGradient>
+          </View>
           <View className="items-center w-full -mt-10">
             <View>
               <TouchableOpacity
-                className="absolute right-0 bottom-0 z-50 bg-white w-8 h-8 rounded-full flex justify-center items-center"
+               style={{ zIndex: 40, elevation: 40 }}
+                className="absolute right-0 bottom-0  bg-white w-8 h-8 rounded-full flex justify-center items-center"
                 onPress={pickImageAsync}
               >
                 <FontAwesome size={20} color={colorred} name="pencil" />

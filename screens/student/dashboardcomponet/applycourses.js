@@ -1,7 +1,7 @@
-import { SafeAreaView, View, Text } from "react-native";
+import { SafeAreaView, View, Text,ScrollView, TouchableOpacity  } from "react-native";
 import { styles } from "../../../settings/layoutsetting";
 import Header from "./header";
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+
 import {
   bluecolor,
   colorred,
@@ -35,16 +35,21 @@ import {
 import Preloader from "../../preloadermodal/preloaderwhite";
 import { currentDate } from "../../../utility/get-date-time";
 import SuccessModal from "../../modals/successfulmodal";
+import { useRoute } from "@react-navigation/native";
+
 
 const ApplyCourses = () => {
+  const route = useRoute();
+  const { courseName,courseCodeName } = route.params;
+ 
   const [showLoader, setShowLoader] = useState(false);
   const [showphysical, setshowphysical] = useState(false);
   const [showmodalcourse, setshowmodalcourse] = useState(false);
   const [showmodalinput, setshowmodalinput] = useState(false);
   const [showopcity, setshowopcity] = useState(false);
   const [classtype, setclasstype] = useState("Virtual");
-  const [course, setcourse] = useState("");
-  const [courseid, setcourseid] = useState("");
+  const [course, setcourse] = useState(courseName);
+  const [courseid, setcourseid] = useState(courseCodeName);
   const [country, setCountry] = useState("");
   const [state, setState] = useState("");
   const [city, setcity] = useState("");
@@ -76,6 +81,16 @@ const ApplyCourses = () => {
   
       const getdata = response.data;
       console.log(getdata);
+      if(course){
+        if(getdata.length>0){
+          const newArray=getdata.filter((item,index)=>(
+            item.course===getvalue
+          ))
+          setcourseid(newArray[0].courses)
+  
+        }
+        
+      }
   
       setrawdata(getdata);
   
@@ -273,7 +288,7 @@ const ApplyCourses = () => {
       setcvfilename(resultname);
     }
 
-    if (result.assets[0].size > 512000) {
+    if (result.assets[0].size > 5120000) {
       seterrormsg("File size should be less than 50kb");
       return;
     } else {
@@ -290,7 +305,7 @@ const ApplyCourses = () => {
     const studentId = await AsyncStorage.getItem("studentid");
     console.log(studentId);
     if (!course) {
-      seterrormsg("Fill the empty Field");
+      seterrormsg("Please select your course");
       return;
     }
     if(!city){
@@ -300,7 +315,7 @@ const ApplyCourses = () => {
 
     }
   if(!cvnewname){
-    seterrormsg("Fill the empty Field");
+    seterrormsg("Please Upload your Cv");
     return
 
   }
@@ -388,7 +403,7 @@ const ApplyCourses = () => {
   return (
     <>
       {showsuccess && (
-        <View className="absolute z-50 flex justify-center items-center w-full h-full">
+        <View  style={{ zIndex: 50, elevation: 50 }} className="absolute  flex justify-center items-center w-full h-full">
           <SuccessModal
             message={"Application Successful"}
             action={() => setshowsuccess(false)}
@@ -396,15 +411,15 @@ const ApplyCourses = () => {
         </View>
       )}
       {showLoader && (
-        <View className="absolute z-50 w-full h-full">
+        <View  style={{ zIndex: 50, elevation: 50 }} className="absolute w-full h-full">
           <Preloader />
         </View>
       )}
       {showopcity && (
-        <View className="h-full w-full z-50  absolute bg-red-100 opacity-70" />
+        <View  style={{ zIndex: 50, elevation: 50 }} className="h-full w-full  absolute bg-red-100 opacity-70" />
       )}
       {showmodalcourse && (
-        <View className="bottom-0 absolute z-50">
+        <View  style={{ zIndex: 50, elevation: 50 }} className="bottom-0 absolute">
           <Animated.View style={[animatedStyles]}>
             <DisplayModal
               data={data}
@@ -415,7 +430,7 @@ const ApplyCourses = () => {
         </View>
       )}
       {showmodalinput && (
-        <View className="bottom-0 absolute z-50">
+        <View  style={{ zIndex: 50, elevation: 50 }} className="bottom-0 absolute">
           <Animated.View style={[animatedStylesinput]}>
             <InputModal
               close={(value) => handlecloseinput(value)}
@@ -446,7 +461,7 @@ const ApplyCourses = () => {
           <ScrollView showsVerticalScrollIndicator={false}>
             <View className="px-5 mt-10">
               {course && (
-                <View className="absolute z-50 left-8 -top-2 bg-white">
+                <View  style={{ zIndex: 50, elevation: 50 }} className="absolute left-8 -top-2 bg-white">
                   <Text>Select Courses</Text>
                 </View>
               )}
@@ -501,7 +516,7 @@ const ApplyCourses = () => {
               <View>
                 <View className="px-5 mt-5">
                   {country && (
-                    <View className="absolute z-50 left-8 -top-2 bg-white">
+                    <View  style={{ zIndex: 50, elevation: 50 }} className="absolute left-8 -top-2 bg-white">
                       <Text>Select Country</Text>
                     </View>
                   )}
@@ -527,7 +542,7 @@ const ApplyCourses = () => {
                 </View>
                 <View className="px-5 mt-5">
                   {state && (
-                    <View className="absolute z-50 left-8 -top-2 bg-white">
+                    <View  style={{ zIndex: 50, elevation: 50 }} className="absolute left-8 -top-2 bg-white">
                       <Text>Select State</Text>
                     </View>
                   )}
@@ -553,7 +568,7 @@ const ApplyCourses = () => {
                 </View>
                 <View className="px-5 mt-5">
                   {city && (
-                    <View className="absolute z-50 left-8 -top-2 bg-white">
+                    <View  style={{ zIndex: 50, elevation: 50 }} className="absolute left-8 -top-2 bg-white">
                       <Text>Select Study City</Text>
                     </View>
                   )}

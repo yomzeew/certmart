@@ -1,4 +1,4 @@
-import { SafeAreaView, View, Text, Linking, ScrollView } from "react-native"
+import { SafeAreaView, View, Text, Linking, ScrollView, TouchableOpacity } from "react-native"
 import Header from "./header"
 import { Avatar, Divider } from "react-native-paper"
 import { colorred } from "../../../constant/color"
@@ -6,9 +6,9 @@ import { allTrainers, BaseURi, classes, getCourseStatus } from "../../../setting
 import { useCallback, useEffect, useState } from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import axios from "axios"
-import { TouchableOpacity } from "react-native-gesture-handler"
+
 import { FontAwesome } from "@expo/vector-icons"
-import moment from "moment"; 
+import moment from "moment";
 
 
 
@@ -50,19 +50,19 @@ const Classes = () => {
 
                 const trainerAvailabilities = await Promise.all(trainerAvailabilitiesPromises);
                 // filter where payment paid
-               
+
                 const combinedData = paidCourses.map((classItem) => {
                     const validAvailabilities = trainerAvailabilities.filter(courseList => Array.isArray(courseList));
 
-                        const matchingCourse=validAvailabilities[0].length>0 && validAvailabilities[0].filter((a)=>(
-                            a.eventcode===classItem.eventid
-                        ))
-                        console.log(matchingCourse[0]?.duration )
+                    const matchingCourse = validAvailabilities[0].length > 0 && validAvailabilities[0].filter((a) => (
+                        a.eventcode === classItem.eventid
+                    ))
+                    console.log(matchingCourse[0]?.duration)
                     const matchingTrainer = trainers.data.find(
                         (trainer) => trainer.trainerid === classItem.t_id
                     );
-                 
-                    
+
+
                     return {
                         course: classItem.course,
                         amount: classItem.amountpaid,
@@ -158,21 +158,22 @@ const ClassesDetails = ({ item }) => {
     const handlePhonePress = () => {
         Linking.openURL('tel:08166564618');
     };
- const getDateEnddate=(inputDate,weeks)=>{
-    const baseDate = new Date(inputDate);
-baseDate.setDate(baseDate.getDate() + weeks*7 ); // Add 14 days
 
-const resultDate = baseDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
-return resultDate;
+    const getDateEnddate = (inputDate, weeks) => {
+        const baseDate = new Date(inputDate);
+        baseDate.setDate(baseDate.getDate() + weeks * 7); // Add 14 days
+
+        const resultDate = baseDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+        return resultDate;
 
     }
-    
 
-const startDate = moment(item.startdate.split(" ")[0], "YYYY-MM-DD");
-const today = moment();
-const totalDays = item.duration; // Total duration in days
-const daysUsed = today.diff(startDate, "days"); // Get the number of days elapsed
-const percentageUsed = Math.min((daysUsed / totalDays) * 100, 100); // Ensure max is 100%
+
+    const startDate = moment(item.startdate.split(" ")[0], "YYYY-MM-DD");
+    const today = moment();
+    const totalDays = item.duration; // Total duration in days
+    const daysUsed = today.diff(startDate, "days"); // Get the number of days elapsed
+    const percentageUsed = Math.min((daysUsed / totalDays) * 100, 100); // Ensure max is 100%
     return (
         <>
             <View className="h-auto py-3 w-full bg-red-100 rounded-2xl px-3">
@@ -191,8 +192,14 @@ const percentageUsed = Math.min((daysUsed / totalDays) * 100, 100); // Ensure ma
                     {item === 1 ? <Avatar.Image source={{ uri: `https://certmart.org/dps/${item.dp}.jpg?timestamp=${new Date().getTime()}` }} /> : <Avatar.Image source={require('../../images/avatermale.png')} />}
                     <View className="w-2" />
                     <View className="items-center">
+                        <View>
                         <Text className="text-lg">{item.trainerSurname} {item.trainerFirstname} | {item.trainerId}</Text>
-                        <View className="mt-1"><TouchableOpacity className="bg-red-300 py-1 rounded-2xl px-3 items-center" onPress={handleEmailPress}><Text>{item.trainerEmail}</Text></TouchableOpacity>  <TouchableOpacity className="bg-red-300 py-1 rounded-2xl px-3 mt-3 items-center" onPress={handlePhonePress}><Text>{item.trainerPhone}</Text></TouchableOpacity></View>
+                        </View>
+                        <View className="mt-1">
+                        <TouchableOpacity className="bg-red-300 py-1 rounded-2xl px-3 items-center" onPress={handleEmailPress}><Text>{item.trainerEmail}</Text></TouchableOpacity>
+                        <TouchableOpacity className="bg-red-300 py-1 rounded-2xl px-3 mt-3 items-center" onPress={handlePhonePress}><Text>{item.trainerPhone}</Text></TouchableOpacity>
+                        </View>
+
                     </View>
                 </View>
                 <View className="">
@@ -207,47 +214,31 @@ const percentageUsed = Math.min((daysUsed / totalDays) * 100, 100); // Ensure ma
                             </>
                         )}
                     </View>
-                      {item.classType !== 'Virtual' && (<View className="items-center flex-row justify-between px-3 ">
+                    {item.classType !== 'Virtual' && (<View className="items-center flex-row justify-between px-3 ">
                         <Text className="text-xs">{item.city}</Text>
                         <View className="w-2" />
                         <Text className="text-xs">{item.country}</Text>
                     </View>)}
 
                 </View>
-                {/* <View className="px-3 w-full mt-3">
-                    <View className=" flex-row justify-between">
-                        <Text>{item.startdate.split(" ")[0]}</Text>
-                        <Text>{getDateEnddate(item.startdate.split(" ")[0],item.duration)}</Text>
+                <View className="px-3 w-full mt-3">
+                    <View className="flex-row justify-between">
+                        <Text>{startDate.format("YYYY-MM-DD")}</Text>
+                        <Text>{startDate.add(totalDays, "days").format("YYYY-MM-DD")}</Text>
                     </View>
+
                     <View className="flex-row justify-between items-center">
                         <View className="w-5 h-5 rounded-full bg-orange-500" />
+
                         <View className="bg-orange-200 flex-1 h-4">
-                            <View style={{ width: '80%' }} className="bg-green-500 h-4 items-end">
-                                <Text>Day 15</Text>
+                            <View style={{ width: `${percentageUsed}%` }} className="bg-green-500 h-4 items-end">
+                                <Text className="text-white text-xs">{daysUsed} days</Text>
                             </View>
                         </View>
 
                         <View className="w-5 h-5 rounded-full bg-green-500" />
                     </View>
-                </View>  */}
-                <View className="px-3 w-full mt-3">
-    <View className="flex-row justify-between">
-        <Text>{startDate.format("YYYY-MM-DD")}</Text>
-        <Text>{startDate.add(totalDays, "days").format("YYYY-MM-DD")}</Text>
-    </View>
-
-    <View className="flex-row justify-between items-center">
-        <View className="w-5 h-5 rounded-full bg-orange-500" />
-        
-        <View className="bg-orange-200 flex-1 h-4">
-            <View style={{ width: `${percentageUsed}%` }} className="bg-green-500 h-4 items-end">
-                <Text className="text-white text-xs">{daysUsed} days</Text>
-            </View>
-        </View>
-
-        <View className="w-5 h-5 rounded-full bg-green-500" />
-    </View>
-</View>
+                </View>
                 <DayBooks />
                 <View className="mt-3 flex-row justify-around">
                     <Text>Time:12:00-3:00</Text>

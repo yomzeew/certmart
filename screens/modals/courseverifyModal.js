@@ -7,7 +7,7 @@ const CoursesVerifyModal = ({ data }) => {
   return (
     <>
       <View className="w-44 h-auto rounded-2xl border-2 border-red-500 p-3 bg-slate-50 flex justify-center items-center m-2">
-        <View className="absolute -right-2 -top-3 z-50 bg-white rounded-full">
+        <View  style={{ zIndex: 50, elevation: 50 }} className="absolute -right-2 -top-3 bg-white rounded-full">
           {data.status === "Applied" && <MaterialIcons name="pending" size={24} color="orange" />}
           {data.status === "Approved" && <FontAwesome name="check-circle" size={30} color="green" />}
           {data.status === "Declined" && <FontAwesome name="warning" size={24} color="red" />}

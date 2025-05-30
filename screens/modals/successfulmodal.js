@@ -6,7 +6,7 @@ import { fieldtexttwo } from "../../settings/fontsetting"
 const SuccessModal=({message,action})=>{
     return(
         <>
-        <View className="h-full w-full bg-red-200 opacity-70 absolute" />
+        <View  style={{ zIndex: 50, elevation: 50 }} className="h-full w-full bg-red-200 opacity-70 absolute" />
         <View style={{elevation:4}} className="w-64 px-3 py-3 h-56 flex justify-center flex-row items-center bg-white rounded-2xl shadow-md shadow-red-900">
             <View className="items-center">
                 <View>

@@ -11,6 +11,8 @@ import axios from "axios"
 import { loginstudent } from "../../settings/endpoint"
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import ForgotPasswordEmailModal from "./forgotpassword"
+import { useDispatch } from "react-redux"
+import { login } from "../../store/sliceReducer"
 const Login = () => {
     const [Email, setEmail] = useState('')
     const [Password, setPassword] = useState('')
@@ -25,32 +27,32 @@ const Login = () => {
     }
 
     const navigateToDashboard = () => {
-        
+
         navigation.navigate('dashboard', { screen: 'bottomnav' });
     };
-    
+
 
     const handlesubmit = async () => {
         setshowloader(true);
-    
+
         if (!Email) {
             seterrorMsg('Enter your Email');
             setshowloader(false);
             return;
         }
-    
+
         if (!Password) {
             seterrorMsg('Enter your Password');
             setshowloader(false);
             return;
         }
-    
+
         try {
             const data = {
                 email: Email,
                 password: Password,
             };
-    
+
             // Set timeout for the network request
             const response = await Promise.race([
                 axios.post(loginstudent, data, {
@@ -62,9 +64,11 @@ const Login = () => {
                 }),
                 new Promise((_, reject) => setTimeout(() => reject(new Error("Network Timeout")), 10000)),
             ]);
-    
+
             if (response.status === 200) {
+                console.log(response.data,'user')
                 const token = response.data.token;
+               
                 await AsyncStorage.setItem('token', token);
                 navigateToDashboard();
             }
@@ -89,7 +93,7 @@ const Login = () => {
             setshowloader(false);
         }
     };
-    
+
     const handleforgowshow = () => {
         setshowforgotpass(true)
     }
@@ -124,40 +128,46 @@ const Login = () => {
                         <View className="w-3/4 mt-3">
                             <TouchableOpacity><Text style={{ color: colorred }}>I don't have an account</Text></TouchableOpacity>
                         </View>
-                        <TextInput
-                            label="Email"
-                            mode="outlined"
-                            theme={{ colors: { primary: colorred } }}
-                            onChangeText={text => setEmail(text)}
-                            value={Email}
-                            className="w-3/4 mt-3 bg-slate-50"
-                            textColor="#000000"
+                        <View className="w-3/4 mt-3">
+                            <TextInput
+                                label="Email"
+                                mode="outlined"
+                                theme={{ colors: { primary: colorred } }}
+                                onChangeText={text => setEmail(text)}
+                                value={Email}
+                                className="w-3/4 "
+                                textColor="#000000"
+                            />
+                        </View>
+                        <View className="w-3/4 mt-3">
+                            <TextInput
+                                label="Password"
+                                mode="outlined"
+                                theme={{ colors: { primary: colorred } }}
+                                onChangeText={text => setPassword(text)}
+                                value={Password}
+                                className="w-3/4"
+                                textColor="#000000"
+                                secureTextEntry
+
+                            />
+                        </View>
+                        <View className="mt-3"></View>
+                        <View className="w-3/4" >
+                            <Button
+                                icon="login"
+                                mode="contained"
+                                onPress={handlesubmit}
+                                theme={{ colors: { primary: colorred } }}
+                                className="h-12 w-full flex items-center justify-center"
+                                textColor="#ffffff"
+
+                            >
+                                <Text style={{ fontSize: 20 }}>Login</Text>
+                            </Button>
+                        </View>
 
 
-
-                        />
-                        <TextInput
-                            label="Password"
-                            mode="outlined"
-                            theme={{ colors: { primary: colorred } }}
-                            onChangeText={text => setPassword(text)}
-                            value={Password}
-                            className="w-3/4 mt-3 bg-slate-50"
-                            textColor="#000000"
-                            secureTextEntry
-
-                        />
-                        <Button
-                            icon="login"
-                            mode="contained"
-                            onPress={handlesubmit}
-                            theme={{ colors: { primary: colorred } }}
-                            className="h-12 mt-3 w-3/4 flex justify-center"
-                            textColor="#ffffff"
-
-                        >
-                            <Text style={{ fontSize: 20 }}>Login</Text>
-                        </Button>
                         <View className="w-3/4 flex justify-between flex-row mt-3">
                             <TouchableOpacity><Text style={{ color: certblue }}>Switch Your Platform</Text></TouchableOpacity>
                             <TouchableOpacity onPress={handleforgowshow}><Text style={{ color: colorred }}>Forgot Password</Text></TouchableOpacity>

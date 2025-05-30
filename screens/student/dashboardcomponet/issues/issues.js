@@ -105,10 +105,10 @@ const Issues = () => {
                 
                 <View className="w-full mt-3 gap-x-3 flex-row  justify-center">
 
-                    <TouchableOpacity onPress={()=>handleSelection('View')} className={`${active==='View'?'bg-red-500 ':'bg-transparent border-b border-red-300'} justify-center items-center w-20 h-12 rounded-xl`}>
+                    <TouchableOpacity onPress={()=>handleSelection('View')} className={`${active==='View'?'bg-red-500 ':'bg-transparent border-b border-red-300'} justify-center items-center w-24 h-12 rounded-xl`}>
                         <Text className={`${active==='View'?'text-white':'text-black'}`}>View Issues</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>handleSelection('Create')} className={`${active==='Create'?'bg-red-500 ':'bg-transparent border-b border-red-300' } justify-center items-center w-20 h-12 rounded-xl`}>
+                    <TouchableOpacity onPress={()=>handleSelection('Create')} className={`${active==='Create'?'bg-red-500 ':'bg-transparent border-b border-red-300' } justify-center items-center w-24 h-12 rounded-xl`}>
                         <Text className={`${active==='Create'?'text-white':'text-black'}`}>Create Issues</Text>
                     </TouchableOpacity>
 
@@ -170,6 +170,7 @@ const Issues = () => {
                         subject={item.subject}
                         statusget={item.status}
                         message={item.message}
+                        keyvalue={index}
 
                         />
                         </>
@@ -196,10 +197,10 @@ const Issues = () => {
 
 export default Issues;
 
-const CardDisplayIssue=({message,statusget,subject})=>{
+const CardDisplayIssue=({message,statusget,subject,keyvalue})=>{
     return(
         <>
-        <View className="w-full h-auto rounded-xl bg-slate-200 px-3 py-3 mt-3">
+        <View key={keyvalue} className="w-full h-auto rounded-xl bg-slate-200 px-3 py-3 mt-3">
             <View className="mt-3 w-full items-end">
                 <View className="bg-red-400 rounded-2xl py-2  w-20 items-center">
                 <Text>

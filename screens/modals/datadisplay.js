@@ -28,13 +28,14 @@ const DisplayModal = ({ data, close, getvaluefunction }) => {
         <>
             <View className="w-screen h-screen">
 
-                <View className="absolute bottom-0 w-full px-2 py-3  h-2/3 bg-red-100  border border-slate-400 rounded-xl shadow-lg">
+                <View  style={{ zIndex: 50, elevation: 50 }} className="absolute bottom-0 w-full px-2 py-3  h-2/3 bg-red-100  border border-slate-400 rounded-xl shadow-lg">
                     <View>
                         <View className="items-end">
                             <TouchableOpacity onPress={handleclose}><FontAwesome5 size={20} color={colorred} name="times-circle" /></TouchableOpacity>
                         </View>
                         <View className="items-center">
-                            <View className="absolute top-8 right-3 z-50"><TouchableOpacity onPress={handlesearch}><FontAwesome5 color={colorred} size={20} name="search" /></TouchableOpacity></View>
+                            <View  style={{ zIndex: 50, elevation: 50 }} className="absolute top-8 right-3 z-50"><TouchableOpacity onPress={handlesearch}><FontAwesome5 color={colorred} size={20} name="search" /></TouchableOpacity></View>
+                            <View className="w-3/4">
                             <TextInput
                                 placeholderTextColor={grey}
                                 label="Search"
@@ -42,10 +43,11 @@ const DisplayModal = ({ data, close, getvaluefunction }) => {
                                 theme={{ colors: { primary: colorred } }}
                                 onChangeText={text => handlechange(text)}
                                 value={searchdata}
-                                className="w-full mt-3 bg-slate-50"
+                                className="w-full mt-3"
                                 textColor="#000000"
 
                             />
+                            </View>
                         </View>
                         <View className="py-5 h-5/6">
                             <ScrollView

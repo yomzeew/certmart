@@ -37,6 +37,8 @@ import DisplayModal from "../../modals/datadisplay";
 import Toptrainer from "./dashboard/toptrainer";
 import { fetchallavailablecourse } from "./fetchdata";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import { login } from "../../../store/sliceReducer";
 
 const Dashboard = () => {
   const navigation = useNavigation();
@@ -48,6 +50,8 @@ const Dashboard = () => {
   const [showModal, setshowModal] = useState(false)
   const [availablecourse,setavailablecourse]=useState([])
 
+  const dispatch=useDispatch()
+
   const fetchdata = async () => {
     try {
       setshowpreloader(true);
@@ -57,7 +61,6 @@ const Dashboard = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data.data);
       setdata(response.data.data);
     } catch (error) {
       if (error.response) {
@@ -89,6 +92,7 @@ const Dashboard = () => {
       });
       // console.log(response.data)
       if (response.status === 200) {
+        dispatch(login(response.data))
         const studentId = response.data.studentid;
         await AsyncStorage.setItem("studentid", studentId);
         console.log(studentId);
@@ -132,7 +136,6 @@ const Dashboard = () => {
       const getdata = response.data.data;
       if (getdata.length > 0) {
         const getnewfilterarray = getdata.map((item, index) => item.course);
-        console.log(getnewfilterarray);
         const uniqueSubjects = [...new Set(getnewfilterarray)];
         setcoursesdata(uniqueSubjects);
       } else {
@@ -180,7 +183,6 @@ const Dashboard = () => {
     fetchallavailablecourse(setshowpreloader)
   .then((courses) => {
     setavailablecourse(courses)
-    console.log("Available Courses:", courses);
   })
   .catch((error) => {
     console.error("Failed to fetch courses:", error);
@@ -193,8 +195,8 @@ const Dashboard = () => {
     <>
       {showModal &&
       <>
-       <View className="h-full w-full z-50  absolute bg-red-100 opacity-70" />
-          <View className="h-[70vh] w-full bg-white bottom-0 absolute z-50">
+       <View  style={{ zIndex: 50, elevation: 50 }} className="h-full w-full   absolute bg-red-100 opacity-70" />
+          <View  style={{ zIndex: 50, elevation: 50 }} className="h-[70vh] w-full bg-white bottom-0 absolute">
           <View className="items-end p-3">
                             <TouchableOpacity onPress={handlecloseallcourse}><FontAwesome5 size={20} color={colorred} name="times-circle" /></TouchableOpacity>
                         </View>
@@ -223,10 +225,10 @@ const Dashboard = () => {
 
       }
       {showopcity && (
-        <View className="h-full w-full z-50  absolute bg-red-100 opacity-70" />
+        <View  style={{ zIndex: 50, elevation: 50 }} className="h-full w-full  absolute bg-red-100 opacity-70" />
       )}
       {showmodalcourse && (
-        <View className="bottom-0 absolute z-50">
+        <View  style={{ zIndex: 50, elevation: 50 }} className="bottom-0 absolute ">
           <Animated.View style={[animatedStyles]}>
             <DisplayModal
               data={coursesdata}
@@ -243,14 +245,14 @@ const Dashboard = () => {
       >
         <StatusBar style="auto" />
         {showpreloader && (
-          <View className="z-50 absolute h-full w-full">
+          <View  style={{ zIndex: 50, elevation: 50 }} className=" absolute h-full w-full">
             <Preloader />
           </View>
         )}
         <Header />
         <View className="items-center mt-3">
           <View className="w-full items-center justify-center flex">
-            <View className="absolute z-50 top-3 right-16">
+            <View  style={{ zIndex: 50, elevation: 50 }} className="absolute  top-3 right-16">
               <TouchableOpacity
                 style={{ backgroundColor: colorred }}
                 className="rounded-lg h-10 w-10 items-center flex justify-center"
@@ -258,16 +260,20 @@ const Dashboard = () => {
                 <Text className="text-white">Go</Text>
               </TouchableOpacity>
             </View>
+            <View className="w-3/4">
             <TextInput
               label="Search"
               mode="outlined"
               theme={{ colors: { primary: grey, outline: grey } }}
-              className="bg-white w-3/4 h-12"
+              className="w-full h-12"
               textColor="#000000"
             />
+
+            </View>
+           
           </View>
         </View>
-        <View className="flex-1">
+        <View className="flex-1 mt-3">
           <ScrollView showsVerticalScrollIndicator={false}>
             <Categories
               handlecallbackvalue={(value) => handlepickcategories(value)}
@@ -282,7 +288,12 @@ const Dashboard = () => {
                 </Text>
               </View>
               <ScrollView showsHorizontalScrollIndicator={false} horizontal>
-                <PopularCourses data={data} />
+                <PopularCourses 
+                data={data}
+                setshowModal={setshowModal}
+                showModal={showModal}
+                handleactionseeall={handlegetallcourses}
+                 />
               </ScrollView>
               <View className="mt-3 w-full">
                 <ScrollView showsHorizontalScrollIndicator={false} horizontal>

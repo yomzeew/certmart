@@ -11,11 +11,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const CoursesRegModalPartone = () => {
     return (
         <View className="relative flex justify-center  items-center h-28">
-            <View className="absolute right-0 z-50 bg-slate-50 rounded-full top-0">
+            <View  style={{ zIndex: 50, elevation: 50 }} className="absolute right-0  bg-slate-50 rounded-full top-0">
                 <FontAwesome name="check-circle" size={30} color="green" />
             </View>
             {/* <FontAwesome name="warning" size={24} color="red" /> */}
-            <View className="rounded-full h-24 w-24 bg-red-300 absolute -left-5 z-50 flex justify-center items-center">
+            <View  style={{ zIndex: 50, elevation: 50 }} className="rounded-full h-24 w-24 bg-red-300 absolute -left-5  flex justify-center items-center">
                 <TouchableOpacity className="w-24 items-center">
                     <FontAwesome5 name="file" size="30" />
                     <Text className="text-xs text-center">View Course Outlined</Text>
@@ -244,11 +244,11 @@ export const AvailableCourses = ({ setshowpayment, item, setShowLoader, setSelec
 
                 (
                     <View className="rounded-2xl w-[75vw] p-3 bg-red-200 mt-3">
-                        <View className="absolute right-0 z-50 bg-slate-50 rounded-full top-0">
+                        <View  style={{ zIndex: 50, elevation: 50 }} className="absolute right-0  bg-slate-50 rounded-full top-0">
                             {item?.paymentstatus === undefined ? <FontAwesome name="check-circle" size={30} color="orange" /> : <FontAwesome name="check-circle" size={30} color="green" />}
                         </View>
                         <View className="flex-row relative items-center">
-                            <View className="rounded-full h-24 w-24 bg-red-300 absolute -right-5 z-40 flex justify-center items-center">
+                            <View  style={{ zIndex: 40, elevation: 40 }} className="rounded-full h-24 w-24 bg-red-300 absolute -right-5 flex justify-center items-center">
                                 <TouchableOpacity onPress={() => handleshow(item)} className="w-24 items-center">
                                     <FontAwesome5 name="file" size={30} />
                                     <Text className="text-sm text-center">View More Details</Text>

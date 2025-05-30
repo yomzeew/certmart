@@ -1,14 +1,11 @@
-import { View, SafeAreaView, Text, ScrollView, RefreshControl, TouchableOpacity, Alert } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useState, useEffect } from 'react';
-import { Entypo, FontAwesome, FontAwesome5, AntDesign } from "@expo/vector-icons";
-import { colorred } from "../../constant/color";
-import PaymentScreen from "../paystacks/paystackwebview";
+import { FontAwesome, FontAwesome5} from "@expo/vector-icons";
 import axios from "axios";
 import { BaseURi, classes } from "../../settings/endpoint";
 import { Avatar } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import PaymentScreenModal from "../student/dashboardcomponet/dashboard/paymentScreen";
-export const DirectPayment = ({  item, setShowLoader,showcontent,content,setcontent,setshowcontent }) => {
+export const DirectPayment = ({  item, setShowLoader,showcontent,content,setcontent,setshowcontent,onClickPayment }) => {
     const [selected,setSelected]=useState('')
     const [showpayment,setshowpayment]=useState(false)
     const [showsuccess,setshowsuccess]=useState(false)
@@ -109,32 +106,20 @@ export const DirectPayment = ({  item, setShowLoader,showcontent,content,setcont
         setshowcontent(!showcontent)
         console.log('fd')
     }
-    const handlepayment = (item) => {
-        setshowpayment(true)
-        setSelected(item)
-
-    }
     return (
         <>
-            {showpayment &&
-                    <PaymentScreenModal
-                    selected={selected}
-                    setshowpayment={setshowpayment}
-                    setShowLoader={setShowLoader}
-                    setshowsuccess={setshowsuccess}
-                    />
-
-                } 
+           
+            <View className="w-full items-center flex-1">
             <ScrollView>
                 {data.length > 0 && data.map((item, index) =>
 
                 (
-                    <View className="rounded-2xl w-[75vw] p-3 bg-red-200 mt-3">
-                        <View className="absolute right-0 z-50 bg-slate-50 rounded-full top-0">
+                    <View key={index} className="rounded-2xl w-[75vw] p-3 bg-red-200 mt-3">
+                        <View  style={{ zIndex: 50, elevation: 50 }} className="absolute right-0  bg-slate-50 rounded-full top-0">
                             {item?.paymentstatus === undefined ? <FontAwesome name="check-circle" size={30} color="orange" /> : <FontAwesome name="check-circle" size={30} color="green" />}
                         </View>
                         <View className="flex-row relative items-center">
-                            <View className="rounded-full h-24 w-24 bg-red-300 absolute -right-5 z-40 flex justify-center items-center">
+                            <View  style={{ zIndex: 40, elevation: 40 }} className="rounded-full h-24 w-24 bg-red-300 absolute -right-5 flex justify-center items-center">
                                 <TouchableOpacity onPress={() => handleshow(item)} className="w-24 items-center">
                                     <FontAwesome5 name="file" size={30} />
                                     <Text className="text-sm text-center">View More Details</Text>
@@ -168,7 +153,7 @@ export const DirectPayment = ({  item, setShowLoader,showcontent,content,setcont
                         </View>
                         <TouchableOpacity
                             onPress={() => {
-                                if (item?.paymentstatus === undefined) handlepayment(item);
+                                if (item?.paymentstatus === undefined) onClickPayment(item);
                             }}
                             className={`w-full h-10 rounded-2xl mt-2 items-center justify-center ${item?.paymentstatus === undefined ? 'bg-red-500' : 'bg-green-500'
                                 }`}
@@ -183,6 +168,7 @@ export const DirectPayment = ({  item, setShowLoader,showcontent,content,setcont
 
                 ))}
             </ScrollView>
+            </View>
         </>
     )
 }

@@ -16,7 +16,7 @@ const DateModal = ({ setDateOfBirth, DateOfBirth, closetwo }) => {
   };
 
   return (
-    <View className="rounded-2xl p-3 z-50 bg-slate-100 top-16 absolute">
+    <View  style={{ zIndex: 50, elevation: 50 }} className="rounded-2xl p-3 z-50 bg-slate-100 top-16 absolute">
     <View className="items-end"><TouchableOpacity onPress={()=>closetwo(false)}><Text><FontAwesome size={20} name='times' color={colorred}/></Text></TouchableOpacity></View>
       <DateTimePicker
         mode="single"

@@ -27,18 +27,22 @@ const InputModal=({close,getvalue,senddata})=>{
         </View>
         
         <View className="py-5 h-5/6 items-center">
+        <View className="w-3/4">
         <TextInput
              label="Additional Info"
              mode="outlined"
              theme={{ colors: { primary: colorred} }}
              onChangeText={text => handlechange(text)}
              value={addinfo}
-             className="w-full mt-3 bg-slate-50"
+             className="w-full mt-3"
              textColor="#000000"
              multiline
              numberOfLines={4}
              
             />
+
+        </View>
+       
             <View className="mt-3 items-start">
                 <TouchableOpacity onPress={handgetvalue} style={{backgroundColor:colorred}} className="h-12 rounded-2xl w-12 flex justify-center items-center">
                     <Text style={{fontSize:16}} className="text-white"><FontAwesome5 color={colorwhite} size={20} name="check"/>OK</Text>

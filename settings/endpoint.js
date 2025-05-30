@@ -35,6 +35,8 @@ export const payreg=`${BaseURi}/courseregs`
 export const classes=`${BaseURi}/courseregs`
 
 export const issuesURL=`${BaseURi}/issues`
+export const eresourcesUrl=`${BaseURi}/eresources`
+export const certificateUrl=`${BaseURi}/certificates`
 
 
 

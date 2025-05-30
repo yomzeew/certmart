@@ -98,8 +98,7 @@ const NewPasswordPage = () => {
                             <Text style={{textColor:colorred}} className={`text-center capitalize text-red-500`}>{errorMsg}</Text>
                         </View>
                     <View className="w-3/4 mt-3">
-                    </View>
-                        <TextInput
+                    <TextInput
                             label="Password"
                             mode="outlined"
                             theme={{ colors: { primary: colorred} }}
@@ -112,7 +111,9 @@ const NewPasswordPage = () => {
                             
 
                         />
-                        <TextInput
+                    </View>
+                    <View className="w-3/4 mt-3">
+                    <TextInput
                             label="Confirm Password"
                             mode="outlined"
                             theme={{ colors: { primary: colorred } }}
@@ -122,7 +123,14 @@ const NewPasswordPage = () => {
                             textColor="#000000"
                             secureTextEntry
 
+                            
                         />
+                    
+                    
+                        
+                    </View>
+                        
+                       
                     <Button
                     icon="login" 
                     mode="contained"

@@ -1,6 +1,6 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { allavailablecourse, issuesURL } from "../../../settings/endpoint";
+import { allavailablecourse, BaseURi, certificateUrl, eresourcesUrl, issuesURL } from "../../../settings/endpoint";
 
 export const fetchallavailablecourse = async (setshowpreloader) => {
   try {
@@ -14,7 +14,6 @@ export const fetchallavailablecourse = async (setshowpreloader) => {
     });
 
     const getdata = response.data;
-    console.log(getdata);
 
     const getcourse = [...new Set(getdata.map((item) => `${item.course}`))];
 
@@ -35,36 +34,31 @@ export const fetchallavailablecourse = async (setshowpreloader) => {
   }
 };
 
-const BASE_URL = "your_base_url_here";
 
-
-const setPreloader = (state) => {
-    console.log("Preloader:", state ? "Loading..." : "Done");
-};
 
 // Get all issues
-export const getIssuesByemail = async (email) => {
-    setPreloader(true);
+export const getIssuesByemail = async (email,setPreloader) => {
+   
     try {
         const response = await axios.get(`${issuesURL}/${email}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching issues:", error);
     } finally {
-        setPreloader(false);
+      
     }
 };
 
 // Get issue by ID
 export const getIssueById = async (id) => {
-    setPreloader(true);
+  
     try {
         const response = await axios.get(`${issuesURL}/${id}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching issue:", error);
     } finally {
-        setPreloader(false);
+       
     }
 };
 
@@ -92,7 +86,7 @@ export const createIssue = async (issueData) => {
 
 
 // Update an issue
-export const updateIssue = async (id, updateData) => {
+export const updateIssue = async (id, updateData,setPreloader) => {
     setPreloader(true);
     try {
         const response = await axios.put(`${issuesURL}/${id}`, updateData, {
@@ -108,21 +102,21 @@ export const updateIssue = async (id, updateData) => {
 
 // Get course registrations by student ID
 export const getCourseRegsByStudent = async (studentId) => {
-    setPreloader(true);
+    
     try {
-        const response = await axios.get(`${BASE_URL}/courseregs/students`, {
+        const response = await axios.get(`${BaseURi}/courseregs/students`, {
             params: { id: studentId },
         });
         return response.data;
     } catch (error) {
         console.error("Error fetching course registrations:", error);
     } finally {
-        setPreloader(false);
+       
     }
 };
 
 // Get course registration details by event ID
-export const getCourseRegDetails = async (eventId) => {
+export const getCourseRegDetails = async (eventId,setPreloader) => {
     setPreloader(true);
     try {
         const response = await axios.get(`${BASE_URL}/coursereg/details/${eventId}`);
@@ -131,5 +125,54 @@ export const getCourseRegDetails = async (eventId) => {
         console.error("Error fetching course registration details:", error);
     } finally {
         setPreloader(false);
+    }
+};
+
+export const getEresource = async (students) => {
+    const studentId = encodeURIComponent(students); // becomes CMT%2FS%2F56
+    
+    try {
+        const response = await axios.get(`${eresourcesUrl}/students?id=${studentId}`);
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            // Server responded with a status other than 2xx
+            console.error("Error response:", error.response.data);
+            console.log(error.response.data.error);
+            console.error("Error status:", error.response.status);
+            console.error("Error headers:", error.response.headers);
+          } else if (error.request) {
+            // Request was made but no response received
+            console.error("Error request:", error.request);
+          } else {
+            // Something else happened while setting up the request
+            console.error("Error message:", error.message);
+          }
+    } finally {
+       
+    }
+};
+export const getCertificate = async (students) => {
+    const studentId = encodeURIComponent(students); // becomes CMT%2FS%2F56
+    
+    try {
+        const response = await axios.get(`${certificateUrl}/students?id=${studentId}`);
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            // Server responded with a status other than 2xx
+            console.error("Error response:", error.response.data);
+            console.log(error.response.data.error);
+            console.error("Error status:", error.response.status);
+            console.error("Error headers:", error.response.headers);
+          } else if (error.request) {
+            // Request was made but no response received
+            console.error("Error request:", error.request);
+          } else {
+            // Something else happened while setting up the request
+            console.error("Error message:", error.message);
+          }
+    } finally {
+       
     }
 };
