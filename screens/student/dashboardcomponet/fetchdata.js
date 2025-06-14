@@ -1,6 +1,6 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { allavailablecourse, BaseURi, certificateUrl, eresourcesUrl, issuesURL } from "../../../settings/endpoint";
+import { allavailablecourse, BaseURi, certificateUrl, eresourcesUrl, issuesURL, trainerByIdUrl } from "../../../settings/endpoint";
 
 export const fetchallavailablecourse = async (setshowpreloader) => {
   try {
@@ -174,5 +174,19 @@ export const getCertificate = async (students) => {
           }
     } finally {
        
+    }
+};
+
+export const getTrainer = async (trainerid,setPreloader) => {
+    setPreloader(true);
+    try {
+        const response = await axios.get(`${trainerByIdUrl}?trainerid=${trainerid}`, {
+            headers: { "Content-Type": "application/json" },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error updating issue:", error);
+    } finally {
+        setPreloader(false);
     }
 };

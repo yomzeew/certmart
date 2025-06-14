@@ -77,7 +77,7 @@ const handleCancel = () => {
     <View>
       {showPaystack ? (
        <Paystack  
-       paystackKey="pk_test_024ca4c379183533c245a56c379b4ffaf516e880"
+       paystackKey="pk_live_100d4761c8c122fe96c5e9d78e69265add54306b"
        amount={amount}
        billingEmail={email}
        currency={currency}

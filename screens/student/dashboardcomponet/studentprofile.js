@@ -231,7 +231,7 @@ const StudentProfile = () => {
           <View className="items-center w-full -mt-10">
             <View>
               <TouchableOpacity
-               style={{ zIndex: 40, elevation: 40 }}
+               style={{ zIndex: 30, elevation: 30 }}
                 className="absolute right-0 bottom-0  bg-white w-8 h-8 rounded-full flex justify-center items-center"
                 onPress={pickImageAsync}
               >

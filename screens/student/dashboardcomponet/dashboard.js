@@ -95,7 +95,6 @@ const Dashboard = () => {
         dispatch(login(response.data))
         const studentId = response.data.studentid;
         await AsyncStorage.setItem("studentid", studentId);
-        console.log(studentId);
       }
     } catch (error) {
       if (error.response) {
@@ -121,6 +120,9 @@ const Dashboard = () => {
   const animatedStyles = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
+
+  // get course that availability
+
   const handlepickcategories = async (value) => {
     try {
       setshowpreloader(true);
@@ -133,9 +135,9 @@ const Dashboard = () => {
           },
         }
       );
-      const getdata = response.data.data;
+      const getdata = response.data;
       if (getdata.length > 0) {
-        const getnewfilterarray = getdata.map((item, index) => item.course);
+        const getnewfilterarray = getdata.map((item, index) => item.course); //check here
         const uniqueSubjects = [...new Set(getnewfilterarray)];
         setcoursesdata(uniqueSubjects);
       } else {

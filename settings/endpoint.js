@@ -15,7 +15,7 @@ export const getallcourseregdetails=`${BaseURi}/`
 //https://certmart.org/backend/api/v1/admissions/registrations/approved?studentid=JIT/S/08
 
 export const coursescategories = `${BaseURi}/courses/categories`;
-export const coursescategoriesfilter = `${BaseURi}/courses?`;
+export const coursescategoriesfilter = `${BaseURi}/traineravailabilities?`;
 export const coursesall = `${BaseURi}/courses`;
 export const popularcourses = `${BaseURi}/courses?filter=popular&count=6`;
 export const allcourses = `${BaseURi}/courses?field=coursecode,course`;
@@ -37,6 +37,9 @@ export const classes=`${BaseURi}/courseregs`
 export const issuesURL=`${BaseURi}/issues`
 export const eresourcesUrl=`${BaseURi}/eresources`
 export const certificateUrl=`${BaseURi}/certificates`
+
+//get trainer by id
+export const trainerByIdUrl=`${BaseURi}/trainer/profile`
 
 
 

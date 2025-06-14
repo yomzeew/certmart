@@ -14,6 +14,7 @@ import BottomNav from "../screens/student/dashboardcomponet/bottomtab";
 import Eresources from "../screens/student/dashboardcomponet/eresourses";
 import Certificate from "../screens/student/dashboardcomponet/certificate";
 import Issues from "../screens/student/dashboardcomponet/issues/issues";
+import TrainerProfile from "../screens/student/dashboardcomponet/trainerProfile";
 const DrawerWrapper = () => {
   const Drawer = createDrawerNavigator();
   return (
@@ -71,6 +72,10 @@ const DrawerWrapper = () => {
       options={{gestureEnabled:false,gestureDirection:'vertical'}} 
       name="issues" 
       component={Issues} />
+        <Drawer.Screen 
+      options={{gestureEnabled:false,gestureDirection:'vertical'}} 
+      name="trainerProfileScreen" 
+      component={TrainerProfile} />
       
     
     </Drawer.Navigator>

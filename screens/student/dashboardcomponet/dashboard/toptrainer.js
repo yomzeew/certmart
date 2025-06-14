@@ -4,10 +4,12 @@ import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { topTrainers } from '../../../../settings/endpoint'
 import { useState,useEffect } from 'react'
+import { useNavigation } from '@react-navigation/native'
 
 const Toptrainer=()=>{
     const [showpreloader,setshowpreloader]=useState('')
     const [data,setdata]=useState([])
+    const navigation=useNavigation()
     const fetchdata=async()=>{
    
         try{
@@ -20,6 +22,7 @@ const Toptrainer=()=>{
     
             })
             setdata(response.data)
+            console.log(response.data,'trainer')
     
         }catch(error){
             if (error.response) {
@@ -45,14 +48,19 @@ const Toptrainer=()=>{
         fetchdata()
     
     },[])
+    const hanldeTrainerProfile=(trainerid,trainerdp)=>{
+        navigation.navigate('trainerProfileScreen',{trainerid,trainerdp})
+
+
+    }
     
     return(
         <View className="flex flex-row">
         {data.map((item,index)=>(
-        <View className="items-center m-1" key={index}>
+        <TouchableOpacity onPress={()=>hanldeTrainerProfile(item.trainerid,item.dp)} className="items-center m-1" key={index}>
         {item.dp?<Avatar.Image source={{uri:`https://certmart.org/dps/${item.dp}.jpg?timestamp=${new Date().getTime()}`}}/>:<Avatar.Image source={require('../../../images/avatermale.png')}/>  }
         <Text className="font-semibold">{item.surname}</Text>
-        </View>
+        </TouchableOpacity>
     ))}
         
    

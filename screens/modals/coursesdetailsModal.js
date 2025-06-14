@@ -13,15 +13,15 @@ export const CourseDetailsModal = ({ content, setshowcontent, showcontent }) => 
         <View  style={{ zIndex: 50, elevation: 50 }} className="h-[70vh] bottom-0 justify-center bg-red-200 rounded-2xl w-full absolute  flex items-center py-3">
             
             {/* Close Button */}
-            <View className="absolute right-5 top-10">
+            <View  className="absolute right-5 top-10">
                 <TouchableOpacity onPress={handleshow}>
                     <AntDesign name="upcircle" size={30} color="red" />
                 </TouchableOpacity>
             </View>
 
-            <View className="items-start">
-                {/* Avatar and Rating */}
-                <View className="flex-row items-center">
+            <View className="items-start w-full">
+                <View className="items-center w-full ">
+                <View className="w-[75vw] flex-row items-center px-3">
                     <View className="items-center">
                         {content.dp ? (
                             <Avatar.Image source={{ uri: `https://certmart.org/dps/${content.dp}.jpg?timestamp=${new Date().getTime()}` }} />
@@ -38,31 +38,36 @@ export const CourseDetailsModal = ({ content, setshowcontent, showcontent }) => 
                     <View className="w-2" />
 
                     {/* Instructor Details */}
-                    <View>
+                    <View className="w-[70%]">
                         <View className="flex-row items-center mt-2">
                             <FontAwesome5 name="user" size={16} />
-                            <Text className="text-xs ml-2">
+                            <Text className="text-lg ml-2">
                                 {content.firstname} {content.surname}
                             </Text>
                         </View>
 
                         <View className="mt-2">
-                            <Text>{content.classType}</Text>
-                            <Text>Duration: {content.duration} weeks</Text>
+                            <Text className="text-xs">{content.classType}</Text>
+                            <Text className="text-xs">Duration: {content.duration} weeks</Text>
                         </View>
 
                         <View className="mt-2">
-                            <Text>{content.days}</Text>
-                            <Text>Time: {content.starttime} - {content.endtime} {content.timezone}</Text>
+                            <Text className="text-nowrap text-xs">{content.days}</Text>
+                            <Text className="text-xs">Time: {content.starttime} - {content.endtime} {content.timezone}</Text>
                         </View>
                     </View>
                 </View>
 
+                </View>
+                {/* Avatar and Rating */}
+               
+
                 {/* Divider */}
-                <View className="w-[75vw] border border-red-200 my-3" />
+                <View className="items-center w-[100%] border border-red-200 my-3"  />
 
                 {/* Description */}
-                <View>
+                <View className="items-center w-[100%] border border-red-200 my-3"  >
+                <View className="items-start w-5/6 ">
                     <Text className="font-semibold">Description:</Text>
                 </View>
 
@@ -76,6 +81,7 @@ export const CourseDetailsModal = ({ content, setshowcontent, showcontent }) => 
                         <Text className="text-white">Download Course Outline</Text>
                     </TouchableOpacity>
                 </View>
+            </View>
             </View>
         </View>
         </>
