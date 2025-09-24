@@ -11,6 +11,8 @@ import BottomNav from "./screens/student/dashboardcomponet/bottomtab";
 import { Provider } from "react-redux";
 import store from "./store/store";
 import "./global.css"
+import NotificationManager from "./components/NotificationManager";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 export default function App() {
   const Stack = createStackNavigator();
@@ -28,28 +30,31 @@ export default function App() {
   }, []);
 
   return (
-    <Provider store={store}>
-    <PaperProvider>
-      <GestureHandlerRootView>
-        <NavigationContainer>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            {/* <Stack.Screen  name="start" component={Home} /> */}
-            <Stack.Screen
-              options={{ gestureEnabled: true, gestureDirection: "vertical" }}
-              name="onboarding"
-              component={StackWrapper}
-            />
-            <Stack.Screen
-              options={{ gestureEnabled: false, gestureDirection: "vertical" }}
-              name="dashboard"
-              component={DrawerWrapper}
-            />
-           
-          </Stack.Navigator>
-        </NavigationContainer>
-      </GestureHandlerRootView>
-    </PaperProvider>
-    </Provider>
+    <ErrorBoundary>
+      <Provider store={store}>
+        <PaperProvider>
+          <GestureHandlerRootView>
+            <NavigationContainer>
+              <Stack.Navigator screenOptions={{ headerShown: false }}>
+                {/* <Stack.Screen  name="start" component={Home} /> */}
+                <Stack.Screen
+                  options={{ gestureEnabled: true, gestureDirection: "vertical" }}
+                  name="onboarding"
+                  component={StackWrapper}
+                />
+                <Stack.Screen
+                  options={{ gestureEnabled: false, gestureDirection: "vertical" }}
+                  name="dashboard"
+                  component={DrawerWrapper}
+                />
+
+              </Stack.Navigator>
+              <NotificationManager />
+            </NavigationContainer>
+          </GestureHandlerRootView>
+        </PaperProvider>
+      </Provider>
+    </ErrorBoundary>
   );
 }
 

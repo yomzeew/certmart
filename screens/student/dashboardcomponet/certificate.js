@@ -19,6 +19,7 @@ const Certificate = () => {
     const studentId = user.studentid
     const handledata = async () => {
         const resdata = await getCertificate(studentId)
+        console.log(resdata,'resata')
         setdata(resdata)
         console.log(resdata)
 

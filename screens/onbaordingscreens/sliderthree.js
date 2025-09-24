@@ -20,7 +20,7 @@ return(
         <View  className="items-center">
             <View style={{backgroundColor:colorred}} className="w-56  h-16 flex justify-center items-center rounded-xl">
             <Text style={{fontSize:20}} className="text-2xl font-semibold text-center text-white">
-                  Introducing SkillHub by CertMart
+                  Introducing LearnSkill by CertMart
                 </Text>
 
             </View>

@@ -5,6 +5,7 @@ import Dashboard from './dashboard';
 import StudentProfile from './studentprofile';
 import Classes from './studentclasses';
 import Issues from './issues/issues';
+import ErrorBoundary from '../../../components/ErrorBoundary';
 const BottomNav=()=>{
     const Stack = createStackNavigator();
     
@@ -18,7 +19,11 @@ const BottomNav=()=>{
           headerShown: false,
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
         }} >
-                <Stack.Screen  options={{gestureEnabled:true,gestureDirection: 'vertical', header:false}}  name='dashboardstudent' component={Dashboard}/>
+                <Stack.Screen  options={{gestureEnabled:true,gestureDirection: 'vertical', header:false}}  name='dashboardstudent' component={() => (
+                  <ErrorBoundary>
+                    <Dashboard />
+                  </ErrorBoundary>
+                )}/>
                 <Stack.Screen  options={{gestureEnabled:true,gestureDirection: 'vertical',}} name='studentprofile' component={StudentProfile}/>
                 <Stack.Screen  options={{gestureEnabled:true,gestureDirection: 'vertical',}} name='classes' component={Classes} />
                 <Stack.Screen  options={{gestureEnabled:true,gestureDirection: 'vertical',}} name='issues' component={Issues} />

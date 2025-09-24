@@ -1,37 +1,45 @@
-import { StatusBar } from "expo-status-bar"
-import {View,Image, ImageBackground } from "react-native"
-import { styles } from "../../settings/layoutsetting"
-import { useEffect } from "react"
+import { StatusBar } from "expo-status-bar";
+import { View, Image } from "react-native";
+import { styles } from "../../settings/layoutsetting";
+import { useEffect } from "react";
 import { useIsFocused } from "@react-navigation/native";
 
-const Home=({navigation})=>{
-    const isFocused=useIsFocused()
-    const goto = async () => {
-        // const status = await getDeviceStatus();
-        // if (status) {
-          navigation.navigate('slider');
-    //     } else {
-    //       navigation.navigate('slider');
-    //     }
-     };
-    useEffect(
-        ()=>{
-            if(isFocused){
-                const mystart=setTimeout(()=>{
-                    goto()
-        
-                },3000)
-                return () => clearTimeout(mystart);
-    
-            }
+const Home = ({ navigation }) => {
+    const isFocused = useIsFocused();
 
-    })
-    return(
-        <ImageBackground source={require('../images/bgground.png')} style={[styles.bgcolor]}  resizeMode="contain" className="flex-1 w-full justify-center items-center flex">
-            <View className="absolute h-full w-full bg-slate-100 opacity-80"/>
+    const navigateToSlider = () => {
+        navigation.navigate("slider");
+    };
+
+    useEffect(() => {
+        if (isFocused) {
+            const timeoutId = setTimeout(() => {
+                navigateToSlider();
+            }, 3000);
+
+            return () => clearTimeout(timeoutId); // Cleanup timeout on unmount or focus change
+        }
+    }, [isFocused]); // Dependency array ensures effect runs only when `isFocused` changes
+
+    return (
+        <View
+            style={[styles.bgcolor]}
+            className="flex-1 w-full justify-center items-center flex"
+        >
+            {/* Background Overlay */}
+            <View className="absolute h-full w-full bg-slate-100 opacity-80" />
+
+            {/* Status Bar */}
             <StatusBar style="auto" />
-            <Image source={require('../images/certmart-logo2.png')} className="h-12 w-32" resizeMode="contain"/>
-        </ImageBackground>
-    )
-}
-export default Home
+
+            {/* Logo */}
+            <Image
+                source={require("../../assets/cm.png")}
+                className="h-12 w-32"
+                resizeMode="contain"
+            />
+        </View>
+    );
+};
+
+export default Home;

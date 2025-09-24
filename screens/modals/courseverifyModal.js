@@ -3,6 +3,7 @@ import { colorred } from "../../constant/color";
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 
 const CoursesVerifyModal = ({ data }) => {
+  console.log(data, "dataModal")
 
   return (
     <>
@@ -37,28 +38,7 @@ const CoursesVerifyModal = ({ data }) => {
               {data.classType}
             </Text>
           </View>
-          <View className="mt-3">
-            <View>
-              <Text>{data.country}</Text>
-            </View>
-            <View>
-              <Text>{data.state}</Text>
-            </View>
-            <View>
-              <Text>{data.studycentre}</Text>
-            </View>
-          </View>
-          <View className="mt-3">
-            <Text>{data.decisioncomment}</Text>
-          </View>
-          <View className="mt-3">
-            <TouchableOpacity
-              style={{ backgroundColor: colorred }}
-              className="py-2  rounded-2xl  px-3 flex justify-center items-center"
-            >
-              <Text className="text-white">View CV</Text>
-            </TouchableOpacity>
-          </View>
+          
         </View>
       </View>
     </>

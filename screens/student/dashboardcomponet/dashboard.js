@@ -1,10 +1,5 @@
 import { StatusBar } from "expo-status-bar";
 import {
-
-  TextInput,
-
-} from "react-native-paper";
-import {
   SafeAreaView,
   View,
   Text,
@@ -12,19 +7,17 @@ import {
   ScrollView,
 } from "react-native";
 import { styles } from "../../../settings/layoutsetting";
-import { colorred, grey } from "../../../constant/color";
-import { useNavigation } from "@react-navigation/native";
+import { colorred } from "../../../constant/color";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./header";
-import Footer from "./footer";
 import Categories from "./dashboard/categories";
 import PopularCourses from "./dashboard/popularcourses";
-import PopularCoursesdetails from "./dashboard/popularcoursedetails";
 import {
   coursescategoriesfilter,
   popularcourses,
@@ -36,21 +29,42 @@ import Preloader from "../../preloadermodal/preloaderwhite";
 import DisplayModal from "../../modals/datadisplay";
 import Toptrainer from "./dashboard/toptrainer";
 import { fetchallavailablecourse } from "./fetchdata";
-import { FontAwesome5 } from "@expo/vector-icons";
+import CustomTextInput from "../../../components/CustomTextInput";
 import { useDispatch } from "react-redux";
 import { login } from "../../../store/sliceReducer";
+import PopularCoursesCard from "./dashboard/popularcourseCard";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 const Dashboard = () => {
   const navigation = useNavigation();
+
+  // Safety check for navigation
+  if (!navigation) {
+    console.warn('Navigation context not available');
+    return null;
+  }
+
   const [data, setdata] = useState([]);
   const [showpreloader, setshowpreloader] = useState(false);
   const [showmodalcourse, setshowmodalcourse] = useState(false);
   const [showopcity, setshowopcity] = useState(false);
   const [coursesdata, setcoursesdata] = useState([]);
-  const [showModal, setshowModal] = useState(false)
-  const [availablecourse,setavailablecourse]=useState([])
+  const [showModal, setshowModal] = useState(false);
+  const [availablecourse, setavailablecourse] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [filteredCourses, setFilteredCourses] = useState([]);
 
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Reset state when screen is focused again
+      setshowpreloader(false);
+      setshowModal(false);
+      setshowopcity(false);
+      setshowmodalcourse(false);
+    }, [])
+  );
 
   const fetchdata = async () => {
     try {
@@ -64,64 +78,54 @@ const Dashboard = () => {
       setdata(response.data.data);
     } catch (error) {
       if (error.response) {
-        // Server responded with a status other than 2xx
         console.error("Error response:", error.response.data);
         console.log(error.response.data.error);
         console.error("Error status:", error.response.status);
-        console.error("Error headers:", error.response.headers);
       } else if (error.request) {
-        // Request was made but no response received
         console.error("Error request:", error.request);
       } else {
-        // Something else happened while setting up the request
         console.error("Error message:", error.message);
       }
     } finally {
       setshowpreloader(false);
     }
   };
-  // to get student id
+
   const fetchStudentId = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
-
       const response = await axios.get(studentdetails, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      // console.log(response.data)
       if (response.status === 200) {
-        dispatch(login(response.data))
+        dispatch(login(response.data));
         const studentId = response.data.studentid;
         await AsyncStorage.setItem("studentid", studentId);
       }
     } catch (error) {
       if (error.response) {
-        // Server responded with a status other than 2xx
         console.error("Error response:", error.response.data);
         console.log(error.response.data.error);
         console.error("Error status:", error.response.status);
-        console.error("Error headers:", error.response.headers);
       } else if (error.request) {
-        // Request was made but no response received
         console.error("Error request:", error.request);
       } else {
-        // Something else happened while setting up the request
         console.error("Error message:", error.message);
       }
     }
   };
+
   useEffect(() => {
     fetchdata();
     fetchStudentId();
   }, []);
+
   const translateY = useSharedValue(300);
   const animatedStyles = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
-
-  // get course that availability
 
   const handlepickcategories = async (value) => {
     try {
@@ -137,100 +141,173 @@ const Dashboard = () => {
       );
       const getdata = response.data;
       if (getdata.length > 0) {
-        const getnewfilterarray = getdata.map((item, index) => item.course); //check here
+        const getnewfilterarray = getdata.map((item) => item.course);
         const uniqueSubjects = [...new Set(getnewfilterarray)];
         setcoursesdata(uniqueSubjects);
       } else {
         setcoursesdata([]);
-        return;
       }
     } catch (error) {
       if (error.response) {
-        // Server responded with a status other than 2xx
         console.error("Error response:", error.response.data);
-        console.log(error.response.data.error);
-        console.error("Error status:", error.response.status);
-        console.error("Error headers:", error.response.headers);
       } else if (error.request) {
-        // Request was made but no response received
         console.error("Error request:", error.request);
       } else {
-        // Something else happened while setting up the request
         console.error("Error message:", error.message);
       }
     } finally {
       setshowpreloader(false);
     }
     translateY.value = withSpring(0);
-    setshowmodalcourse(!showmodalcourse);
-    setshowopcity(!showopcity);
+    setshowmodalcourse(true);
+    setshowopcity(true);
   };
+
   const handlegetvalue = (value) => {
-    const getvalue = value;
-    console.log(value);
     setshowmodalcourse(false);
     setshowopcity(false);
     translateY.value = withSpring(300);
     navigation.navigate("couseravailable", { course: value });
   };
+
   const handleclose = (value) => {
     setshowopcity(false);
     setshowmodalcourse(value);
     translateY.value = withSpring(300);
   };
-  const handlecloseallcourse = () => {
-    setshowModal(false)
-  }
-  const handlegetallcourses=()=>{
+
+  const handlegetallcourses = () => {
     fetchallavailablecourse(setshowpreloader)
-  .then((courses) => {
-    setavailablecourse(courses)
-  })
-  .catch((error) => {
-    console.error("Failed to fetch courses:", error);
-  });
-  }
-  useEffect(()=>{
-   handlegetallcourses()
-  },[])
+      .then((courses) => {
+        setavailablecourse(courses);
+        setFilteredCourses(courses); // Initialize filtered courses
+      })
+      .catch((error) => {
+        console.error("Failed to fetch courses:", error);
+      });
+  };
+
+  // Filter courses based on search text
+  const handleSearch = (text) => {
+    setSearchText(text);
+    if (text.trim() === "") {
+      setFilteredCourses(availablecourse);
+    } else {
+      const filtered = availablecourse.filter(course =>
+        course.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredCourses(filtered);
+    }
+  };
+
+  useEffect(() => {
+    handlegetallcourses();
+  }, []);
+
   return (
     <>
-      {showModal &&
-      <>
-       <View  style={{ zIndex: 50, elevation: 50 }} className="h-full w-full   absolute bg-red-100 opacity-70" />
-          <View  style={{ zIndex: 50, elevation: 50 }} className="h-[70vh] w-full bg-white bottom-0 absolute">
-          <View className="items-end p-3">
-                            <TouchableOpacity onPress={handlecloseallcourse}><FontAwesome5 size={20} color={colorred} name="times-circle" /></TouchableOpacity>
-                        </View>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
+{showModal && (
+  <>
+    <View
+      style={{
+        zIndex: 50,
+        elevation: 50,
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.5)",
+      }}
+      className="h-full w-full absolute justify-end"
+    />
+    <View
+      style={{ zIndex: 50, elevation: 50 }}
+      className="h-[85vh] w-full bg-white bottom-0 absolute rounded-t-3xl"
+    >
+      {/* Close Button */}
+      <TouchableOpacity
+        onPress={() => {
+          setshowModal(false);
+          setSearchText(""); // Reset search when closing modal
+        }}
+        className="absolute right-4 top-4 z-50"
+      >
+        <FontAwesome5 name="times" size={22} color="#333" />
+      </TouchableOpacity>
+
+      <View className="items-center pt-4 pb-2">
+        <View className="w-12 h-1 bg-gray-300 rounded-full"></View>
+      </View>
+      <View className="px-4 pb-4">
+        <Text className="text-lg font-bold text-gray-800 text-center mb-4">
+          Available Courses
+        </Text>
+        <Text className="text-gray-600 text-center text-sm mb-4">
+          Select a course to view details
+        </Text>
+
+        {/* Search Input */}
+        <View className="flex-row justify-between items-center bg-gray-50 rounded-xl px-3 py-2 mb-4 border border-gray-200">
+         
+          <CustomTextInput
+            placeholder="Search courses..."
+            value={searchText}
+            onChangeText={handleSearch}
+            className="flex-1 ml-3 bg-transparent w-64"
+            placeholderTextColor="#666"
+          />
+           <FontAwesome5 name="search" size={16} color="#666" />
+        </View>
+      </View>
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+        {filteredCourses.length > 0 ? (
+          filteredCourses.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => handlegetvalue(item)}
+              className="bg-gray-50 mx-4 mb-3 p-4 rounded-xl border border-gray-100"
             >
-              {/* use courseCard */}
-              {availablecourse.length > 0 ?availablecourse.map((item, index) => {
-                return (
-                  <TouchableOpacity key={index} onPress={() => handlegetvalue(item)} className="bg-slate-50 px-5 h-12 flex justify-center w-full border-b border-t border-lightred mt-2">
-                    <Text style={{ fontSize: 16 }}>
-                      {item}
-                    </Text>
-                  </TouchableOpacity>
-
-                )
-              }) : <View><Text>No Records Found</Text></View>
-
-              }
-
-            </ScrollView>
-
+              <View className="flex-row items-center">
+                <View className="w-3 h-3 bg-green-500 rounded-full mr-3"></View>
+                <Text
+                  style={{ fontSize: 16 }}
+                  className="font-medium text-gray-800 flex-1"
+                >
+                  {item}
+                </Text>
+                <FontAwesome5 name="chevron-right" size={14} color="#666" />
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <View className="items-center justify-center py-10">
+            <FontAwesome5 name="search" size={48} color="#ccc" />
+            <Text className="text-gray-500 text-center mt-4">
+              {searchText ? "No courses found" : "No courses available"}
+            </Text>
+            <Text className="text-gray-400 text-center text-sm mt-1">
+              {searchText ? "Try a different search term" : "Courses will appear here when available"}
+            </Text>
           </View>
-          </>
+        )}
+      </ScrollView>
+    </View>
+  </>
+)}
 
-
-      }
       {showopcity && (
-        <View  style={{ zIndex: 50, elevation: 50 }} className="h-full w-full  absolute bg-red-100 opacity-70" />
+        <View
+          style={{
+            zIndex: 50,
+            elevation: 50,
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+          }}
+          className="h-full w-full absolute"
+        />
       )}
       {showmodalcourse && (
-        <View  style={{ zIndex: 50, elevation: 50 }} className="bottom-0 absolute ">
+        <View
+          style={{ zIndex: 50, elevation: 50 }}
+          className="bottom-0 absolute h-full w-full "
+        >
           <Animated.View style={[animatedStyles]}>
             <DisplayModal
               data={coursesdata}
@@ -240,93 +317,90 @@ const Dashboard = () => {
           </Animated.View>
         </View>
       )}
-      <View className="h-full w-full flex-1">
+
       <SafeAreaView
         style={[styles.andriod, styles.bgcolor]}
-        className="flex-1 flex w-full"
+        className="flex-1 w-full"
       >
         <StatusBar style="auto" />
         {showpreloader && (
-          <View  style={{ zIndex: 50, elevation: 50 }} className=" absolute h-full w-full">
+          <View
+            style={{ zIndex: 50, elevation: 50 }}
+            className=" absolute h-full w-full"
+          >
             <Preloader />
           </View>
         )}
-        <Header />
-        <View className="items-center mt-3">
-          <View className="w-full items-center justify-center flex">
-            <View  style={{ zIndex: 50, elevation: 50 }} className="absolute  top-3 right-16">
-              <TouchableOpacity
-                style={{ backgroundColor: colorred }}
-                className="rounded-lg h-10 w-10 items-center flex justify-center"
-              >
-                <Text className="text-white">Go</Text>
-              </TouchableOpacity>
-            </View>
-            <View className="w-3/4">
-            <TextInput
-              label="Search"
-              mode="outlined"
-              theme={{ colors: { primary: grey, outline: grey } }}
-              className="w-full h-12"
-              textColor="#000000"
-            />
 
+        <Header />
+
+        {/* Make whole dashboard scrollable */}
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View className="px-4 mt-4">
+            <View className="items-center mb-6">
+              <Text className="text-2xl font-bold text-gray-800 mb-2">
+                Welcome Back! 👋
+              </Text>
+              <Text className="text-gray-600 text-center">
+                Discover amazing courses and enhance your skills
+              </Text>
             </View>
-           
           </View>
-        </View>
-        <View className="flex-1 mt-3">
-          <ScrollView showsVerticalScrollIndicator={false}>
+
+          {/* Categories */}
+          <View className="px-4 mt-6">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-lg font-bold text-gray-800">📚 Categories</Text>
+            </View>
             <Categories
               handlecallbackvalue={(value) => handlepickcategories(value)}
               setshowModal={setshowModal}
               showModal={showModal}
               handleactionseeall={handlegetallcourses}
             />
-            <View className="px-3 mt-3">
-              <View className="flex justify-between flex-row items-center">
-                <Text style={{ fontSize: 16 }} className="font-semibold">
-                  Popular Courses
-                </Text>
-              </View>
-              <ScrollView showsHorizontalScrollIndicator={false} horizontal>
-                <PopularCourses 
+          </View>
+
+          {/* Popular Courses */}
+          <View className="px-4 ">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-lg font-bold text-gray-800">⭐ Popular Courses</Text>
+            </View>
+            <ScrollView showsHorizontalScrollIndicator={false} horizontal>
+              <PopularCourses
                 data={data}
                 setshowModal={setshowModal}
                 showModal={showModal}
                 handleactionseeall={handlegetallcourses}
-                 />
-              </ScrollView>
-              <View className="mt-3 w-full">
-                <ScrollView showsHorizontalScrollIndicator={false} horizontal>
-                  <PopularCoursesdetails data={data} />
-                </ScrollView>
-              </View>
+              />
+            </ScrollView>
+            <View className="mt-4">
+             
+              <PopularCoursesCard 
+               data={data}
+               setshowModal={setshowModal}
+               showModal={showModal}
+               handleshowmodal={handlegetallcourses}
+/>
+
+             
             </View>
-            <View className="mt-3 px-3">
-              <View className="flex justify-between flex-row items-center">
-                <Text style={{ fontSize: 16 }} className="font-semibold">
-                  Top Trainers
-                </Text>
-                <TouchableOpacity>
-                  <Text
-                    style={{ color: colorred, fontSize: 14 }}
-                    className="font-semibold"
-                  >
-                    See all
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View className="mt-2 w-full">
-                <ScrollView showsHorizontalScrollIndicator={false} horizontal>
-                  <Toptrainer />
-                </ScrollView>
-              </View>
+          </View>
+
+          {/* Top Trainers */}
+          <View className="px-4 mb-6">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-lg font-bold text-gray-800">👨‍🏫 Top Trainers</Text>
             </View>
-          </ScrollView>
-        </View>
+            <ScrollView
+              showsHorizontalScrollIndicator={false}
+              horizontal
+              contentContainerStyle={{ paddingRight: 20 }}
+            >
+              <Toptrainer />
+            </ScrollView>
+          </View>
+        </ScrollView>
       </SafeAreaView>
-      </View>
     </>
   );
 };

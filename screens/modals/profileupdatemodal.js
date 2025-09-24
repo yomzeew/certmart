@@ -149,8 +149,8 @@ const ProfileUpdateModal = ({ close, data, id }) => {
                     onResponderRelease={handleclose}
                     className="h-full absolute bottom-0 w-full px-2 py-3 opacity-80 bg-red-100 border border-slate-400 rounded-xl shadow-lg"></View>
                 <View style={{ elevation: 6 }} className="w-4/5 relative h-3/4 py-4 overflow-y-scroll bg-white shadow-md shadow-slate-400 rounded-2xl flex justify-center items-center">
-                    {showpreloader && <View className="absolute z-50 h-full w-full flex justify-center items-center rounded-2xl"><Preloader /></View>}
-                    <View className="absolute z-40 right-2 top-2">
+                    {showpreloader && <View style={{zIndex:50,elevation:50}}  className="absolute h-full w-full flex justify-center items-center rounded-2xl"><Preloader /></View>}
+                    <View  className="absolute z-40 right-2 top-2">
                         <TouchableOpacity onPress={handleclose}><FontAwesome5 name="times" size={24} color={colorred} /></TouchableOpacity>
                     </View>
                    

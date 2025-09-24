@@ -24,18 +24,20 @@ import { uploadFile } from "../../uploadfile/uploadfile";
 import InputModal from "../../modals/inputmodal";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { allavailablecourse, allcourses, applyAdmission } from "../../../settings/endpoint";
+import { allavailablecourse, allcourses, applyAdmission, classes } from "../../../settings/endpoint";
 import {
   countrylist,
   fecthcountrysate,
   getallcountries,
   getallstates,
+  getcities,
   getstudycenter,
 } from "../../jsondata/country-states";
 import Preloader from "../../preloadermodal/preloaderwhite";
 import { currentDate } from "../../../utility/get-date-time";
 import SuccessModal from "../../modals/successfulmodal";
 import { useRoute } from "@react-navigation/native";
+import CustomTextInput from "../../../components/CustomTextInput";
 
 
 const ApplyCourses = () => {
@@ -53,6 +55,7 @@ const ApplyCourses = () => {
   const [country, setCountry] = useState("");
   const [state, setState] = useState("");
   const [city, setcity] = useState("");
+  const [studycenter,setStudycenter]=useState("")
   const [computerlevel, setcomputerlevel] = useState("");
   const [addinfo, setaddinfo] = useState("");
   const [datacourse, setdatacourse] = useState([]);
@@ -69,6 +72,7 @@ const ApplyCourses = () => {
   const [showsuccess, setshowsuccess] = useState(false);
   const [countryid,setcountryid]=useState('')
   const [stateid,setstateid]=useState('')
+  
   const fetchdata = useCallback(async () => {
     try {
      setShowLoader(true);
@@ -80,7 +84,7 @@ const ApplyCourses = () => {
       });
   
       const getdata = response.data;
-      console.log(getdata);
+      console.log(getdata,'okrrrrr');
       if(course){
         if(getdata.length>0){
           const newArray=getdata.filter((item,index)=>(
@@ -93,7 +97,6 @@ const ApplyCourses = () => {
       }
   
       setrawdata(getdata);
-  
       const getcourse = new Set(getdata.map((item) => `${item.course}`));
   
       setdatacourse([...getcourse]);
@@ -140,6 +143,17 @@ const ApplyCourses = () => {
     setshowphysical(!showphysical);
   };
 
+  useEffect(()=>{
+    if(classtype==="Physical"){
+      setshowphysical(true)
+
+    }
+    else{
+      setshowphysical(false)
+    }
+  },[classtype])
+  
+
   const translateY = useSharedValue(300);
   const animatedStyles = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
@@ -156,10 +170,12 @@ const ApplyCourses = () => {
     setshowmodalcourse(!showmodalcourse);
   };
   const handlecountry = async () => {
+    console.log('ok')
     setselecttpe("country");
     try {
       setShowLoader(true);
       const countrylistone = await getallcountries();
+      console.log(countrylistone,'countrylistone');
       setdata(countrylistone);
     } catch (error) {
     } finally {
@@ -194,12 +210,31 @@ const ApplyCourses = () => {
 
     try {
       setShowLoader(true);
-      const datastudy = await getstudycenter(state, country);
+      const datacity = await getcities(state, country);
 
-      setdata(datastudy[0]);
-      const datastudycity=datastudy[1]
+      setdata(datacity[0]);
+      const datastudycity=datacity[1]
       setcountryid(datastudycity[0].country_id)
       setstateid(datastudycity[0].id)
+    } catch (error) {
+    } finally {
+      setShowLoader(false);
+    }
+
+    translateY.value = withSpring(0);
+    setshowmodalcourse(!showmodalcourse);
+  };
+  const handlestudy = async () => {
+    console.log('ok')
+    setselecttpe("study");
+
+    try {
+      setShowLoader(true);
+      console.log(country,state,city,courseid)
+      const getCourseid=rawdata.filter((item)=>(item.course===course))
+      const datastudy = await getstudycenter(country,state,city,getCourseid[0].courses);  
+      console.log(datastudy,'datastudy')
+      setdata(datastudy);
     } catch (error) {
     } finally {
       setShowLoader(false);
@@ -245,6 +280,8 @@ const ApplyCourses = () => {
       setState(value);
     } else if (selecttype === "city") {
       setcity(value);
+    } else if (selecttype === "study") {
+      setStudycenter(value);
     } else if (selecttype === "computer") {
       setcomputerlevel(value);
     }
@@ -257,27 +294,27 @@ const ApplyCourses = () => {
     setshowmodalinput(false);
     translateYinput.value = withSpring(300);
   };
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        if (!country) {
-          const data = await getallcountries();
-          setCountryData(data);
-        } else if (country && !state) {
-          const data = await getallstates(country);
-          setStateData(data);
-        } else if (country && state) {
-          const data = await getstudycenter(country, state);
-          setCityData(data);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-      console.log(classtype)
-    };
+  // useEffect(() => {
+  //   const getData = async () => {
+  //     try {
+  //       if (!country) {
+  //         const data = await getallcountries();
+  //         setCountryData(data);
+  //       } else if (country && !state) {
+  //         const data = await getallstates(country);
+  //         setStateData(data);
+  //       } else if (country && state) {
+  //         const data = await getstudycenter(country, state);
+  //         setCityData(data);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     }
+  //     console.log(classtype)
+  //   };
 
-    getData();
-  }, [country, state]);
+  //   getData();
+  // }, [country, state]);
 
   const getdocument = async () => {
     const result = await DocumentPicker.getDocumentAsync({
@@ -314,11 +351,16 @@ const ApplyCourses = () => {
       setcity("Virtual");
 
     }
-  if(!cvnewname){
-    seterrormsg("Please Upload your Cv");
-    return
+    if(!cvnewname){
+      setcvnewname(null)
+  
+    }
+    if(!addinfo){
+      setaddinfo(null)
 
-  }
+    }
+
+ 
     let formData = {
       studentid: studentId,
       state:stateid,
@@ -380,44 +422,56 @@ const ApplyCourses = () => {
         setcomputerlevel("");
         setcvnewname("");
       }
-    } catch (error) {
-      if (error.response) {
-        // Server responded with a status other than 2xx
-        console.error("Error response:", error.response.data);
-        console.log(error.response.data.error);
-        seterrormsg(error.response.data.error);
-        console.error("Error status:", error.response.status);
-        console.error("Error headers:", error.response.headers);
-      } else if (error.request) {
-        // Request was made but no response received
-        console.error("Error request:", error.request);
-      } else {
-        // Something else happened while setting up the request
-        console.error("Error message:", error.message);
-      }
-    } finally {
       setShowLoader(false);
+     } catch (error) {
+      let message = "Something went wrong. Please try again.";
+    
+      if (error.response) {
+        // Server responded with an error
+        console.error("Error response:", error.response.data);
+    
+        if (error.response.data?.error) {
+          message = error.response.data.error;
+        } else if (error.response.data?.message) {
+          message = error.response.data.message;
+        } else {
+          message = `Server error: ${error.response.status}`;
+        }
+      } else if (error.request) {
+        // No response received
+        console.error("Error request:", error.request);
+        message = "No response from server. Check your network connection.";
+      } else {
+        // Something went wrong setting up the request
+        console.error("Error message:", error.message);
+        message = error.message;
+      }
+    setShowLoader(false);
+      seterrormsg(message);
     }
+    
   };
 
   return (
     <>
-      {showsuccess && (
-        <View  style={{ zIndex: 50, elevation: 50 }} className="absolute  flex justify-center items-center w-full h-full">
-          <SuccessModal
-            message={"Application Successful"}
-            action={() => setshowsuccess(false)}
-          />
-        </View>
+    {showopcity && (
+        <View  style={{ zIndex: 50, elevation: 50 }} className="h-full w-full  absolute bg-red-100 opacity-70" />
       )}
       {showLoader && (
         <View  style={{ zIndex: 50, elevation: 50 }} className="absolute w-full h-full">
           <Preloader />
         </View>
       )}
-      {showopcity && (
-        <View  style={{ zIndex: 50, elevation: 50 }} className="h-full w-full  absolute bg-red-100 opacity-70" />
+    
+      {showsuccess && (
+        <View   className="absolute  w-full h-full flex justify-center items-center">
+          <SuccessModal
+            message={"Application Successful"}
+            action={() => setshowsuccess(false)}
+          />
+        </View>
       )}
+    
       {showmodalcourse && (
         <View  style={{ zIndex: 50, elevation: 50 }} className="bottom-0 absolute">
           <Animated.View style={[animatedStyles]}>
@@ -440,6 +494,7 @@ const ApplyCourses = () => {
           </Animated.View>
         </View>
       )}
+         
       <SafeAreaView
         style={[styles.andriod, styles.bgcolor]}
         className="flex flex-1 w-full"
@@ -486,7 +541,7 @@ const ApplyCourses = () => {
               </TouchableOpacity>
             </View>
 
-            <View className="px-5 mt-5">
+            {/* <View className="px-5 mt-5">
               <Text style={{ fontSize: 16 }} className="text-black">
                 {" "}
                 Select Class Type{" "}
@@ -511,7 +566,31 @@ const ApplyCourses = () => {
                   <Text style={{ fontSize: 16 }}>Physical</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </View> */}
+            <View className="px-5 mt-5">
+            <Text style={{ fontSize: 16 }} className="text-black">
+                Select Class Type
+              </Text>
+             <View className="flex-row justify-around w-full bg-gray-200 py-2 rounded-xl ">
+                    {["Virtual", "Physical", "Exam"].map((tab) => (
+                      <TouchableOpacity
+                        key={tab}
+                        onPress={() => setclasstype(tab)}
+                        className={`px-4 py-2 rounded-lg ${
+                          classtype === tab ? "bg-red-500" : "bg-white"
+                        }`}
+                      >
+                        <Text
+                          className={`${
+                            classtype=== tab ? "text-white font-bold" : "text-black"
+                          }`}
+                        >
+                          {tab}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                  </View>
             {showphysical && (
               <View>
                 <View className="px-5 mt-5">
@@ -592,6 +671,32 @@ const ApplyCourses = () => {
                     </Text>
                   </TouchableOpacity>
                 </View>
+                <View className="px-5 mt-5">
+                  {studycenter && (
+                    <View  style={{ zIndex: 50, elevation: 50 }} className="absolute left-8 -top-2 bg-white">
+                      <Text>Select Study Center</Text>
+                    </View>
+                  )}
+                  <TouchableOpacity
+                    onPress={handlestudy}
+                    className="h-12 rounded-2xl flex justify-center items-start px-3 border border-lightred bg-white"
+                  >
+                    <Text style={{ fontSize: 16 }} className="text-black">
+                      {studycenter ? (
+                        studycenter
+                      ) : (
+                        <Text>
+                          <FontAwesome5
+                            size={20}
+                            color={colorred}
+                            name="arrow-circle-down"
+                          />{" "}
+                          Select  Study Center
+                        </Text>
+                      )}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
             <View className="mt-3">
@@ -606,7 +711,7 @@ const ApplyCourses = () => {
                 >
                   <Text>Upload Cv</Text>
                 </TouchableOpacity>
-                <Text className="text-center">CV (PDFs only) *optional</Text>
+                <Text className="text-center">CV (PDFs only)</Text>
               </View>
 
               <View className="px-5 mt-5">

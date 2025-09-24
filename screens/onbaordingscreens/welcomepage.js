@@ -1,4 +1,4 @@
-import { SafeAreaView, ImageBackground,Text,View,TouchableOpacity } from "react-native"
+import { SafeAreaView, ImageBackground,Text,View,TouchableOpacity,Image } from "react-native"
 import { styles } from "../../settings/layoutsetting"
 import { certblue, colorred } from "../../constant/color"
 import { FontAwesome } from "@expo/vector-icons"
@@ -23,7 +23,7 @@ const Welcomepage=()=>{
 
     return(
         <>
-         <ImageBackground source={require('../images/welcome.jpeg')} className="h-full w-full bg-bottom absolute -bottom-32" resizeMode="contain"/>
+         <View  className="h-full w-full bg-bottom absolute -bottom-32" resizeMode="contain"/>
          <View className="w-full h-full bg-slate-200 opacity-80 absolute"></View>
         <SafeAreaView style={styles.andriod} className="flex-1 justify-center items-center flex w-full">
             <StatusBar style="auto"/>
@@ -34,8 +34,7 @@ const Welcomepage=()=>{
                 
                 <Text style={{fontSize:35}} className="font-extralight">Welcome To</Text>
                 <View className="flex flex-row">
-                <Text style={{fontSize:60,color:certblue}} className="font-medium">Cert</Text>
-                <Text style={{fontSize:60,color:colorred}} className="font-medium">Mart</Text>
+                <Image resizeMode="contain" className="w-[50%] h-16" source={require('../../assets/cm.png')}/>
                 </View>
                 
               

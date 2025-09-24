@@ -8,6 +8,7 @@ export const getotp = `${BaseURi}/password/get_otp`;
 export const verifyotp = `${BaseURi}/password/verify_otp`;
 export const resetpassword = `${BaseURi}/password/reset`;
 export const studentdetails = `${BaseURi}/students/me`;
+export const forgotpassword=`${BaseURi}/student/forgot-password`
 
 export const applyAdmission = `${BaseURi}/admissions`;
 export const getCourseStatus = `${BaseURi}/admissions`;
@@ -27,7 +28,8 @@ export const allTrainers=`${BaseURi}/trainers`
 
 export const countrieslist = `${BaseURi}/countries`
 export const statelist = `${BaseURi}/states`
-export const studycenter = `${BaseURi}/studycentres`
+export const citylist=`${BaseURi}/cities`
+export const studycenter = `${BaseURi}/study_centres/nearest`
 
 export const conversion=`${BaseURi}/currency/convert_to`
 
@@ -40,6 +42,9 @@ export const certificateUrl=`${BaseURi}/certificates`
 
 //get trainer by id
 export const trainerByIdUrl=`${BaseURi}/trainer/profile`
+
+export const couponUrl=`${BaseURi}/coupons`
+export const appliedCouponUrl=`${BaseURi}/use-coupons`
 
 
 

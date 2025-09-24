@@ -27,7 +27,7 @@ return(
             </View>
             <View className="bg-slate-100 mt-3 py-3 px-3">
                 <Text style={{fontSize:16}} className={`text-center`}>
-                {`Do you own a workspace, hub, or computer lab that's currently sitting idle? Why not turn it into a lucrative income stream?\nTransform your underutilized space into a bustling tech and vocational training hub with Certmart and earn extra income effortlessly`}
+                {`Are you passionate about upskilling and eager to learn new tech, vocational, and academic subjects? Whether at nearby learning hubs or from the comfort of your home, Certmart has you covered.Embark on a journey of self-discovery and elevate your skills with our top-notch tech and vocational courses. Join us and transform your future today!`}
                 </Text>
             </View>
             <View className="items-center mt-20">

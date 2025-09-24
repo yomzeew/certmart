@@ -52,6 +52,7 @@ const DisplayModal = ({ data, close, getvaluefunction }) => {
                         <View className="py-5 h-5/6">
                             <ScrollView
                                 showsVerticalScrollIndicator={false}
+                                contentContainerStyle={{paddingBottom:60}}
                             >
                                 {dataset.length > 0 ? dataset.map((item, index) => {
                                     return (

@@ -41,47 +41,67 @@ const Coursedetail = () => {
     const [showloader,setShowLoader]=useState(false)
     const [selected,setSelected]=useState('')
     const [showsuccess,setshowsuccess]=useState(false)
+    const [courselength,setcourselength]=useState(0)
     const fetchdata = async () => {
         try {
-            setshowpreloader(true);
-            const token = await AsyncStorage.getItem("token");
-            const response = await axios.get(`${allavailablecourse}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-    
-            const filteredCourses = response.data.filter((item) => item.courses === course);
-            
-            
-            // Using a Set to remove duplicates
-            const uniqueSet = new Set();
-            const uniqueCourses = filteredCourses.filter((item) => {
-                const key = `${item.tfirstname}-${item.tsurname}-${item.classType}-${item.duration}`;
-                if (uniqueSet.has(key)) {
-                    return false;
-                }
-                uniqueSet.add(key);
-                return true;
-            });
-            console.log(uniqueCourses)
-    
-            setcoursesdata(uniqueCourses);
-            
-            if (uniqueCourses.length > 0) {
-                setcourseTitle(uniqueCourses[0].course);
-            }
-    
+          setshowpreloader(true);
+          const token = await AsyncStorage.getItem("token");
+          const response = await axios.get(`${allavailablecourse}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+      
+          const filteredCourses = response.data.filter(
+            (item) => item.courses === course
+          );
+      
+          // ✅ Ensure uniqueness
+          const uniqueCourses = filteredCourses.filter(
+            (item, index, self) =>
+              index ===
+              self.findIndex(
+                (c) =>
+                  c.id
+                    ? c.id === item.id
+                    : c.courses === item.courses &&
+                      c.tfirstname === item.tfirstname &&
+                      c.tsurname === item.tsurname &&
+                      c.classType === item.classType &&
+                      c.duration === item.duration &&
+                      c.cost === item.cost
+              )
+          );
+          setcourselength(uniqueCourses.length)
+          console.log( uniqueCourses[0],'uniqueCourse');
+      
+          // ✅ Replace state, not accumulate
+          setcoursesdata(uniqueCourses);
+          if (uniqueCourses.length > 0) {
+            setcourseTitle(uniqueCourses[0].course);
+          }
         } catch (error) {
-            console.error("Error:", error);
+          console.error("Error:", error);
         } finally {
-            setshowpreloader(false);
+          setshowpreloader(false);
         }
-    };
-    
-    useEffect(() => {
-        fetchdata();
-    }, [course]);
+      };
+      
+      useEffect(() => {
+        let isMounted = true;
+      
+        const run = async () => {
+          await fetchdata();
+        };
+      
+        if (isMounted) {
+          run();
+        }
+      
+        return () => {
+          isMounted = false;
+        };
+      }, [course]);
+      
+      
     const handlegoback = () => {
         setcoursesdata([])
         navigation.goBack();
@@ -122,25 +142,20 @@ const Coursedetail = () => {
                             className="rounded-2xl flex px-2 py-3  bg-slate-50 shadow-lg shadow-slate-500 "
                         >
                             <View className="h-16 item-center  justify-center w-full">
-                                    <Text className="text-2xl text-center">{courseTitle}</Text>
+                                    <Text className="text-2xl text-center">{courseTitle} </Text>
                                 </View>
                             <View className="h-5/6 w-full">
-                                <ScrollView>
-                            {coursesdata.length>0&&coursesdata.map((item,index)=>
-                             <View className="w-full items-center">          
-                             <DirectPayment
-                             item={item}   
-                             setShowLoader={setshowpreloader}
-                             showcontent={showcontent}
-                             setshowcontent={setshowcontent}
-                             content={content}
-                             setcontent={setcontent}
-                             onClickPayment={(textdata)=>handleshowpayment(textdata)}
-                              />
-                         </View>
-                            )}
-                            </ScrollView>
-
+                             
+        <DirectPayment
+            item={coursesdata[0]}
+            setShowLoader={setshowpreloader}
+            showcontent={showcontent}
+            setshowcontent={setshowcontent}
+            content={content}
+            setcontent={setcontent}
+            onClickPayment={(textdata) => handleshowpayment(textdata)}
+        />
+ 
                             </View>
                          
                     </View>

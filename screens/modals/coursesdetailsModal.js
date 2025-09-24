@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text, ScrollView,Linking,Alert } from "react-native";
 import { FontAwesome, FontAwesome5, AntDesign } from "@expo/vector-icons";
 import { Avatar } from "react-native-paper";
 
@@ -6,12 +6,30 @@ export const CourseDetailsModal = ({ content, setshowcontent, showcontent }) => 
     const handleshow = () => {
         setshowcontent(!showcontent);
     };
+    
+    const courseOutline = `${content?.courseoutline}` || null
+
+    const handledownloadCourseOutline = async () => {
+      console.log('Downloading course outline from:', courseOutline);
+      
+      if (courseOutline) {
+        const supported = await Linking.canOpenURL(courseOutline);
+        if (supported) {
+          await Linking.openURL(courseOutline);
+        } else {
+          Alert.alert("Not available", "No course outline available.");
+        }
+      } else {
+        Alert.alert("Not available", "No course outline available.");
+      }
+    };
+     
 
     return (
         <>
         <View  style={{ zIndex: 50, elevation: 50 }} className="h-full w-full  absolute bg-red-100 opacity-70" />
         <View  style={{ zIndex: 50, elevation: 50 }} className="h-[70vh] bottom-0 justify-center bg-red-200 rounded-2xl w-full absolute  flex items-center py-3">
-            
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{alignItems:'center',paddingBottom:60}} className="h-full w-full">  
             {/* Close Button */}
             <View  className="absolute right-5 top-10">
                 <TouchableOpacity onPress={handleshow}>
@@ -42,7 +60,7 @@ export const CourseDetailsModal = ({ content, setshowcontent, showcontent }) => 
                         <View className="flex-row items-center mt-2">
                             <FontAwesome5 name="user" size={16} />
                             <Text className="text-lg ml-2">
-                                {content.firstname} {content.surname}
+                                 {content.surname}
                             </Text>
                         </View>
 
@@ -72,17 +90,18 @@ export const CourseDetailsModal = ({ content, setshowcontent, showcontent }) => 
                 </View>
 
                 <View className="bg-white px-3 py-3 rounded-2xl w-5/6">
-                    <Text>{content.description}</Text>
+                    <Text>{content.details}</Text>
                 </View>
 
                 {/* Course Outline Button */}
                 <View className="mt-4">
-                    <TouchableOpacity className="h-10 px-5 bg-red-500  justify-center rounded-2xl">
+                    <TouchableOpacity onPress={handledownloadCourseOutline} className="h-10 px-5 bg-red-500  justify-center rounded-2xl">
                         <Text className="text-white">Download Course Outline</Text>
                     </TouchableOpacity>
                 </View>
             </View>
             </View>
+            </ScrollView>
         </View>
         </>
       

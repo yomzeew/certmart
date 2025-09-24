@@ -2,125 +2,177 @@ import {
     View,
     SafeAreaView,
     Text,
-    ScrollView,
     RefreshControl,
     TouchableOpacity,
-  } from "react-native";
-  import Header from "./header";
-  import { styles } from "../../../settings/layoutsetting";
-  import CoursesVerifyModal from "../../modals/courseverifyModal";
-  import Preloader from "../../preloadermodal/preloaderwhite";
-  import { getCourseStatus } from "../../../settings/endpoint";
-  import AsyncStorage from "@react-native-async-storage/async-storage";
-  import { Divider } from "react-native-paper";
-  import { colorred } from "../../../constant/color";
-  import { useState, useEffect, useCallback } from "react";
-  import axios from "axios";
-  
-  const ApplicationCheckers = () => {
+    FlatList,
+} from "react-native";
+import Header from "./header";
+import { styles } from "../../../settings/layoutsetting";
+import CoursesVerifyModal from "../../modals/courseverifyModal";
+import Preloader from "../../preloadermodal/preloaderwhite";
+import { Divider } from "react-native-paper";
+import { colorred } from "../../../constant/color";
+import { useState, useEffect, useCallback } from "react";
+import { fetchCourseStatus } from "../../../utils/api";
+
+const ApplicationCheckers = () => {
     const [coursesData, setCoursesData] = useState([]);
     const [showLoader, setShowLoader] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [data, setData] = useState([]);
-  
+
     const fetchData = useCallback(async () => {
-      try {
-        setShowLoader(true);
-        const token = await AsyncStorage.getItem("token");
-        const studentId = await AsyncStorage.getItem("studentid");
-        const response = await axios.get(`${getCourseStatus}/all?studentid=${studentId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log(response.data)
-        setData(response.data);
-        setCoursesData(response.data); // Default to all courses
-      } catch (error) {
-        console.error("Error fetching data:", error.message);
-      } finally {
-        setShowLoader(false);
-      }
-    }, []);
-  
-    useEffect(() => {
-      fetchData();
-    }, [fetchData]);
-  
-    const onRefresh = useCallback(() => {
-      setRefreshing(true);
-      fetchData().finally(() => setRefreshing(false));
-    }, [fetchData]);
-  
-    const handleData = useCallback(
-      (status = "") => {
-        if (data.length > 0) {
-          const filteredData = status
-            ? data.filter((item) => item.status === status)
-            : data; // Default to all courses if no status
-          setCoursesData(filteredData);
+        try {
+            setShowLoader(true);
+            const response = await fetchCourseStatus();
+            setData(response);
+            setCoursesData(response); // Default to all
+        } catch (error) {
+            console.error("Error fetching data:", error.message);
+        } finally {
+            setShowLoader(false);
         }
-      },
-      [data]
+    }, []);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchData().finally(() => setRefreshing(false));
+    }, [fetchData]);
+
+    const handleData = useCallback(
+        (status = "") => {
+            if (data.length > 0) {
+                const filteredData = status
+                    ? data.filter((item) => item.status === status)
+                    : data;
+                setCoursesData(filteredData);
+            }
+        },
+        [data]
     );
-  
+
+    const renderItem = ({ item }) => <CoursesVerifyModal data={item} />;
+
     return (
-      <>
-        {showLoader && (
-          <View style={{ position: "absolute", zIndex: 50, height: "100%", width: "100%" }}>
-            <Preloader />
-          </View>
-        )}
-        <View style={{ flex: 1 }}>
-          <SafeAreaView style={[styles.andriod, styles.bgcolor]}>
-            <Header />
-            <View style={{ paddingHorizontal: 16 }}>
-              <Text style={{ fontSize: 20, color: colorred, fontWeight: "bold" }}>
-                Course Verification
-              </Text>
-              <Divider theme={{ colors: { primary: colorred } }} />
+        <>
+            {showLoader && (
+                <View
+                    style={{
+                        position: "absolute",
+                        zIndex: 50,
+                        height: "100%",
+                        width: "100%",
+                    }}
+                >
+                    <Preloader />
+                </View>
+            )}
+            <View className="h-full w-full" style={{ flex: 1 }}>
+                <SafeAreaView style={[styles.andriod, styles.bgcolor]}>
+                    <Header />
+
+                    {/* Title */}
+                    <View style={{ paddingHorizontal: 16, marginTop: 10 }}>
+                        <Text
+                            style={{
+                                fontSize: 20,
+                                color: colorred,
+                                fontWeight: "bold",
+                            }}
+                        >
+                            Course Verification
+                        </Text>
+                        <Divider theme={{ colors: { primary: colorred } }} />
+                    </View>
+
+                    {/* Filter Buttons */}
+                    <View
+                        style={{
+                            flexDirection: "row",
+                            justifyContent: "space-around",
+                            marginVertical: 12,
+                        }}
+                    >
+                        <FilterButton
+                            label="All"
+                            color="gray"
+                            onPress={() => handleData("")}
+                        />
+                        <FilterButton
+                            label="Pending"
+                            color="orange"
+                            onPress={() => handleData("Applied")}
+                        />
+                        <FilterButton
+                            label="Approved"
+                            color="green"
+                            onPress={() => handleData("Approved")}
+                        />
+                        <FilterButton
+                            label="Declined"
+                            color="red"
+                            onPress={() => handleData("Declined")}
+                        />
+                    </View>
+
+                    {/* FlatList */}
+                    <FlatList
+                        data={coursesData}
+                        keyExtractor={(_, idx) => idx.toString()}
+                        renderItem={renderItem}
+                        numColumns={2} // show two per row like a grid
+                        columnWrapperStyle={{
+                            justifyContent: "space-between",
+                        }}
+                        ItemSeparatorComponent={() => (
+                            <Divider style={{ marginVertical: 8 }} />
+                        )}
+                        ListEmptyComponent={() => (
+                            <View style={{ alignItems: "center", marginTop: 40 }}>
+                                <Text
+                                    style={{
+                                        color: colorred,
+                                        fontSize: 16,
+                                        fontWeight: "600",
+                                    }}
+                                >
+                                    There are no courses available
+                                </Text>
+                            </View>
+                        )}
+                        contentContainerStyle={{ padding: 12 }}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={refreshing}
+                                onRefresh={onRefresh}
+                                colors={[colorred]}
+                            />
+                        }
+                    />
+                </SafeAreaView>
             </View>
-            <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 12 }}>
-              <TouchableOpacity onPress={() => handleData("")}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <View style={{ backgroundColor: "gray", width: 16, height: 16 }} />
-                  <Text style={{ fontSize: 16, marginLeft: 8 }}>All</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleData("Applied")}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <View style={{ backgroundColor: "orange", width: 16, height: 16 }} />
-                  <Text style={{ fontSize: 16, marginLeft: 8 }}>Pending</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleData("Approved")}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <View style={{ backgroundColor: "green", width: 16, height: 16 }} />
-                  <Text style={{ fontSize: 16, marginLeft: 8 }}>Approved</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-            <ScrollView
-              style={{ marginTop: 16, paddingHorizontal: 12 }}
-              refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colorred]} />
-              }
-            >
-              <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-                {coursesData.length > 0 ? (
-                  coursesData.map((row, index) => <CoursesVerifyModal key={index} data={row} />)
-                ) : (
-                  <View>
-                    <Text style={{ color: colorred }}>There are no courses available</Text>
-                  </View>
-                )}
-              </View>
-            </ScrollView>
-          </SafeAreaView>
-        </View>
-      </>
+        </>
     );
-  };
-  
-  export default ApplicationCheckers;
-  
+};
+
+const FilterButton = ({ label, color, onPress }) => (
+    <TouchableOpacity onPress={onPress}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <View
+                style={{
+                    backgroundColor: color,
+                    width: 14,
+                    height: 14,
+                    borderRadius: 7,
+                }}
+            />
+            <Text style={{ fontSize: 16, marginLeft: 6 }}>{label}</Text>
+        </View>
+    </TouchableOpacity>
+);
+
+export default ApplicationCheckers;

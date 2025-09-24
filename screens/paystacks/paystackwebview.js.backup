@@ -1,0 +1,193 @@
+import axios from 'axios';
+import React, { useState } from 'react';
+import { View, Button, Text,TouchableOpacity,Alert } from 'react-native';
+import  { Paystack }  from 'react-native-paystack-webview';
+import { conversion, payreg } from '../../settings/endpoint';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const PaymentScreen = ({amount,currency,email,classtype,studentid,eventcode,close,setshowsuccess }) => {
+const [showPaystack, setShowPaystack] = useState(false);
+console.log(amount,email,currency,classtype)
+const [loadingTimeout, setLoadingTimeout] = useState(null);
+
+  const timeoutDuration = 360000; // 360 seconds
+
+  const handlepayment = async() => {
+    if(amount===0){
+      if (loadingTimeout) clearTimeout(loadingTimeout);
+      setShowPaystack(false);
+      try {
+        // Validate required fields
+        const requiredFields = {
+          studentid,
+          eventid: eventcode,
+          amountpaid: amount,
+          paymentref: null,
+          currency,
+        };
+    
+        // Check if any required field is missing or empty
+        for (const [key, value] of Object.entries(requiredFields)) {
+          if (!value) {
+            console.warn(`Validation Error: Missing value for "${key}"`, { value });
+            Alert.alert("Validation Error", `Missing required field: ${key}`);
+            return; // stop execution if validation fails
+          }
+        }
+    
+        const token = await AsyncStorage.getItem("token");
+        if (!token) {
+          console.warn("Auth Error: No token found in storage.");
+          Alert.alert("Authentication Error", "You are not logged in. Please login again.");
+          return;
+        }
+    
+        // Use Promise.race to set a timeout for the network request
+        const response = await Promise.race([
+          axios.post(`${payreg}/${classtype.toLowerCase()}`, requiredFields, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Request Timeout")), 10000)
+          ),
+        ]);
+    
+        console.log("Payment registered successfully:", response?.data);
+        close(false);
+        setshowsuccess(true);
+      } catch (error) {
+        // Normalize error logging
+        const errorMessage =
+          error.response?.data?.message ||
+          error.response?.data ||
+          error.message ||
+          "Unknown Error";
+    
+        console.error("Error registering payment:", errorMessage, { error });
+    
+        if (error.message === "Request Timeout") {
+          Alert.alert("Error", "The request timed out. Please try again.");
+        } else {
+          Alert.alert("Error", `Failed to register payment: ${errorMessage}`);
+        }
+      }
+      return;
+    }
+    else{
+      setShowPaystack(true);
+          // Set a timeout for loading the payment page
+    const timeout = setTimeout(() => {
+      setShowPaystack(false);
+      Alert.alert('Error', 'The payment page took too long to load. Please try again.');
+    }, timeoutDuration);
+
+    setLoadingTimeout(timeout);
+    }
+
+
+  };
+
+  const handleSuccess = async (transactionDetails) => {
+    console.log("Transaction Successful:", transactionDetails);
+    console.log("Event code:", eventcode);
+  
+    if (loadingTimeout) clearTimeout(loadingTimeout);
+    setShowPaystack(false);
+  
+    try {
+      // Validate required fields
+      const requiredFields = {
+        studentid,
+        eventid: eventcode,
+        amountpaid: amount,
+        paymentref: transactionDetails?.transactionRef?.reference,
+        currency,
+      };
+  
+      // Check if any required field is missing or empty
+      for (const [key, value] of Object.entries(requiredFields)) {
+        if (!value) {
+          console.warn(`Validation Error: Missing value for "${key}"`, { value });
+          Alert.alert("Validation Error", `Missing required field: ${key}`);
+          return; // stop execution if validation fails
+        }
+      }
+  
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.warn("Auth Error: No token found in storage.");
+        Alert.alert("Authentication Error", "You are not logged in. Please login again.");
+        return;
+      }
+  
+      // Use Promise.race to set a timeout for the network request
+      const response = await Promise.race([
+        axios.post(`${payreg}/${classtype.toLowerCase()}`, requiredFields, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Request Timeout")), 10000)
+        ),
+      ]);
+  
+      console.log("Payment registered successfully:", response?.data);
+      close(false);
+      setshowsuccess(true);
+    } catch (error) {
+      // Normalize error logging
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data ||
+        error.message ||
+        "Unknown Error";
+  
+      console.error("Error registering payment:", errorMessage, { error });
+  
+      if (error.message === "Request Timeout") {
+        Alert.alert("Error", "The request timed out. Please try again.");
+      } else {
+        Alert.alert("Error", `Failed to register payment: ${errorMessage}`);
+      }
+    }
+  };
+  
+const handleCancel = () => {
+  console.log('Payment Canceled');
+  setShowPaystack(false);
+
+  // Clear any existing timeout
+  if (loadingTimeout) clearTimeout(loadingTimeout);
+};
+
+  return (
+
+    <View>
+      {showPaystack ? (
+       <Paystack  
+       paystackKey="pk_live_100d4761c8c122fe96c5e9d78e69265add54306b" //"pk_live_100d4761c8c122fe96c5e9d78e69265add54306b"
+       amount={amount}
+       billingEmail={email}
+       currency={currency}
+       activityIndicatorColor="green"
+       channels={["card", "bank", "ussd", "qr", "mobile_money", "bank_transfer", "eft", "apple_pay"]}
+       onCancel={(e) => {
+        handleCancel()
+       }}
+       onSuccess={(res) => {
+        handleSuccess(res)
+         // handle response here
+       }}
+       autoStart={true}
+     />
+      ) : (
+        <TouchableOpacity onPress={handlepayment} className="w-full h-10 rounded-2xl bg-red-500 mt-2 items-center justify-center">
+                        <Text className="text-white">
+                           Proceed
+                        </Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+};
+
+export default PaymentScreen;

@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { createIssue, getIssuesByemail } from "../fetchdata";
 import SuccessModal from "../../../modals/successfulmodal";
 import Preloader from "../../../preloadermodal/preloaderwhite";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 const Issues = () => {
     const [active,setactive]=useState('View')
@@ -28,11 +29,19 @@ const Issues = () => {
         try {
             setpreloaderdata(true)
             const getdata = await getIssuesByemail(email);
-            console.log(getdata)
-            setData(getdata.data)
-            
+            console.log(getdata,'fetched issue data')
+
+            // Handle the response structure
+            if (getdata && getdata.status && getdata.message) {
+                setData(getdata.message); // Use the message array as data
+            } else {
+                setData([]);
+                console.log('Invalid response structure:', getdata);
+            }
+
         } catch (error) {
             console.error("Failed to fetch issues", error);
+            setData([]);
         }finally{
             setpreloaderdata(false)
         }
@@ -164,27 +173,28 @@ const Issues = () => {
            </View>:
                 <View className="w-full mt-3 h-[80%]">
                     <ScrollView showsVerticalScrollIndicator={false}>
-                    {data.length>0?data.map((item,index)=>(
-                        <>
-                        <CardDisplayIssue
-                        subject={item.subject}
-                        statusget={item.status}
-                        message={item.message}
-                        keyvalue={index}
-
-                        />
-                        </>
-                    )):
-                    <>
-                    <View className="items-center w-full mt-3">
-                        <Text className="text-center">
-                            No Records
-                        </Text>
-                    </View>
-                    </>
-
-                    }
-                </ScrollView>
+                    {preloaderdata ? (
+                        <View className="items-center justify-center py-10">
+                            <ActivityIndicator size="large" color={colorred} />
+                            <Text className="text-gray-600 mt-2">Loading issues...</Text>
+                        </View>
+                    ) : data.length > 0 ? (
+                        data.map((item, index) => (
+                            <IssueCard
+                                key={item.issueid || index}
+                                issue={item}
+                            />
+                        ))
+                    ) : (
+                        <View className="items-center justify-center py-16">
+                            <FontAwesome5 name="inbox" size={48} color="#ccc" />
+                            <Text className="text-gray-500 text-lg mt-4 text-center">No Issues Found</Text>
+                            <Text className="text-gray-400 text-sm mt-1 text-center">
+                                You haven't created any issues yet
+                            </Text>
+                        </View>
+                    )}
+                    </ScrollView>
                 </View>
                 }
                 
@@ -197,29 +207,140 @@ const Issues = () => {
 
 export default Issues;
 
-const CardDisplayIssue=({message,statusget,subject,keyvalue})=>{
-    return(
-        <>
-        <View key={keyvalue} className="w-full h-auto rounded-xl bg-slate-200 px-3 py-3 mt-3">
-            <View className="mt-3 w-full items-end">
-                <View className="bg-red-400 rounded-2xl py-2  w-20 items-center">
-                <Text>
-                    {statusget}
-                </Text>
+const IssueCard = ({ issue }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    // Format date
+    const formatDate = (dateString) => {
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (error) {
+            return dateString;
+        }
+    };
+
+    // Get status color
+    const getStatusColor = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'opened':
+            case 'open':
+                return '#10b981'; // green
+            case 'closed':
+                return '#6b7280'; // gray
+            case 'in_progress':
+            case 'pending':
+                return '#f59e0b'; // yellow
+            default:
+                return '#6b7280'; // gray
+        }
+    };
+
+    // Truncate text
+    const truncateText = (text, maxLength = 150) => {
+        if (!text || text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
+    };
+
+    return (
+        <View className="w-full bg-white rounded-xl shadow-sm border border-gray-200 mb-4 overflow-hidden">
+            {/* Header */}
+            <View className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <View className="flex-row justify-between items-start">
+                    <View className="flex-1">
+                        <Text className="text-lg font-bold text-gray-800 mb-1">
+                            #{issue.issueid} - {issue.subject}
+                        </Text>
+                        <Text className="text-sm text-gray-600">
+                            Created: {formatDate(issue.openeddate)}
+                        </Text>
+                    </View>
+                    <View
+                        className="px-3 py-1 rounded-full"
+                        style={{ backgroundColor: getStatusColor(issue.status) + '20' }}
+                    >
+                        <Text
+                            className="text-xs font-semibold"
+                            style={{ color: getStatusColor(issue.status) }}
+                        >
+                            {issue.status?.toUpperCase()}
+                        </Text>
+                    </View>
                 </View>
             </View>
-            <View className="w-full px-3 rounded-2xl h-10 justify-center bg-red-200 items-center mt-3">
-            <Text>{subject}</Text> 
-            </View>
-            <View className="mt-3 w-full items-center">
-                <Text className="text-lg text-center">
-                    {message}
+
+            {/* Issue Message */}
+            <View className="px-4 py-3">
+                <Text className="text-gray-700 leading-5">
+                    {isExpanded ? issue.message : truncateText(issue.message)}
                 </Text>
 
+                {issue.message && issue.message.length > 150 && (
+                    <TouchableOpacity
+                        onPress={() => setIsExpanded(!isExpanded)}
+                        className="mt-2"
+                    >
+                        <Text className="text-blue-500 font-medium text-sm">
+                            {isExpanded ? 'Show Less' : 'Read More'}
+                        </Text>
+                    </TouchableOpacity>
+                )}
             </View>
-             
-        </View>
-        </>
 
-    )
-}
+            {/* Responses Section */}
+            {issue.response && issue.response.length > 0 && (
+                <View className="px-4 pb-3">
+                    <View className="flex-row items-center mb-3">
+                        <FontAwesome5 name="reply" size={14} color="#6b7280" />
+                        <Text className="text-sm font-semibold text-gray-700 ml-2">
+                            Responses ({issue.response.length})
+                        </Text>
+                    </View>
+
+                    {issue.response.map((response, index) => (
+                        <View key={response.responseid || index} className="bg-red-100 rounded-lg p-3 mb-3">
+                            <View className="flex-row justify-between items-start mb-2">
+                                <View className="flex-1">
+                                    <Text className="text-sm font-semibold text-red-800">
+                                        Admin
+                                    </Text>
+                                    <Text className="text-xs text-gray-500">
+                                        {formatDate(response.responsedate)}
+                                    </Text>
+                                </View>
+                                {response.read === 0 && (
+                                    <View className="w-2 h-2 bg-blue-500 rounded-full" />
+                                )}
+                            </View>
+                            <Text className="text-sm text-gray-700 leading-5">
+                                {response.response}
+                            </Text>
+                        </View>
+                    ))}
+                </View>
+            )}
+
+            {/* Footer */}
+            <View className="bg-gray-50 px-4 py-2 flex-row justify-between items-center">
+                <View className="flex-row items-center">
+                    <FontAwesome5 name="user" size={12} color="#6b7280" />
+                    <Text className="text-xs text-gray-600 ml-1">
+                        {issue.issuer}
+                    </Text>
+                </View>
+                {issue.read && (
+                    <View className="flex-row items-center">
+                        <FontAwesome5 name="eye" size={12} color="#10b981" />
+                        <Text className="text-xs text-green-600 ml-1">Read</Text>
+                    </View>
+                )}
+            </View>
+        </View>
+    );
+};

@@ -14,11 +14,7 @@ const Preloader=()=>{
             color={MD3Colors.red800} indeterminate={true} 
             progress={0.5}
             />
-
             </View>
-           
-            
-
         </View>
         </>
 
