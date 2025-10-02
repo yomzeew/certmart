@@ -6,17 +6,13 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "notification": {
-      "icon": "./assets/icon.png",
-      "color": "#000000",
-      "iosDisplayInForeground": true,
-      "androidMode": "default",
-      "androidCollapsedTitle": "#{unread_notifications} new interactions"
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
     },
     "plugins": [
-      [
-        "expo-document-picker"
-      ],
+      ["expo-document-picker"],
       [
         "expo-image-picker",
         {
@@ -28,8 +24,7 @@
         {
           "icon": "./assets/icon.png",
           "color": "#ffffff",
-          "defaultChannel": "default",
-          "sounds": ["./assets/notification.wav"]
+          "defaultChannel": "default"
         }
       ]
     ],
@@ -42,13 +37,6 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "imageCompression": 1,
-      "imageFormats": [
-        "png",
-        "jpg",
-        "svg"
-      ],
-      "maxResolution": 1080,
       "package": "com.yomzeew.certmart"
     },
     "web": {
@@ -60,6 +48,5 @@
         "projectId": "6004e9cd-7ddf-4290-854c-f4c6293d214b"
       }
     }
-    
   }
 }

@@ -21,6 +21,9 @@ import {
     forgotpassword,
     couponUrl,
     appliedCouponUrl,
+    ratingUrl,
+    feedbackUrl,
+    endClassUrl,
 } from "../settings/endpoint";
 
 export const fetchCourses = async (course) => {
@@ -330,7 +333,7 @@ export const fetchStudentClasses = async () => {
       const trainers = trainersRes?.data.data || [];
   
       console.log("approvedCourses.length:", approvedCourses.length);
-      console.log("paidCourses.length:", paidCourses.length);
+      console.log("paidCourses.length:", paidCourses);
       console.log("trainers.length:", trainers.length);
   
       // --- 3) fetch availability per approved course and store in a map keyed by courseid ---
@@ -372,6 +375,10 @@ export const fetchStudentClasses = async () => {
           course: classItem.course,
           amount: classItem.amountpaid,
           eventId: classItem.eventid,
+          registrationid: classItem.registrationid,
+          endclasstrainer: classItem.endclasstrainer,
+          endclassstudent: classItem.endclassstudent,
+          endclasscentre: classItem.endclasscentre,
           trainerSurname: classItem.t_surname,
           trainerFirstname: classItem.t_firstname,
           trainerId: classItem.t_id,
@@ -569,4 +576,102 @@ export const appliedCouponFn = async (couponCode) => {
     }
   }
 };
-   
+
+export const endClassFn = async (registrationid) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+
+    const response = await axios.post(
+      `${endClassUrl}/${registrationid}`, // ✅ endpoint
+      {}, // ✅ empty body (since no request payload)
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("✅ End class response:", response.data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error("❌ End class API error:", error.response.data);
+      console.error("❌ Status:", error.response.status);
+      return { error: error.response.data?.message || "End class failed" };
+    } else if (error.request) {
+      console.error("❌ No response received:", error.request);
+      return { error: "No response from server" };
+    } else {
+      console.error("❌ Unexpected error:", error.message);
+      return { error: error.message };
+    }
+  }
+};
+
+export const ratingFn = async (data) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+
+    const response = await axios.post(
+      `${ratingUrl}`, // ✅ endpoint
+      data, // ✅ empty body (since no request payload)
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("✅ Rating response:", response.data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error("❌ Rating API error:", error.response.data);
+      console.error("❌ Status:", error.response.status);
+      return { error: error.response.data?.message || "Rating failed" };
+    } else if (error.request) {
+      console.error("❌ No response received:", error.request);
+      return { error: "No response from server" };
+    } else {
+      console.error("❌ Unexpected error:", error.message);
+      return { error: error.message };
+    }
+  }
+};
+
+export const reviewFn = async (data) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+
+    const response = await axios.post(
+      `${feedbackUrl}`, // ✅ endpoint
+      data, // ✅ empty body (since no request payload)
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("✅ Review response:", response.data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error("❌ Review API error:", error.response.data);
+      console.error("❌ Status:", error.response.status);
+      return { error: error.response.data?.message || "Review failed" };
+    } else if (error.request) {
+      console.error("❌ No response received:", error.request);
+      return { error: "No response from server" };
+    } else {
+      console.error("❌ Unexpected error:", error.message);
+      return { error: error.message };
+    }
+  }
+};

@@ -17,28 +17,33 @@ export const DirectPayment = ({
 }) => {
   const [data, setdata] = useState([]);
   const [showsuccess, setshowsuccess] = useState(false);
-  const [selectedTab, setSelectedTab] = useState("Virtual"); // 👈 Default tab
+  const [selectedTab, setSelectedTab] = useState("Virtual");
+  const [isLoading, setIsLoading] = useState(true);
 
   const courseid = item?.courseid || item?.courses;
   const classtype = item?.classtype;
 
   const fetchlistcourse = async () => {
-    const token = await AsyncStorage.getItem("token");
+    if (!courseid) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setShowLoader(true);
+      const token = await AsyncStorage.getItem("token");
 
       const response = await axios.get(`${BaseURi}/traineravailabilites/${courseid}?orderBy=${classtype}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setdata(response.data);
-      if (response.data.length === 0) {
-       return
-      }
+      setdata(response.data || []);
     } catch (error) {
       console.error("Error fetching course list:", error.message);
+      setdata([]);
     } finally {
       setShowLoader(false);
+      setIsLoading(false);
     }
   };
 
@@ -84,17 +89,21 @@ export const DirectPayment = ({
     setshowcontent(!showcontent);
   };
 
-  // ✅ Filter trainers by selected tab
   const filteredData = data.filter(
     (trainer) => trainer.classType?.toLowerCase() === selectedTab.toLowerCase()
   );
 
-  console.log(filteredData, "filteredData");
+  if (isLoading) {
+    return (
+      <View className="w-full items-center flex-1 py-10">
+        <Text className="text-gray-500">Loading trainers...</Text>
+      </View>
+    );
+  }
 
   return (
     <View className="w-full items-center flex-1">
-      {/* 👇 Tabs Section */}
-      <View className="flex-row justify-around w-full bg-gray-200 py-2 rounded-xl">
+      <View className="flex-row justify-around w-full bg-gray-200 py-2 rounded-xl mb-3">
         {["Virtual", "Physical", "Exam"].map((tab) => (
           <TouchableOpacity
             key={tab}
@@ -114,99 +123,76 @@ export const DirectPayment = ({
         ))}
       </View>
 
-      <ScrollView className="w-full mt-3">
+      <ScrollView 
+      contentContainerStyle={{paddingBottom:60}}
+      className="w-full"
+      >
         {filteredData.length > 0 ? (
           filteredData.map((trainer, index) => (
             <View
               key={index}
-              className="rounded-2xl w-full p-3 bg-red-200 mt-3"
+              className="rounded-2xl w-full p-4 bg-white mt-4 shadow-md"
             >
-              {/* Payment Status Icon */}
-              <View
-                style={{ zIndex: 50, elevation: 50 }}
-                className="absolute right-0 bg-slate-50 rounded-full top-0"
-              >
+              <View className="absolute right-3 top-3">
                 {trainer?.paymentstatus === undefined ? (
-                  <FontAwesome
-                    name="check-circle"
-                    size={30}
-                    color="orange"
-                  />
+                  <FontAwesome name="exclamation-circle" size={24} color="orange" />
                 ) : (
-                  <FontAwesome name="check-circle" size={30} color="green" />
+                  <FontAwesome name="check-circle" size={24} color="green" />
                 )}
               </View>
 
-              {/* Trainer Info */}
-              <View className="flex-row relative items-center">
-                <View
-                  style={{ zIndex: 40, elevation: 40 }}
-                  className="rounded-full h-24 w-24 bg-red-300 absolute -right-5 flex justify-center items-center"
-                >
-                  <TouchableOpacity
-                    onPress={() => handleshow(trainer)}
-                    className="w-24 items-center"
-                  >
-                    <FontAwesome5 name="file" size={30} />
-                    <Text className="text-sm text-center">
-                      View More Details 
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+              <View className="flex-row items-center">
+                <Avatar.Image
+                  size={70}
+                  source={
+                    trainer.dp
+                      ? {
+                          uri: `https://certmart.org/dps/${trainer.dp}.jpg?timestamp=${new Date().getTime()}`,
+                        }
+                      : require("../images/avatermale.png")
+                  }
+                />
 
-                <View className="items-center">
-                  {trainer.dp ? (
-                    <Avatar.Image
-                      source={{
-                        uri: `https://certmart.org/dps/${trainer.dp}.jpg?timestamp=${new Date().getTime()}`,
-                      }}
-                    />
-                  ) : (
-                    <Avatar.Image
-                      source={require("../images/avatermale.png")}
-                    />
-                  )}
-                  <View className="ml-2 flex-row">
-                    <Text className="mr-1">
+                <View className="ml-4 flex-1">
+                  <Text className="text-lg font-semibold">{trainer.surname}</Text>
+                  <Text className="text-sm text-gray-600">
+                    {trainer.classType} • {trainer.duration} weeks
+                  </Text>
+                  <View className="flex-row items-center mt-1">
+                    <Text className="mr-1 text-sm">
                       {trainer?.avg_rating
                         ? parseFloat(trainer.avg_rating)
-                            .toFixed(2)
-                            .replace(/\.00$/, "")
+                            .toFixed(1)
+                            .replace(/\.0$/, "")
                         : "N/A"}
                     </Text>
                     <FontAwesome name="star" size={14} color="orange" />
                   </View>
                 </View>
 
-                <View className="w-2" />
-                <View>
-                  <View className="flex-row items-center justify-center mt-2">
-                    <FontAwesome5 name="user" size={16} />
-                    <Text className="text-xs ml-2">{trainer.surname}</Text>
-                  </View>
-
-                  <View className="mt-2">
-                    <Text>{trainer.classType} </Text>
-                    <Text>Duration: {trainer.duration} weeks</Text>
-                  </View>
-                </View>
+                <TouchableOpacity
+                  onPress={() => handleshow(trainer)}
+                  className="px-3 py-2 rounded-lg bg-gray-100"
+                >
+                  <FontAwesome5 name="file-alt" size={16} />
+                  <Text className="text-xs mt-1">Details</Text>
+                </TouchableOpacity>
               </View>
 
-              {/* Payment Button */}
               <TouchableOpacity
                 onPress={() => {
                   if (trainer?.paymentstatus === undefined)
                     onClickPayment(trainer);
                 }}
-                className={`w-full h-10 rounded-2xl mt-2 items-center justify-center ${
+                className={`w-full h-11 rounded-2xl mt-4 items-center justify-center ${
                   trainer?.paymentstatus === undefined
                     ? "bg-red-500"
                     : "bg-green-500"
                 }`}
               >
-                <Text className="text-white">
+                <Text className="text-white font-medium text-base">
                   {trainer?.paymentstatus === undefined
-                    ? `Make payment of ₦${trainer.price}.00`
+                    ? `Pay ₦${trainer.price}.00`
                     : "Payment Complete"}
                 </Text>
               </TouchableOpacity>

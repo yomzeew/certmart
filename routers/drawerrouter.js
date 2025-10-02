@@ -15,6 +15,9 @@ import Eresources from "../screens/student/dashboardcomponet/eresourses";
 import Certificate from "../screens/student/dashboardcomponet/certificate";
 import Issues from "../screens/student/dashboardcomponet/issues/issues";
 import TrainerProfile from "../screens/student/dashboardcomponet/trainerProfile";
+import ClassesDetails from "../screens/student/dashboardcomponet/classDetails";
+import TellAFriendScreen from "../screens/student/dashboardcomponet/tellafriend";
+
 const DrawerWrapper = () => {
   const Drawer = createDrawerNavigator();
   return (
@@ -76,6 +79,14 @@ const DrawerWrapper = () => {
       options={{gestureEnabled:false,gestureDirection:'vertical'}} 
       name="trainerProfileScreen" 
       component={TrainerProfile} />
+       <Drawer.Screen 
+      options={{gestureEnabled:false,gestureDirection:'vertical'}} 
+      name="classDetails" 
+      component={ClassesDetails} />
+      <Drawer.Screen 
+      options={{gestureEnabled:false,gestureDirection:'vertical'}} 
+      name="sharewithfriend" 
+      component={TellAFriendScreen} />
       
     
     </Drawer.Navigator>

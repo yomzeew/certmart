@@ -15,6 +15,7 @@ import {
   handlePaymentError,
   PAYMENT_STATUS
 } from '../../utils/paymentUtils';
+import showToast from '../../utils/showToast';
 
 
 const PaymentScreen = ({
@@ -44,7 +45,7 @@ const PaymentScreen = ({
     setPaymentStatus(PAYMENT_STATUS.PROCESSING);
     setLoadingMessage('Processing your payment...');
     setPaymentError('');
-
+  
     try {
       const requiredFields = {
         studentid,
@@ -53,79 +54,87 @@ const PaymentScreen = ({
         paymentref: transactionRef || null,
         currency,
       };
-
+  
       if (!validatePaymentFields(requiredFields)) {
         setPaymentStatus(PAYMENT_STATUS.FAILED);
         return;
       }
-
+  
       const token = await getAuthToken();
       if (!token) {
         setPaymentStatus(PAYMENT_STATUS.FAILED);
         return;
       }
-
+  
+      // 🔹 1. Validate coupon FIRST if provided
+      if (couponCode) {
+        try {
+          const couponResponse = await fetchCoupon(couponCode.trim());
+          const usedStatus = couponResponse.data?.usage_status;
+  
+          if (usedStatus === 'Used') {
+            setPaymentError('This coupon has already been used.');
+            setPaymentStatus(PAYMENT_STATUS.FAILED);
+            setShowRetryOption(true);
+            showToast('error', 'Coupon Error', 'This coupon has already been used.');
+            return; // ⛔ STOP — do not hit payreg endpoint
+          }
+        } catch (couponError) {
+          setPaymentError(couponError.message || 'Failed to validate coupon');
+          setPaymentStatus(PAYMENT_STATUS.FAILED);
+          setShowRetryOption(true);
+          showToast('error', 'Coupon Error', 'Failed to validate coupon');
+          return; // ⛔ STOP
+        }
+      }
+  
+      // 🔹 2. If coupon is valid or not provided → proceed with payment
       const response = await Promise.race([
         axios.post(`${payreg}/${classtype.toLowerCase()}`, requiredFields, {
           headers: { Authorization: `Bearer ${token}` },
         }),
         createTimeoutPromise(PAYMENT_CONFIG.NETWORK_TIMEOUT),
       ]);
-
-      if(couponCode){
+  
+      console.log("Payment registered successfully:", response?.data);
+      setPaymentStatus(PAYMENT_STATUS.SUCCESS);
+      setLoadingMessage('Payment successful!');
+  
+      // 🔹 3. Apply coupon AFTER successful payment
+      if (couponCode) {
         try {
-          const couponResponse = await fetchCoupon(couponCode.trim());
-          const usedStatus = couponResponse.data?.usage_status;
-
-          if(usedStatus === 'Used'){
-            setPaymentError('This coupon has already been used.');
-            setPaymentStatus(PAYMENT_STATUS.FAILED);
-            setShowRetryOption(true);
-            Alert.alert('Coupon Error', 'This coupon has already been used.');
-            return;
-          }
-
-          // Apply the coupon
           const applied = await appliedCouponFn(couponCode);
           if (applied.error) {
             setPaymentError(applied.error);
             setPaymentStatus(PAYMENT_STATUS.FAILED);
             setShowRetryOption(true);
-            Alert.alert('Coupon Error', applied.error);
+            showToast('error', 'Coupon Error', applied.error);
             return;
           } else {
             console.log("Coupon applied successfully:", applied);
           }
-        } catch (couponError) {
-          setPaymentError(couponError.message || 'Failed to validate coupon');
-          setPaymentStatus(PAYMENT_STATUS.FAILED);
-          setShowRetryOption(true);
-          Alert.alert('Coupon Error', couponError.message || 'Failed to validate coupon');
-          return;
+        } catch (applyError) {
+          console.error("Error applying coupon:", applyError);
+          // Do not fail payment if coupon application fails
         }
       }
-     
-      console.log("Payment registered successfully:", response?.data);
-      setPaymentStatus(PAYMENT_STATUS.SUCCESS);
-      setLoadingMessage('Payment successful!');
-
-      // Schedule payment success notification
+  
+      // 🔹 4. Schedule payment success notification
       try {
         const courseName = courseInfo?.course || courseInfo?.c_course || 'Course';
-        const amount = Number(amount);
-
-        await notificationService.schedulePaymentSuccessNotification(courseName, amount);
+        const amountValue = Number(amount);
+        await notificationService.schedulePaymentSuccessNotification(courseName, amountValue);
         console.log('Payment success notification scheduled');
       } catch (notificationError) {
         console.error('Error scheduling payment notification:', notificationError);
       }
-
-      // Close modal and show success after a brief delay
+  
+      // 🔹 5. Close modal and show success after a brief delay
       setTimeout(() => {
         close(false);
         setshowsuccess(true);
       }, 1500);
-
+  
     } catch (error) {
       const errorMessage = handlePaymentError(error);
       setPaymentError(errorMessage);
@@ -134,6 +143,7 @@ const PaymentScreen = ({
       Alert.alert("Payment Error", errorMessage);
     }
   };
+  
 
   // ---------------- Handle initiation ----------------
   const handlePaymentInitiation = async () => {
@@ -185,7 +195,7 @@ const PaymentScreen = ({
     setPaymentStatus(PAYMENT_STATUS.CANCELLED);
     if (loadingTimeout) clearTimeout(loadingTimeout);
     setShowPaystack(false); // 👈 Close Paystack
-    Alert.alert('Payment Cancelled', 'You can try again whenever you are ready.');
+    showToast('error','Payment Cancelled','You can try again whenever you are ready.');
   };
 
   const handleRetry = () => {

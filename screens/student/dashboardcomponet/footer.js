@@ -12,6 +12,7 @@ import { useNavigation } from "@react-navigation/native";
 const Footer = () => {
     const navigation = useNavigation();
     const [active, setActive] = useState("dashboardstudent"); // home, calendar, chats, profile
+    
     const handlePressHome = (route, itemName) => {
         console.log(route)
         setActive(itemName);
@@ -25,7 +26,7 @@ const Footer = () => {
 
     return (
         <>
-            <View className="px-5 py-2 bg-white flex flex-row justify-evenly">
+            <View className=" py-2 bg-white  items-center w-full flex-row justify-evenly">
                 <TouchableOpacity
                     onPress={() => handlePressHome("dashboardstudent", "dashboardstudent")}
                     style={[getItemStyle("dashboardstudent"), styles.item]}

@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ForgotPasswordEmailModal from "./forgotpassword";
 import { loginUser } from "../../utils/api";
 import CustomTextInput from "../../components/CustomTextInput";
+import showToast from "../../utils/showToast";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -20,7 +21,7 @@ const Login = () => {
     const [showForgotPass, setShowForgotPass] = useState(false);
     const navigation = useNavigation();
     const route = useRoute();
-    const { platform } = route.params || {};
+    const { platform } = route.params || "student";
 
     const handlePrevPage = () => {
         navigation.goBack();
@@ -52,7 +53,7 @@ const Login = () => {
             await AsyncStorage.setItem("token", token);
             navigateToDashboard();
         } catch (error) {
-            setErrorMsg(error.message);
+            showToast("error","Error",error.message)
         } finally {
             setShowLoader(false);
         }

@@ -32,8 +32,8 @@ const StudentProfile = () => {
                 middlename: data.middlename,
                 gender: data.gender,
                 dob: convertDate(data.dob),
-                country: data.country,
-                state: data.state,
+                // country: data.country,
+                // state: data.state,
                 city: data.city,
                 address: data.address,
                 phone: data.phone,
@@ -81,27 +81,14 @@ const StudentProfile = () => {
 
     return (
         <>
-            {showLoader && (
-                <View className="absolute z-50 w-full h-full">
-                    <Preloader />
-                </View>
-            )}
-            {showProfileUpdate && (
-                <View className="absolute z-40 w-full h-full">
-                    <ProfileUpdateModal
-                        close={(value) => setShowProfileUpdate(value)}
-                        data={formData}
-                        id={profileData.id}
-                    />
-                </View>
-            )}
+            
             <SafeAreaView style={[styles.andriod, styles.bgcolor]} className="flex flex-1 w-full">
-                <StatusBar style="auto" />
+                <StatusBar style="dark" />
                 <Header />
-                <View className="px-5 h-1/6 mt-3">
+                <View className="px-5 h-1/6 mt-3 relative">
                     <View
                         className="h-full w-full rounded-2xl flex flex-row justify-center"
-                        style={{ elevation: 4, backgroundColor: colorreddark }}
+                        style={{  backgroundColor: colorreddark }}
                     >
                         <Text style={{ fontSize: 24 }} className="font-extralight text-white mt-8">
                             {profileData.firstname}'s Profile
@@ -153,15 +140,15 @@ const StudentProfile = () => {
                             <Section
                                 title="Address"
                                 data={[
-                                    { label: "Country", value: profileData.country || "---" },
-                                    { label: "State", value: profileData.state || "---" },
+                                    // { label: "Country", value: profileData.country || "---" },
+                                    // { label: "State", value: profileData.state || "---" },
                                     { label: "City", value: profileData.city || "---" },
                                     { label: "Address", value: profileData.address || "---" },
                                 ]}
                                 onEdit={() =>
                                     handleProfileUpdate("Address", {
-                                        country: profileData.country,
-                                        state: profileData.state,
+                                        // country: profileData.country,
+                                        // state: profileData.state,
                                         city: profileData.city,
                                         address: profileData.address,
                                     })
@@ -171,12 +158,10 @@ const StudentProfile = () => {
                                 title="Contact"
                                 data={[
                                     { label: "Phone", value: profileData.phone || "---" },
-                                    { label: "Email", value: profileData.email },
                                 ]}
                                 onEdit={() =>
                                     handleProfileUpdate("Contact", {
                                         phone: profileData.phone,
-                                        email: profileData.email,
                                     })
                                 }
                             />
@@ -197,6 +182,20 @@ const StudentProfile = () => {
                     </View>
                 </View>
             </SafeAreaView>
+            {showLoader && (
+                <View className="absolute z-50 w-full h-full">
+                    <Preloader />
+                </View>
+            )}
+            {showProfileUpdate && (
+                <View className="absolute z-40 w-full h-full">
+                    <ProfileUpdateModal
+                        close={(value) => setShowProfileUpdate(value)}
+                        data={formData}
+                        id={profileData.id}
+                    />
+                </View>
+            )}
         </>
     );
 };

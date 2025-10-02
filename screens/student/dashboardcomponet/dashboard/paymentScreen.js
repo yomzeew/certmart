@@ -7,6 +7,7 @@ import PaymentScreen from "../../../paystacks/paystackwebview";
 import { convertCurrency, fetchStudentProfile, appliedCouponFn, fetchCoupon } from "../../../../utils/api";
 import { UI_CONFIG } from '../../../../settings/paymentConfig';
 import CustomTextInput from "../../../../components/CustomTextInput";
+import showToast from "../../../../utils/showToast";
 
 const PaymentScreenModal = ({ selected, setshowpayment, setShowLoader, setshowsuccess }) => {
   const [Email, setEmail] = useState("");
@@ -90,9 +91,11 @@ const PaymentScreenModal = ({ selected, setshowpayment, setShowLoader, setshowsu
         setAmount(calcDiscount);
         setDiscountAmount(initialamount-calcDiscount)
         setCouponError('');
+        //showToast('success','Coupon applied!',`You saved ${currency} ${amount-calcDiscount.toFixed(2)}`);
         Alert.alert('Success', `Coupon applied! You saved ${currency} ${amount-calcDiscount.toFixed(2)}`);
         setShowCoupon(false);
       } else {
+        showToast('error','Coupon Error','Invalid coupon code');
         setCouponError('Invalid coupon code');
       }
     } catch (error) {
@@ -111,8 +114,8 @@ const PaymentScreenModal = ({ selected, setshowpayment, setShowLoader, setshowsu
         // Handle server response error
         errorMessage = error.response.data.error;
       }
-
       setCouponError(errorMessage);
+      showToast('error','Coupon Error',errorMessage);
       setCouponLoading(false);
     }
   };

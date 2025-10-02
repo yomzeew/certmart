@@ -1,17 +1,17 @@
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView, View, Text, TouchableOpacity, FlatList, Image } from "react-native";
 import { styles } from "../../../settings/layoutsetting";
-import Header from "./header";
-import { bluecolor } from "../../../constant/color";
+import { bluecolor, colorred } from "../../../constant/color";
 import { Avatar, Divider } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
 import { useEffect, useState } from "react";
-import { useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import Preloader from "../../preloadermodal/preloaderwhite";
 import PaymentScreenModal from "./dashboard/paymentScreen";
 import { fetchTrainerProfile } from "../../../utils/api";
 import { convertDate } from "../../../settings/dateformat";
 import { getFirstLetter } from "../../../utility/firstletter";
+import { FontAwesome } from "@expo/vector-icons";
 
 const TrainerProfile = () => {
     const route = useRoute();
@@ -51,6 +51,12 @@ const TrainerProfile = () => {
         fetchData();
     }, [trainerid]);
 
+    const navigation = useNavigation();
+
+    const handlegoback = () => {
+        navigation.goBack();
+    };
+
     return (
         <>
             {showPayment && (
@@ -70,11 +76,20 @@ const TrainerProfile = () => {
                 </>
             )}
             <SafeAreaView style={[styles.andriod, styles.bgcolor]} className="flex-1">
-                <StatusBar style="auto" />
-                <Header />
-                <View className="px-5 mt-3">
-                    <Text className="text-2xl">Trainer's Profile</Text>
-                </View>
+                <StatusBar style="dark" />
+                <View className="w-full pt-[20px] ">
+                    <View className=" w-full flex-row gap-x-2 items-center">
+                        <TouchableOpacity
+                            onPress={handlegoback}
+                            className={`p-3 rounded-2xl item-center`}
+                        >
+                            <FontAwesome name="arrow-left" size={12} color={colorred} />
+                            
+                        </TouchableOpacity>
+                        <Text style={{ fontSize: 20, fontWeight: '600',color:colorred }}>Trainer's Profile</Text>
+                    </View>
+                     <Divider style={{marginVertical:10,backgroundColor:colorred}}/>
+                    </View>
                 <View className="px-5 h-1/6 mt-3">
                     <View
                         className="h-full w-full rounded-2xl justify-center items-center"

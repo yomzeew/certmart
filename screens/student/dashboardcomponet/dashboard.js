@@ -34,6 +34,9 @@ import { useDispatch } from "react-redux";
 import { login } from "../../../store/sliceReducer";
 import PopularCoursesCard from "./dashboard/popularcourseCard";
 import { FontAwesome5 } from "@expo/vector-icons";
+import BannerDisplay from "../../modals/BannerDisplay";
+import NextClassAppointment from "./dashboard/nextClassAppointment";
+import PopularCoursesCardStack from "./dashboard/popularcourseCardStack";
 
 const Dashboard = () => {
   const navigation = useNavigation();
@@ -217,6 +220,7 @@ const Dashboard = () => {
       }}
       className="h-full w-full absolute justify-end"
     />
+    
     <View
       style={{ zIndex: 50, elevation: 50 }}
       className="h-[85vh] w-full bg-white bottom-0 absolute rounded-t-3xl"
@@ -292,23 +296,14 @@ const Dashboard = () => {
   </>
 )}
 
-      {showopcity && (
-        <View
-          style={{
-            zIndex: 50,
-            elevation: 50,
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.5)",
-          }}
-          className="h-full w-full absolute"
-        />
-      )}
+ 
       {showmodalcourse && (
         <View
           style={{ zIndex: 50, elevation: 50 }}
           className="bottom-0 absolute h-full w-full "
         >
-          <Animated.View style={[animatedStyles]}>
+          <View className="z-50 absolute h-full w-full bg-black opacity-50"/>
+          <Animated.View style={[animatedStyles]} className="z-50 elevation-50">
             <DisplayModal
               data={coursesdata}
               close={(value) => handleclose(value)}
@@ -322,7 +317,7 @@ const Dashboard = () => {
         style={[styles.andriod, styles.bgcolor]}
         className="flex-1 w-full"
       >
-        <StatusBar style="auto" />
+        <StatusBar style="dark" />
         {showpreloader && (
           <View
             style={{ zIndex: 50, elevation: 50 }}
@@ -337,7 +332,7 @@ const Dashboard = () => {
         {/* Make whole dashboard scrollable */}
         <ScrollView showsVerticalScrollIndicator={false}>
           <View className="px-4 mt-4">
-            <View className="items-center mb-6">
+            <View className="items-center mb-3">
               <Text className="text-2xl font-bold text-gray-800 mb-2">
                 Welcome Back! 👋
               </Text>
@@ -346,12 +341,14 @@ const Dashboard = () => {
               </Text>
             </View>
           </View>
+          <View className="px-4">
+          <BannerDisplay/>
+
+          </View>
+          
 
           {/* Categories */}
-          <View className="px-4 mt-6">
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-lg font-bold text-gray-800">📚 Categories</Text>
-            </View>
+          <View className="px-4 mt-3">
             <Categories
               handlecallbackvalue={(value) => handlepickcategories(value)}
               setshowModal={setshowModal}
@@ -359,10 +356,10 @@ const Dashboard = () => {
               handleactionseeall={handlegetallcourses}
             />
           </View>
-
+          <NextClassAppointment/>
           {/* Popular Courses */}
-          <View className="px-4 ">
-            <View className="flex-row justify-between items-center mb-4">
+          <View className="px-4 mt-3">
+            <View className="flex-row justify-between items-center  ">
               <Text className="text-lg font-bold text-gray-800">⭐ Popular Courses</Text>
             </View>
             <ScrollView showsHorizontalScrollIndicator={false} horizontal>
@@ -380,9 +377,7 @@ const Dashboard = () => {
                setshowModal={setshowModal}
                showModal={showModal}
                handleshowmodal={handlegetallcourses}
-/>
-
-             
+/>         
             </View>
           </View>
 

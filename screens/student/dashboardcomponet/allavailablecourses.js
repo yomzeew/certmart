@@ -13,17 +13,15 @@ import { styles } from "../../../settings/layoutsetting";
 import { StatusBar } from "expo-status-bar";
 import { colorred } from "../../../constant/color";
 import { Divider } from "react-native-paper";
-import Header from "./header";
-import Footer from "./footer";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Preloader from "../../preloadermodal/preloaderwhite";
-import { fieldtexttwo } from "../../../settings/fontsetting";
 import PaymentScreenModal from "./dashboard/paymentScreen";
 import { allavailablecourse } from "../../../settings/endpoint";
 import { CourseItem } from "../../modals/courseCardnew";
+import { FontAwesome } from "@expo/vector-icons";
 
 const AllCoursedetail = () => {
     const { height } = Dimensions.get("window");
@@ -104,34 +102,25 @@ const AllCoursedetail = () => {
                     setshowsuccess={setshowsuccess}
                 />
             )}
-            <View style={[styles.bgcolor]} className="flex-1 w-full">
-                <StatusBar style="auto" />
-                {showpreloader && (
+                   {showpreloader && (
                     <View className="z-50 absolute h-full w-full">
                         <Preloader />
                     </View>
                 )}
-                <SafeAreaView className="flex-1 w-full">
-                    <View>
-                        <Header />
+                   <SafeAreaView style={[styles.andriod,styles.bgcolor, { flex: 1, width: '100%'}]}>
+                  <View className="w-full pt-[20px] ">
+                    <View className=" w-full flex-row gap-x-2 items-center">
                         <TouchableOpacity
                             onPress={handlegoback}
-                            className="p-3 bg-red-500 w-20"
+                            className={`p-3 rounded-2xl item-center`}
                         >
-                            <Text className={`${fieldtexttwo} text-white`}>Go Back</Text>
+                            <FontAwesome name="arrow-left" size={12} color={colorred} />
+                            
                         </TouchableOpacity>
+                        <Text style={{ fontSize: 20, fontWeight: '600',color:colorred }}>{course}</Text>
                     </View>
-
-                    <View className="flex-1 w-full">
-                        {/* 🔹 Page Title */}
-                        <View>
-                            <Text
-                                style={{ color: colorred, fontSize: 20 }}
-                                className={`font-semibold px-5`}
-                            >
-                                {course}
-                            </Text>
-                        </View>
+                    <Divider style={{marginVertical:10,backgroundColor:colorred}}/>
+                    </View>
 
                         {/* 🔹 Tabs for ClassType */}
                         <View className="flex-row justify-center px-5 my-3">
@@ -159,12 +148,13 @@ const AllCoursedetail = () => {
                         </View>
 
                         {/* 🔹 Course List */}
-                        <ScrollView showsVerticalScrollIndicator={false}>
-                            <View className="w-full items-center">
+                        
+                            <View className="w-full items-center flex-1">
                                 <FlatList
                                     data={filteredData}
                                     keyExtractor={(_, idx) => idx.toString()}
-                                    scrollEnabled={false}
+                                    scrollEnabled={true}
+                                    contentContainerStyle={{paddingBottom:60}}
                                     renderItem={({ item }) => (
                                         <CourseItem
                                             showpayment={showpayment}
@@ -185,12 +175,12 @@ const AllCoursedetail = () => {
                                     )}
                                 />
                             </View>
-                        </ScrollView>
-                    </View>
+                       
+                  
 
-                    <Footer currentPage="home" />
+                  
                 </SafeAreaView>
-            </View>
+           
         </>
     );
 };

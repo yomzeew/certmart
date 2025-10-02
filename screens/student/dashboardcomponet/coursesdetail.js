@@ -11,18 +11,13 @@ import { styles } from "../../../settings/layoutsetting";
 import { StatusBar } from "expo-status-bar";
 import { FontAwesome } from "@expo/vector-icons";
 import { colorred, lightred } from "../../../constant/color";
-import { ScrollView } from "react-native-gesture-handler";
-import { Avatar, Divider } from "react-native-paper";
-import Header from "./header";
-import Footer from "./footer";
+import {  Divider } from "react-native-paper";
 import { allavailablecourse } from "../../../settings/endpoint";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Preloader from "../../preloadermodal/preloaderwhite";
-import { fieldtexttwo } from "../../../settings/fontsetting";
-import { AvailableCourses } from "../../modals/coursesRegmodal";
 import { CourseDetailsModal } from "../../modals/coursesdetailsModal";
 import { DirectPayment } from "../../modals/coursedetailwithamount";
 import PaymentScreenModal from "./dashboard/paymentScreen";
@@ -112,39 +107,39 @@ const Coursedetail = () => {
     }
     return (
         <> 
-            
-       
-
-        <View style={[styles.bgcolor]} className="flex-1 w-full">
-            <StatusBar style="auto" />
-            {showpreloader && (
+             {showpreloader && (
                 <View style={{zIndex:50,elevation:50}}  className=" absolute h-full w-full">
                     <Preloader />
                 </View>
             )}
-          <View className="flex-1">
-              <View style={{ height: height * 0.2 }} className="w-full">
-                    <View className="absolute z-50 top-10 w-full">
-                        <View className="bg-slate-100 opacity-80 py-2">
-                            <Header />
-                        </View>
+            <SafeAreaView style={[styles.andriod,styles.bgcolor, { flex: 1, width: '100%'}]}>
+            <StatusBar style="dark" />
+          <View className="w-full pt-[20px] ">
+                    <View className=" w-full flex-row gap-x-2 items-center">
                         <TouchableOpacity
                             onPress={handlegoback}
-                            className={`p-3 bg-red-500 w-20`}
+                            className={`p-3 rounded-2xl item-center`}
                         >
-                            <Text className={`${fieldtexttwo} text-white`}>Go Back</Text>
+                            <FontAwesome name="arrow-left" size={12} color={colorred} />
+                            
                         </TouchableOpacity>
+                        <Text style={{ fontSize: 20, fontWeight: '600',color:colorred }}>{courseTitle} </Text>
                     </View>
+                     <Divider style={{marginVertical:10,backgroundColor:colorred}}/>
                     </View>
+
+      
+          
+           
+          <View className="flex-1">
+      
                     <View className="px-5 w-full">
                         <View
-                            style={{ elevation: 6, maxHeight: height * 0.7 }}
-                            className="rounded-2xl flex px-2 py-3  bg-slate-50 shadow-lg shadow-slate-500 "
+                            style={{ elevation: 6, height:height * 0.9 }}
+                            className="rounded-2xl  px-2 py-3  bg-slate-50 shadow-lg shadow-slate-500 "
                         >
-                            <View className="h-16 item-center  justify-center w-full">
-                                    <Text className="text-2xl text-center">{courseTitle} </Text>
-                                </View>
-                            <View className="h-5/6 w-full">
+
+                            <View className="h-full w-full">
                              
         <DirectPayment
             item={coursesdata[0]}
@@ -161,8 +156,7 @@ const Coursedetail = () => {
                     </View>
                 </View>
             </View> 
-            <Footer currentPage="home" />
-        </View>
+        </SafeAreaView>
         {showcontent && 
         <CourseDetailsModal //attention neeeded
         content={content} 

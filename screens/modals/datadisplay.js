@@ -3,6 +3,7 @@ import { Text, View, TouchableOpacity, ScrollView } from "react-native"
 import { colorred, grey } from "../../constant/color"
 import { TextInput } from "react-native-paper"
 import { useState } from "react"
+import CustomTextInput from "../../components/CustomTextInput"
 
 const DisplayModal = ({ data, close, getvaluefunction }) => {
     const [searchdata, setsearchdata] = useState('')
@@ -36,16 +37,15 @@ const DisplayModal = ({ data, close, getvaluefunction }) => {
                         <View className="items-center">
                             <View  style={{ zIndex: 50, elevation: 50 }} className="absolute top-8 right-3 z-50"><TouchableOpacity onPress={handlesearch}><FontAwesome5 color={colorred} size={20} name="search" /></TouchableOpacity></View>
                             <View className="w-3/4">
-                            <TextInput
-                                placeholderTextColor={grey}
-                                label="Search"
-                                mode="outlined"
-                                theme={{ colors: { primary: colorred } }}
-                                onChangeText={text => handlechange(text)}
-                                value={searchdata}
-                                className="w-full mt-3"
-                                textColor="#000000"
-
+                            <CustomTextInput
+                             placeholderTextColor={grey}
+                             label="Search"
+                             mode="outlined"
+                             theme={{ colors: { primary: colorred } }}
+                             onChangeText={text => handlechange(text)}
+                             value={searchdata}
+                             className="w-full mt-3"
+                             textColor="#000000"
                             />
                             </View>
                         </View>

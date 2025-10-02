@@ -1,19 +1,14 @@
-import { View, SafeAreaView, Text, ScrollView, TouchableOpacity, Platform ,RefreshControl } from "react-native";
+import { View, SafeAreaView, Text, ScrollView, TouchableOpacity ,RefreshControl } from "react-native";
 import Header from "./header";
 import { styles } from "../../../settings/layoutsetting";
-import CoursesVerifyModal from "../../modals/courseverifyModal";
 import Preloader from "../../preloadermodal/preloaderwhite";
-import { Avatar, Divider,RadioButton } from "react-native-paper";
+import { Divider} from "react-native-paper";
 import { colorred } from "../../../constant/color";
 import { useState,useCallback,useEffect } from 'react';
-import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
-import { AvailableCourses, CoursesRegModalParttwo } from "../../modals/coursesRegmodal";
+import {  FontAwesome5 } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { getCourseStatus } from "../../../settings/endpoint";
-import PaymentScreenModal from "./dashboard/paymentScreen";
-import SuccessModal from "../../modals/successfulmodal";
-import { CourseDetailsModal } from "../../modals/coursesdetailsModal";
 import { useNavigation } from "@react-navigation/native";
 
 const CourseReg = () => {
@@ -23,13 +18,9 @@ const CourseReg = () => {
     const [data,setData]=useState([])
     const [coursesData,setCoursesData]=useState([])
     const [selectedCourse, setSelectedCourse] = useState(null); // Store the index of the selected course
-    const [selected,setSelected]=useState('')
-    const [currency,setCurrency]=useState('')
-    const [showpayment,setshowpayment]=useState(false)
     const [showsuccess,setshowsuccess]=useState(false)
     const [refreshing, setRefreshing] = useState(false);
-    const [content, setcontent] = useState('')
-    const [showcontent, setshowcontent] = useState(false)
+
 
     const handlenavigate=(courseid)=>{
         navigation.navigate('coursesdetail',{course:courseid})
@@ -85,13 +76,6 @@ const CourseReg = () => {
      }
     return (
         <>
-        {showcontent && 
-        <CourseDetailsModal
-        content={content} 
-        setshowcontent={setshowcontent}
-        showcontent={showcontent}
-        /> 
-        }
             {showLoader && (
                 <View style={{zIndex:50,elevation:50}}  className="absolute h-full w-full">
                     <Preloader />
@@ -99,26 +83,7 @@ const CourseReg = () => {
             )}
             
             <View className="w-full h-full justify-center items-center ">
-            {showsuccess &&
-             <View style={{zIndex:50,elevation:50}}  className="absolute  h-full w-full items-center justify-center">
-            <SuccessModal
-            message={'Payment Successful'}
-            action={()=>handlecancel()}
-            />
-
-            </View>
-          
-
-}
-                {showpayment &&
-                    <PaymentScreenModal
-                    selected={selected}
-                    setshowpayment={setshowpayment}
-                    setShowLoader={setShowLoader}
-                    setshowsuccess={setshowsuccess}
-                    />
-
-                } 
+           
                 <SafeAreaView
                     style={[styles.andriod, styles.bgcolor]}
                     className="flex flex-1 w-full"
@@ -130,17 +95,6 @@ const CourseReg = () => {
                         </Text>
                         <Divider theme={{ colors: { primary: colorred } }} />
                     </View>
-                    <View className="items-center flex-row mt-3 justify-center">
-                        <View className="flex-row items-center">
-                        <FontAwesome name="check-circle" size={30} color="orange" />
-                            <Text className="text-red-500 ml-2">Await Payment</Text>
-                        </View>
-                        <View className="bg-slate-200 w-1 h-8 ml-2 mr-2" />
-                        <View className="flex-row items-center">
-                            <FontAwesome name="check-circle" size={30} color="green" />
-                            <Text className="text-red-500 ml-2">Payment</Text>
-                        </View>
-                    </View>
                     <ScrollView
                      style={{ marginTop: 16, paddingHorizontal: 12 }}
                      refreshControl={
@@ -150,7 +104,7 @@ const CourseReg = () => {
                         {datareg.length > 0 ? (
                             datareg.map((item, index) => (
                                 <CourseRegistrationCard
-                                    key={item.courseid || index}
+                                    key={`${item.courseid}-${index}`}
                                     item={item}
                                     onPress={() => handlenavigate(item.courseid)}
                                 />
@@ -287,16 +241,12 @@ const CourseRegistrationCard = ({ item, onPress }) => {
             )}
 
             {/* Footer */}
-            <View className="bg-gray-50 px-4 py-3 flex-row justify-between items-center">
+            <View className="bg-gray-50 px-4 py-3 flex-row justify-start items-center">
                 <View className="flex-row items-center">
                     <FontAwesome5 name="user" size={12} color="#6b7280" />
                     <Text className="text-xs text-gray-600 ml-1">
                         Student ID: {item.studentid}
                     </Text>
-                </View>
-                <View className="flex-row items-center">
-                    <FontAwesome5 name="arrow-right" size={12} color="#3b82f6" />
-                    <Text className="text-xs text-blue-600 ml-1 font-medium">View Details</Text>
                 </View>
             </View>
         </TouchableOpacity>

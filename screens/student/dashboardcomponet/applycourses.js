@@ -38,6 +38,7 @@ import { currentDate } from "../../../utility/get-date-time";
 import SuccessModal from "../../modals/successfulmodal";
 import { useRoute } from "@react-navigation/native";
 import CustomTextInput from "../../../components/CustomTextInput";
+import showToast from "../../../utils/showToast";
 
 
 const ApplyCourses = () => {
@@ -412,6 +413,7 @@ const ApplyCourses = () => {
         response.status === 203
       ) {
         console.log("ok");
+        showToast('success','Success','Application Submitted Successfully')
         setshowsuccess(true);
         setcity("");
         setcourse("");
@@ -446,6 +448,7 @@ const ApplyCourses = () => {
         console.error("Error message:", error.message);
         message = error.message;
       }
+      showToast('error','Error',message)
     setShowLoader(false);
       seterrormsg(message);
     }
@@ -786,7 +789,6 @@ const ApplyCourses = () => {
             </View>
           </ScrollView>
         </View>
-        <Footer currentPage="home" />
       </SafeAreaView>
     </>
   );

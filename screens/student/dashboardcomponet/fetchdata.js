@@ -84,15 +84,76 @@ export const getIssueById = async (id) => {
 // Create an issue
 export const createIssue = async (issueData) => {
   try {
-    const headers = await getAuthHeaders();
-    const safeData = JSON.parse(JSON.stringify(issueData));
-    const response = await axios.post(issuesURL, safeData, { headers });
+    // Validate input
+    if (!issueData || typeof issueData !== 'object') {
+      throw new Error('Invalid issue data provided');
+    }
+    
+    // Required fields validation
+    const requiredFields = ['message', 'issuer'];
+    const missingFields = requiredFields.filter(field => !issueData[field]);
+    if (missingFields.length > 0) {
+      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+    }
 
-    return [201, 202, 203].includes(response.status);
+    const headers = await getAuthHeaders();
+    
+    // Safer data serialization
+    const safeData = {
+      subject: issueData.subject || null,
+      message: issueData.message,
+      issuer: issueData.issuer,
+      email: issueData.issuer,
+      issueid: issueData.issueid || null,
+      status: issueData.status || 'Opened'
+    };
+
+    const response = await axios.post(issuesURL, safeData, {
+      headers,
+      timeout: 30000, // 10 second timeout
+      validateStatus: (status) => status >= 200 && status < 300 // Accept 2xx codes
+    });
+
+    return {
+      success: true,
+      data: response.data,
+      status: response.status
+    };
+
   } catch (error) {
-    console.error("Error creating issue:", error);
-    return false;
+    if (error.response) {
+      console.error("Error creating issue (server validation failed):", {
+        status: error.response.status,
+        data: error.response.data,
+        headers: error.response.headers
+      });
+    } else if (error.request) {
+      console.error("Error creating issue (no response):", error.request);
+    } else {
+      console.error("Error creating issue (setup error):", error.message);
+    }
+  
+    if (error.response) {
+      return {
+        success: false,
+        error: error.response.data, // <-- the real error details from backend
+        status: error.response.status
+      };
+    } else if (error.request) {
+      return {
+        success: false,
+        error: 'Network error - please check your connection',
+        status: 0
+      };
+    } else {
+      return {
+        success: false,
+        error: error.message,
+        status: -1
+      };
+    }
   }
+  
 };
 
 // Update an issue
@@ -160,8 +221,8 @@ export const getCertificate = async (students) => {
   const studentId = encodeURIComponent(students);
   try {
     const headers = await getAuthHeaders();
-    const response = await axios.get(`${certificateUrl}/students?id=${studentId}`, { headers });
-    console.log(response.data,'response.data')
+    const response = await axios.get(`${certificateUrl}?studentid=${studentId}`, { headers });
+    console.log(response.data,'respnse.data')
     return response.data;
   } catch (error) {
     console.error("Error fetching certificate:", error);

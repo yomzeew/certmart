@@ -23,7 +23,7 @@ const CourseItem = ({
    
   
     return (
-      <TouchableOpacity onPress={()=>handlenavigate(course.coursecode)} className="w-[48%] p-3 rounded-2xl mb-3" style={{ backgroundColor: "white", elevation: 3 }}>
+      <TouchableOpacity onPress={()=>handlenavigate(course.coursecode)} className="w-[48%] p-3 rounded-2xl mb-3 shadow-sm shadow-black-200" style={{ backgroundColor: "white", elevation: 3 }}>
         {bannerUri && (
           <Image
             source={{ uri: bannerUri }}
@@ -57,7 +57,7 @@ const CourseItem = ({
         keyExtractor={(_, index) => index.toString()}
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
-          <View style={{ width: 400, flexDirection: "row", justifyContent: "space-between" }}>
+          <View style={{width:"400", flexDirection: "row", justifyContent: "space-between" }}>
             {item.map((course, idx) => (
               <CourseItem
                 key={course.id || idx}

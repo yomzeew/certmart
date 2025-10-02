@@ -30,7 +30,7 @@ const Home = ({ navigation }) => {
             <View className="absolute h-full w-full bg-slate-100 opacity-80" />
 
             {/* Status Bar */}
-            <StatusBar style="auto" />
+            <StatusBar style="dark" />
 
             {/* Logo */}
             <Image

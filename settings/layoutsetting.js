@@ -6,6 +6,6 @@ export const styles = StyleSheet.create({
         color: "black",
     },
     andriod: {
-        paddingTop: Platform.OS === "android" ? 20 : 0,
+        paddingTop: Platform.OS === "android" ? 24 : 0,
     },
 });

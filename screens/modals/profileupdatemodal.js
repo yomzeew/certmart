@@ -12,16 +12,23 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-na
 import DisplayModal from "./datadisplay"
 import { countrylist, fecthcountrysate } from "../jsondata/country-states"
 import DateModal from "./datemodal"
+import CustomTextInput from "../../components/CustomTextInput"
 
 const ProfileUpdateModal = ({ close, data, id }) => {
-    const currentForm = data[0].title;
+    // Add safety checks for data
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        console.error('ProfileUpdateModal: Invalid or missing data prop');
+        return null;
+    }
+
+    const currentForm = data[0]?.title || 'Profile';
     const [errorMsg, seterrorMsg] = useState('');
     const [showpreloader, setshowpreloader] = useState(false);
     const [formData, setFormData] = useState({});
     const [showmodalcourse,setshowmodalcourse]=useState(false)
     const [selectdata, setselectdata] = useState([])
-    const [State, setState] = useState(data[0].data.state);
-    const [Country, setCountry] = useState(data[0].data.country);
+    // const [State, setState] = useState(data[0]?.data?.state || '');
+    // const [Country, setCountry] = useState(data[0]?.data?.country || '');
     const [selecttype, setselecttpe] = useState('')
   
     const handleselectfunc=(value)=>{
@@ -36,43 +43,43 @@ const ProfileUpdateModal = ({ close, data, id }) => {
     const animatedStyles = useAnimatedStyle(() => ({
         transform: [{ translateY: translateY.value }],
     }));
-    const handlegetdata = async (type) => {
-        if (type === 'country') {
-            const countrylistone = countrylist;
-            setselectdata(countrylistone);
-        } else if (type === 'state') {
-            const datastate = await fecthcountrysate(Country);
-            setselectdata(datastate);
-        }
-    };
+    // const handlegetdata = async (type) => {
+    //     if (type === 'country') {
+    //         const countrylistone = countrylist;
+    //         setselectdata(countrylistone);
+    //     } else if (type === 'state') {
+    //         const datastate = await fecthcountrysate(Country);
+    //         setselectdata(datastate);
+    //     }
+    // };
 
     const handleshowmodallist = (value) => {
         translateY.value = withSpring(0);
         setshowmodalcourse(value);
     };
-    const handlegetvalue = (value) => {
-        if (selecttype === 'country') {
-            setCountry(value)
-            setState('');
-        }
-        else if (selecttype === 'state') {
-            setState(value)
+    // const handlegetvalue = (value) => {
+    //     if (selecttype === 'country') {
+    //         setCountry(value)
+    //         setState('');
+    //     }
+    //     else if (selecttype === 'state') {
+    //         setState(value)
 
-        }
+    //     }
 
-        setshowmodalcourse(false)
-        translateY.value = withSpring(300);
+    //     setshowmodalcourse(false)
+    //     translateY.value = withSpring(300);
 
-    }
+    // }
     const handleclosemodal=()=>{
         setshowmodalcourse(false)
     }
 
     const requiredData = {
-        surname: data[0].data.surname,
-        firstname: data[0].data.firstname,
-        email: data[0].data.email,
-        gender: data[0].data.gender.toLowerCase()
+        surname: data[0]?.data?.surname || '',
+        firstname: data[0]?.data?.firstname || '',
+        email: data[0]?.data?.email || '',
+        gender: (data[0]?.data?.gender || '').toLowerCase()
     };
 
     const navigation = useNavigation();
@@ -177,8 +184,8 @@ const ProfileUpdateModal = ({ close, data, id }) => {
                             <AddressUpdateForm
                             handleshowmodal={(value)=>handleshowmodallist(value)}
                              data={data} handleCallBackValue={handleCallBackValue}
-                             Country={Country}
-                             State={State}
+                            //  Country={Country}
+                            //  State={State}
                              selecttypefunc={(value)=>handleselectfunc(value)}
                              handlegetdata={(value)=>handlegetdata(value)}
                               />
@@ -212,11 +219,17 @@ const ProfileUpdateModal = ({ close, data, id }) => {
 export default ProfileUpdateModal
 
 const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
-    const [Surname, setSurname] = useState(data[0].data.surname);
-    const [Firstname, setFirstname] = useState(data[0].data.firstname);
-    const [Middlename, setMiddlename] = useState(data[0].data.middlename);
-    const [Gender, setGender] = useState(data[0].data.gender);
-    const [DateOfBirth, setDateOfBirth] = useState(data[0].data.dob);
+    // Add safety checks
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        console.error('BiodataUpdateForm: Invalid or missing data prop');
+        return null;
+    }
+
+    const [Surname, setSurname] = useState(data[0]?.data?.surname || '');
+    const [Firstname, setFirstname] = useState(data[0]?.data?.firstname || '');
+    const [Middlename, setMiddlename] = useState(data[0]?.data?.middlename || '');
+    const [Gender, setGender] = useState(data[0]?.data?.gender || 'Male');
+    const [DateOfBirth, setDateOfBirth] = useState(data[0]?.data?.dob || '');
     const [showdate,setshowdate]=useState(false)
 
     useEffect(() => {
@@ -232,7 +245,7 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
     return (
         <>
     <View className="w-full mt-3">
-            <TextInput
+            <CustomTextInput
                 label="Firstname"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
@@ -243,7 +256,7 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
             />
              </View>
              <View className="w-full mt-3">
-            <TextInput
+            <CustomTextInput
                 label="Surname"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
@@ -254,7 +267,7 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
             />
             </View>
             <View className="w-full mt-3">
-            <TextInput
+            <CustomTextInput
                 label="Middlename"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
@@ -302,17 +315,23 @@ const BiodataUpdateForm = ({ data, handleCallBackValue }) => {
 
 
 const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,State,selecttypefunc,handlegetdata }) => {
-    const [City, setCity] = useState(data[0].data.city);
-    const [Address, setAddress] = useState(data[0].data.address);
+    // Add safety checks
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        console.error('AddressUpdateForm: Invalid or missing data prop');
+        return null;
+    }
+
+    const [City, setCity] = useState(data[0]?.data?.city || '');
+    const [Address, setAddress] = useState(data[0]?.data?.address || '');
 
     useEffect(() => {
         handleCallBackValue({
-            country: Country,
-            state: State,
+            // country: Country,
+            // state: State,
             city: City,
             address: Address
         });
-    }, [Country, State, City, Address]);
+    }, [City, Address]);
 
    
     const translateYinput = useSharedValue(300);
@@ -320,30 +339,30 @@ const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,
         transform: [{ translateY: translateYinput.value }],
     }));
 
-    const handlecountry = async() => {
-        selecttypefunc('country')
-        await handlegetdata('country'); 
-        handleshowmodal(true)
+    // const handlecountry = async() => {
+    //     selecttypefunc('country')
+    //     await handlegetdata('country'); 
+    //     handleshowmodal(true)
         
       
   
 
-    }
-    const handlestate = async () => {
-        selecttypefunc('state')
-        await handlegetdata('state'); 
-        handleshowmodal(true)
-        // setselecttpe('state')
-        console.log(Country)
+    // }
+    // const handlestate = async () => {
+    //     selecttypefunc('state')
+    //     await handlegetdata('state'); 
+    //     handleshowmodal(true)
+    //     // setselecttpe('state')
+    //     console.log(Country)
 
         
 
-    }
+    // }
 
 
     return (
         <>
-            <TouchableOpacity onPress={handlecountry} className="h-12 rounded-md flex justify-center items-start px-3 border border-lightred bg-white m-2">
+            {/* <TouchableOpacity onPress={handlecountry} className="h-12 rounded-md flex justify-center items-start px-3 border border-lightred bg-white m-2">
                 <Text style={{ fontSize: 16 }} className="text-black">
                     <Text className="">
                         <FontAwesome5 size={20} color={colorred} name="arrow-circle-down" />
@@ -359,9 +378,9 @@ const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,
                         {State ? State : "Select State"}
                     </Text>
                 </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <View className="w-full mt-3">
-            <TextInput
+            <CustomTextInput
                 label="City"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
@@ -371,7 +390,7 @@ const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,
             />
             </View>
             <View className="w-full mt-3 mb-3">
-            <TextInput
+            <CustomTextInput
                 label="Address"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
@@ -384,19 +403,24 @@ const AddressUpdateForm = ({ data, handleCallBackValue, handleshowmodal,Country,
     );
 }
 const ContactUpdateForm = ({ data, handleCallBackValue }) => {
-    const [Phone, setPhone] = useState(data[0].data.phone);
-    const [Email, setEmail] = useState(data[0].data.email);
+    // Add safety checks
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        console.error('ContactUpdateForm: Invalid or missing data prop');
+        return null;
+    }
+
+    const [Phone, setPhone] = useState(data[0]?.data?.phone || '');
+    
 
     useEffect(() => {
         handleCallBackValue({
             phone: Phone,
-            email: Email
         });
-    }, [Phone, Email]);
+    }, [Phone]);
 
     return (
         <>
-            <TextInput
+            <CustomTextInput
                 label="Phone number"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
@@ -404,21 +428,20 @@ const ContactUpdateForm = ({ data, handleCallBackValue }) => {
                 value={Phone}
                 className="w-full mt-3 bg-slate-50"
             />
-            <TextInput
-                label="Email"
-                mode="outlined"
-                theme={{ colors: { primary: colorred } }}
-                onChangeText={(text) => setEmail(text)}
-                value={Email}
-                className="w-full mt-3 bg-slate-50"
-            />
+          
         </>
     )
 }
 
 const NOKUpdateForm = ({ data, handleCallBackValue }) => {
-    const [NOKName, setNOKName] = useState(data[0].data.nextOfKinName);
-    const [NOKPhone, setNOKPhone] = useState(data[0].data.nextOfKinPhoneNumber);
+    // Add safety checks
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        console.error('NOKUpdateForm: Invalid or missing data prop');
+        return null;
+    }
+
+    const [NOKName, setNOKName] = useState(data[0]?.data?.nextOfKinName || '');
+    const [NOKPhone, setNOKPhone] = useState(data[0]?.data?.nextOfKinPhoneNumber || '');
 
     useEffect(() => {
         handleCallBackValue({
@@ -429,7 +452,7 @@ const NOKUpdateForm = ({ data, handleCallBackValue }) => {
 
     return (
         <>
-            <TextInput
+            <CustomTextInput
                 label="Next of Kin's Name"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}
@@ -437,7 +460,7 @@ const NOKUpdateForm = ({ data, handleCallBackValue }) => {
                 value={NOKName}
                 className="w-full mt-3 bg-slate-50"
             />
-            <TextInput
+            <CustomTextInput
                 label="Next of Kin's phone number"
                 mode="outlined"
                 theme={{ colors: { primary: colorred } }}

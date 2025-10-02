@@ -45,6 +45,8 @@ export const trainerByIdUrl=`${BaseURi}/trainer/profile`
 
 export const couponUrl=`${BaseURi}/coupons`
 export const appliedCouponUrl=`${BaseURi}/use-coupons`
-
+export const endClassUrl=`${BaseURi}/coursereg/end`
+export const ratingUrl=`${BaseURi}/feedback/rating`
+export const feedbackUrl=`${BaseURi}/feedback/review`
 
 

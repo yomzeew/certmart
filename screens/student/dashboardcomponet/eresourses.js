@@ -20,6 +20,7 @@ import { Divider } from "react-native-paper";
 import { FontAwesome } from "@expo/vector-icons";
 import { downloadFile } from "../../../utility/downloadfunction";
 import CustomTextInput from "../../../components/CustomTextInput";
+import showToast from "../../../utils/showToast";
 
 const Eresources = () => {
     const [preloader, setPreloader] = useState(false);
@@ -61,6 +62,10 @@ const Eresources = () => {
     };
 
     const handleDownload = (resource) => {
+         if(!resource.courselink){
+                   showToast("error", "E-Resources not available", "E-Resources not available contact the Trainer👌")
+                    return
+                }
         const fileUrl = `https://certmart.org/${resource.courselink}`;
         const fileName = `${resource.title.replace(/\s+/g, "_")}.pdf`;
         downloadFile(fileUrl, fileName);

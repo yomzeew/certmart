@@ -58,8 +58,8 @@ const Slider = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView className="flex-1 flex justify-center">
-      <StatusBar style="auto" />
+    <SafeAreaView style={[styles.andriod,styles.bgcolor, { flex: 1, width: '100%'}]} className="justify-center">
+      <StatusBar style="dark" />
       <View className="flex-1">
        {showComponent()}
       </View>

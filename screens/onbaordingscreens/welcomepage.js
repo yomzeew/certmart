@@ -5,7 +5,7 @@ import { FontAwesome } from "@expo/vector-icons"
 import { useRoute,useNavigation } from "@react-navigation/native"
 import { useState } from "react"
 import { StatusBar } from "expo-status-bar"
-
+import AsyncStorage from "@react-native-async-storage/async-storage"
 const Welcomepage=()=>{
     const navigation=useNavigation()
     const route = useRoute();
@@ -14,19 +14,24 @@ const Welcomepage=()=>{
     const handleprevpage=()=>{
         navigation.goBack()
     }
-    const handlelogin=()=>{
+    const handlelogin=async()=>{
+        await AsyncStorage.setItem('onboardingCompleted', 'true');
         navigation.navigate('login',{platform:platform})
     }
-    const handleregister=()=>{
+    const handleregister=async()=>{
+        await AsyncStorage.setItem('onboardingCompleted', 'true');
         navigation.navigate('register',{platform:platform})
+       
     }
+
+    
 
     return(
         <>
          <View  className="h-full w-full bg-bottom absolute -bottom-32" resizeMode="contain"/>
          <View className="w-full h-full bg-slate-200 opacity-80 absolute"></View>
         <SafeAreaView style={styles.andriod} className="flex-1 justify-center items-center flex w-full">
-            <StatusBar style="auto"/>
+            <StatusBar style="dark"/>
             <View className="items-start w-full px-3 h-1/6 flex justify-center">
             <TouchableOpacity onPress={handleprevpage}><FontAwesome name="arrow-circle-left" size={40} color={colorred} /></TouchableOpacity>
                 </View>

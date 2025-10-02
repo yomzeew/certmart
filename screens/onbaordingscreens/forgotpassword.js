@@ -6,6 +6,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import Preloader from "../preloadermodal/preloaderwhite";
 import { useNavigation } from "@react-navigation/native";
 import { sumbitForgotPassword } from "../../utils/api";
+import showToast from "../../utils/showToast";
 
 const ForgotPasswordEmailModal = ({ close }) => {
   const [email, setEmail] = useState("");
@@ -26,10 +27,10 @@ const ForgotPasswordEmailModal = ({ close }) => {
       const response = await sumbitForgotPassword(email);
 
       // ✅ response is already clean
-      Alert.alert("Success", response.message || "Password reset email sent!");
+      showToast("success", "Success", response.message || "Password reset email sent!");
       close(false);
     } catch (error) {
-      setErrorMsg(error.message);
+      showToast("error", "Error", "Failed to send password reset email");
     } finally {
       setShowPreloader(false);
     }

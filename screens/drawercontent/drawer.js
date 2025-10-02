@@ -72,9 +72,12 @@ const CustomDrawer = (props) => {
   useEffect(() => {
     fetchdata();
   }, []);
+  const handleShare=()=>{
+    navigation.navigate('sharewithfriend')
+  }
 
   return (
-    <SafeAreaView style={styles.andriod} className="flex flex-1 w-full">
+    <View  className="flex flex-1 w-full">
       <View
         style={{ backgroundColor: colorred }}
         className="flex justify-center flex-row items-center h-32"
@@ -269,7 +272,7 @@ const CustomDrawer = (props) => {
 
       <View className="mb-20">
  <View className="px-4 ">
-        <TouchableOpacity className="flex flex-row">
+        <TouchableOpacity onPress={()=>handleShare()} className="flex flex-row">
           <FontAwesome size={20} color={colorred} name="share" />
           <View className="w-2" />
           <Text style={{ fontSize: 16 }}>Tell a Friend</Text>
@@ -288,7 +291,7 @@ const CustomDrawer = (props) => {
       </View>
       </View>
      
-    </SafeAreaView>
+    </View>
   );
 };
 
