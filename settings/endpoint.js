@@ -4,6 +4,7 @@ export const loginstudent = `${BaseURi}/students/login`;
 export const updatedetails = `${BaseURi}/students`;
 export const updateProfilePic = `${BaseURi}/upload`;
 export const uploadcvurl = `${BaseURi}/upload_cv`;
+export const uploadIdurl=`${BaseURi}/upload-id`
 export const getotp = `${BaseURi}/password/get_otp`;
 export const verifyotp = `${BaseURi}/password/verify_otp`;
 export const resetpassword = `${BaseURi}/password/reset`;
@@ -48,5 +49,26 @@ export const appliedCouponUrl=`${BaseURi}/use-coupons`
 export const endClassUrl=`${BaseURi}/coursereg/end`
 export const ratingUrl=`${BaseURi}/feedback/rating`
 export const feedbackUrl=`${BaseURi}/feedback/review`
+export const getlatestNews=`${BaseURi}/latest-news`
+
+//get classes status
+export const classesStatus=`${BaseURi}/course/status`
+
+//Enroll Exam 
+export const enrollExam=`${BaseURi}/exam/enroll`
+// get exam
+export const getExam=`${BaseURi}/exam/all`
+//activate exam
+export const activateExam=`${BaseURi}/exam/activate`
+
+//Request for Exam
+export const examRequest=`${BaseURi}/exam/request`
+
+//Change Password
+export const changepassword=`${BaseURi}/student/reset-password`
+
+
+
+
 
 

@@ -1,10 +1,13 @@
 import { StatusBar } from "expo-status-bar";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   View,
   Text,
   TouchableOpacity,
   ScrollView,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from "react-native";
 import { styles } from "../../../settings/layoutsetting";
 import { colorred } from "../../../constant/color";
@@ -12,9 +15,12 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  useAnimatedScrollHandler,
+  withTiming,
+  interpolate,
+  Extrapolate,
   withSpring,
 } from "react-native-reanimated";
-import React, { useState, useEffect } from "react";
 import Header from "./header";
 import Categories from "./dashboard/categories";
 import PopularCourses from "./dashboard/popularcourses";
@@ -36,14 +42,13 @@ import PopularCoursesCard from "./dashboard/popularcourseCard";
 import { FontAwesome5 } from "@expo/vector-icons";
 import BannerDisplay from "../../modals/BannerDisplay";
 import NextClassAppointment from "./dashboard/nextClassAppointment";
-import PopularCoursesCardStack from "./dashboard/popularcourseCardStack";
+import ImageDisplay from "../../modals/imageDisplay";
 
 const Dashboard = () => {
   const navigation = useNavigation();
 
-  // Safety check for navigation
   if (!navigation) {
-    console.warn('Navigation context not available');
+    console.warn("Navigation context not available");
     return null;
   }
 
@@ -61,7 +66,6 @@ const Dashboard = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Reset state when screen is focused again
       setshowpreloader(false);
       setshowModal(false);
       setshowopcity(false);
@@ -80,15 +84,7 @@ const Dashboard = () => {
       });
       setdata(response.data.data);
     } catch (error) {
-      if (error.response) {
-        console.error("Error response:", error.response.data);
-        console.log(error.response.data.error);
-        console.error("Error status:", error.response.status);
-      } else if (error.request) {
-        console.error("Error request:", error.request);
-      } else {
-        console.error("Error message:", error.message);
-      }
+      console.error("Error fetching courses:", error);
     } finally {
       setshowpreloader(false);
     }
@@ -104,19 +100,10 @@ const Dashboard = () => {
       });
       if (response.status === 200) {
         dispatch(login(response.data));
-        const studentId = response.data.studentid;
-        await AsyncStorage.setItem("studentid", studentId);
+        await AsyncStorage.setItem("studentid", response.data.studentid);
       }
     } catch (error) {
-      if (error.response) {
-        console.error("Error response:", error.response.data);
-        console.log(error.response.data.error);
-        console.error("Error status:", error.response.status);
-      } else if (error.request) {
-        console.error("Error request:", error.request);
-      } else {
-        console.error("Error message:", error.message);
-      }
+      console.error("Error fetching student ID:", error);
     }
   };
 
@@ -151,13 +138,7 @@ const Dashboard = () => {
         setcoursesdata([]);
       }
     } catch (error) {
-      if (error.response) {
-        console.error("Error response:", error.response.data);
-      } else if (error.request) {
-        console.error("Error request:", error.request);
-      } else {
-        console.error("Error message:", error.message);
-      }
+      console.error("Error filtering category:", error);
     } finally {
       setshowpreloader(false);
     }
@@ -183,20 +164,19 @@ const Dashboard = () => {
     fetchallavailablecourse(setshowpreloader)
       .then((courses) => {
         setavailablecourse(courses);
-        setFilteredCourses(courses); // Initialize filtered courses
+        setFilteredCourses(courses);
       })
       .catch((error) => {
         console.error("Failed to fetch courses:", error);
       });
   };
 
-  // Filter courses based on search text
   const handleSearch = (text) => {
     setSearchText(text);
     if (text.trim() === "") {
       setFilteredCourses(availablecourse);
     } else {
-      const filtered = availablecourse.filter(course =>
+      const filtered = availablecourse.filter((course) =>
         course.toLowerCase().includes(text.toLowerCase())
       );
       setFilteredCourses(filtered);
@@ -207,102 +187,132 @@ const Dashboard = () => {
     handlegetallcourses();
   }, []);
 
+  // 🔥 Reanimated scroll animation setup
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
+  const fadeUpStyle = useAnimatedStyle(() => {
+    // smoothly fade out after 150px scroll, and fade back in when scrolling down
+    const opacity = interpolate(
+      scrollY.value,
+      [0, 100, 200],
+      [1, 0.5, 0],
+      Extrapolate.CLAMP
+    );
+  
+    const translateY = interpolate(
+      scrollY.value,
+      [0, 200],
+      [0, -30],
+      Extrapolate.CLAMP
+    );
+  
+    return {
+      opacity: withTiming(opacity, { duration: 250 }),
+      transform: [{ translateY: withTiming(translateY, { duration: 250 }) }],
+    };
+  });
+  
   return (
     <>
-{showModal && (
-  <>
-    <View
-      style={{
-        zIndex: 50,
-        elevation: 50,
-        flex: 1,
-        backgroundColor: "rgba(0,0,0,0.5)",
-      }}
-      className="h-full w-full absolute justify-end"
-    />
-    
-    <View
-      style={{ zIndex: 50, elevation: 50 }}
-      className="h-[85vh] w-full bg-white bottom-0 absolute rounded-t-3xl"
-    >
-      {/* Close Button */}
-      <TouchableOpacity
-        onPress={() => {
-          setshowModal(false);
-          setSearchText(""); // Reset search when closing modal
-        }}
-        className="absolute right-4 top-4 z-50"
-      >
-        <FontAwesome5 name="times" size={22} color="#333" />
-      </TouchableOpacity>
-
-      <View className="items-center pt-4 pb-2">
-        <View className="w-12 h-1 bg-gray-300 rounded-full"></View>
-      </View>
-      <View className="px-4 pb-4">
-        <Text className="text-lg font-bold text-gray-800 text-center mb-4">
-          Available Courses
-        </Text>
-        <Text className="text-gray-600 text-center text-sm mb-4">
-          Select a course to view details
-        </Text>
-
-        {/* Search Input */}
-        <View className="flex-row justify-between items-center bg-gray-50 rounded-xl px-3 py-2 mb-4 border border-gray-200">
-         
-          <CustomTextInput
-            placeholder="Search courses..."
-            value={searchText}
-            onChangeText={handleSearch}
-            className="flex-1 ml-3 bg-transparent w-64"
-            placeholderTextColor="#666"
+      {showModal && (
+        <>
+          <View
+            style={{
+              zIndex: 50,
+              elevation: 50,
+              flex: 1,
+              backgroundColor: "rgba(0,0,0,0.5)",
+            }}
+            className="h-full w-full absolute justify-end"
           />
-           <FontAwesome5 name="search" size={16} color="#666" />
-        </View>
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-        {filteredCourses.length > 0 ? (
-          filteredCourses.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => handlegetvalue(item)}
-              className="bg-gray-50 mx-4 mb-3 p-4 rounded-xl border border-gray-100"
-            >
-              <View className="flex-row items-center">
-                <View className="w-3 h-3 bg-green-500 rounded-full mr-3"></View>
-                <Text
-                  style={{ fontSize: 16 }}
-                  className="font-medium text-gray-800 flex-1"
-                >
-                  {item}
-                </Text>
-                <FontAwesome5 name="chevron-right" size={14} color="#666" />
-              </View>
-            </TouchableOpacity>
-          ))
-        ) : (
-          <View className="items-center justify-center py-10">
-            <FontAwesome5 name="search" size={48} color="#ccc" />
-            <Text className="text-gray-500 text-center mt-4">
-              {searchText ? "No courses found" : "No courses available"}
-            </Text>
-            <Text className="text-gray-400 text-center text-sm mt-1">
-              {searchText ? "Try a different search term" : "Courses will appear here when available"}
-            </Text>
-          </View>
-        )}
-      </ScrollView>
-    </View>
-  </>
-)}
 
- 
+          <View
+            style={{ zIndex: 50, elevation: 50 }}
+            className="h-[85vh] w-full bg-white bottom-0 absolute rounded-t-3xl"
+          >
+            <TouchableOpacity
+              onPress={() => {
+                setshowModal(false);
+                setSearchText("");
+              }}
+              className="absolute right-4 top-4 z-50"
+            >
+              <FontAwesome5 name="times" size={22} color="#333" />
+            </TouchableOpacity>
+
+            <View className="items-center pt-4 pb-2">
+              <View className="w-12 h-1 bg-gray-300 rounded-full"></View>
+            </View>
+            <View className="px-4 pb-4">
+              <Text className="text-lg font-bold text-gray-800 text-center mb-4">
+                Available Courses
+              </Text>
+              <Text className="text-gray-600 text-center text-sm mb-4">
+                Select a course to view details
+              </Text>
+
+              <View className="flex-row justify-between items-center bg-gray-50 rounded-xl px-3 py-2 mb-4 border border-gray-200">
+                <CustomTextInput
+                  placeholder="Search courses..."
+                  value={searchText}
+                  onChangeText={handleSearch}
+                  className="flex-1 ml-3 bg-transparent w-64"
+                  placeholderTextColor="#666"
+                />
+                <FontAwesome5 name="search" size={16} color="#666" />
+              </View>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+              {filteredCourses.length > 0 ? (
+                filteredCourses.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => handlegetvalue(item)}
+                    className="bg-gray-50 mx-4 mb-3 p-4 rounded-xl border border-gray-100"
+                  >
+                    <View className="flex-row items-center">
+                      <View className="w-3 h-3 bg-green-500 rounded-full mr-3"></View>
+                      <Text
+                        style={{ fontSize: 16 }}
+                        className="font-medium text-gray-800 flex-1"
+                      >
+                        {item}
+                      </Text>
+                      <FontAwesome5 name="chevron-right" size={14} color="#666" />
+                    </View>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View className="items-center justify-center py-10">
+                  <FontAwesome5 name="search" size={48} color="#ccc" />
+                  <Text className="text-gray-500 text-center mt-4">
+                    {searchText ? "No courses found" : "No courses available"}
+                  </Text>
+                  <Text className="text-gray-400 text-center text-sm mt-1">
+                    {searchText
+                      ? "Try a different search term"
+                      : "Courses will appear here when available"}
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </>
+      )}
+
       {showmodalcourse && (
         <View
           style={{ zIndex: 50, elevation: 50 }}
           className="bottom-0 absolute h-full w-full "
         >
-          <View className="z-50 absolute h-full w-full bg-black opacity-50"/>
+          <View className="z-50 absolute h-full w-full bg-black opacity-50" />
           <Animated.View style={[animatedStyles]} className="z-50 elevation-50">
             <DisplayModal
               data={coursesdata}
@@ -329,23 +339,28 @@ const Dashboard = () => {
 
         <Header />
 
-        {/* Make whole dashboard scrollable */}
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View className="px-4 mt-4">
-            <View className="items-center mb-3">
-              <Text className="text-2xl font-bold text-gray-800 mb-2">
-                Welcome Back! 👋
-              </Text>
-              <Text className="text-gray-600 text-center">
-                Discover amazing courses and enhance your skills
-              </Text>
+        {/* Animated ScrollView */}
+        <Animated.ScrollView
+          showsVerticalScrollIndicator={false}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+        >
+          {/* Animated Welcome + Banner */}
+          <Animated.View style={[fadeUpStyle]}>
+            <View className="px-4 mt-4">
+              <View className="items-center mb-3">
+                <Text className="text-2xl font-bold text-gray-800 mb-2">
+                  Welcome Back! 👋
+                </Text>
+                <Text className="text-gray-600 text-center">
+                  Discover amazing courses and enhance your skills
+                </Text>
+              </View>
             </View>
-          </View>
-          <View className="px-4">
-          <BannerDisplay/>
-
-          </View>
-          
+            <View className="px-4">
+              <BannerDisplay />
+            </View>
+          </Animated.View>
 
           {/* Categories */}
           <View className="px-4 mt-3">
@@ -356,11 +371,15 @@ const Dashboard = () => {
               handleactionseeall={handlegetallcourses}
             />
           </View>
-          <NextClassAppointment/>
+
+          <NextClassAppointment />
+
           {/* Popular Courses */}
           <View className="px-4 mt-3">
             <View className="flex-row justify-between items-center  ">
-              <Text className="text-lg font-bold text-gray-800">⭐ Popular Courses</Text>
+              <Text className="text-lg font-bold text-gray-800">
+                ⭐ Popular Courses
+              </Text>
             </View>
             <ScrollView showsHorizontalScrollIndicator={false} horizontal>
               <PopularCourses
@@ -371,20 +390,21 @@ const Dashboard = () => {
               />
             </ScrollView>
             <View className="mt-4">
-             
-              <PopularCoursesCard 
-               data={data}
-               setshowModal={setshowModal}
-               showModal={showModal}
-               handleshowmodal={handlegetallcourses}
-/>         
+              <PopularCoursesCard
+                data={data}
+                setshowModal={setshowModal}
+                showModal={showModal}
+                handleshowmodal={handlegetallcourses}
+              />
             </View>
           </View>
 
           {/* Top Trainers */}
           <View className="px-4 mb-6">
             <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-lg font-bold text-gray-800">👨‍🏫 Top Trainers</Text>
+              <Text className="text-lg font-bold text-gray-800">
+                👨‍🏫 Top Trainers
+              </Text>
             </View>
             <ScrollView
               showsHorizontalScrollIndicator={false}
@@ -394,9 +414,12 @@ const Dashboard = () => {
               <Toptrainer />
             </ScrollView>
           </View>
-        </ScrollView>
+        </Animated.ScrollView>
+
+        <ImageDisplay />
       </SafeAreaView>
     </>
   );
 };
+
 export default Dashboard;

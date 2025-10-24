@@ -16,6 +16,7 @@ import { navigationRef } from "./components/NavigationService";
 import Toast from 'react-native-toast-message';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from "expo-status-bar";
+import { setBackgroundColorAsync } from 'expo-system-ui';
 
 
 export default function App() {
@@ -25,7 +26,19 @@ export default function App() {
   // Prevent splash screen from auto-hiding
   useEffect(() => {
     SplashScreen.preventAutoHideAsync();
+    setBackgroundColorAsync('#ffffff'); // background behind app
   }, []);
+
+  const todaynow = new Date().toISOString().split("T")[0];
+  console.log(todaynow)
+
+  const storeDate=async()=>{
+    try {
+      await AsyncStorage.setItem("bannerLastShown", todaynow);
+    } catch (error) {
+      console.log("❌ Error storing banner date:", error);
+    }
+  };
 
 
 
@@ -42,6 +55,7 @@ export default function App() {
     }
 
     prepare();
+    storeDate();
   }, []);
 
   const onLayoutRootView = useCallback(async () => {

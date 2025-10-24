@@ -1,14 +1,12 @@
-import { SafeAreaView, View, Text,ScrollView, TouchableOpacity  } from "react-native";
+import { SafeAreaView, View, Text,ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform  } from "react-native";
 import { styles } from "../../../settings/layoutsetting";
 import Header from "./header";
 
 import {
-  bluecolor,
   colorred,
-  colorwhite,
   lightred,
 } from "../../../constant/color";
-import { Divider, TextInput } from "react-native-paper";
+import { Divider} from "react-native-paper";
 import { FontAwesome5 } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
@@ -16,18 +14,14 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { useEffect, useState,useCallback } from "react";
-import Footer from "./footer";
 import DisplayModal from "../../modals/datadisplay";
-import { fetchData } from "../../jsondata/fetchfunction";
 import * as DocumentPicker from "expo-document-picker";
 import { uploadFile } from "../../uploadfile/uploadfile";
 import InputModal from "../../modals/inputmodal";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { allavailablecourse, allcourses, applyAdmission, classes } from "../../../settings/endpoint";
+import { allavailablecourse, applyAdmission } from "../../../settings/endpoint";
 import {
-  countrylist,
-  fecthcountrysate,
   getallcountries,
   getallstates,
   getcities,
@@ -37,14 +31,12 @@ import Preloader from "../../preloadermodal/preloaderwhite";
 import { currentDate } from "../../../utility/get-date-time";
 import SuccessModal from "../../modals/successfulmodal";
 import { useRoute } from "@react-navigation/native";
-import CustomTextInput from "../../../components/CustomTextInput";
 import showToast from "../../../utils/showToast";
 
 
 const ApplyCourses = () => {
   const route = useRoute();
   const { courseName,courseCodeName } = route.params;
- 
   const [showLoader, setShowLoader] = useState(false);
   const [showphysical, setshowphysical] = useState(false);
   const [showmodalcourse, setshowmodalcourse] = useState(false);
@@ -60,15 +52,11 @@ const ApplyCourses = () => {
   const [computerlevel, setcomputerlevel] = useState("");
   const [addinfo, setaddinfo] = useState("");
   const [datacourse, setdatacourse] = useState([]);
-  const [countryData, setCountryData] = useState([]);
-  const [stateData, setStateData] = useState([]);
-  const [cityData, setCityData] = useState([]);
   const [rawdata,setrawdata]=useState([])
   const [data, setdata] = useState([]);
   const [selecttype, setselecttpe] = useState("");
   const [cvfilename, setcvfilename] = useState("");
   const [errormsg, seterrormsg] = useState("");
-  const [Duration, setDuration] = useState("");
   const [cvnewname, setcvnewname] = useState("");
   const [showsuccess, setshowsuccess] = useState(false);
   const [countryid,setcountryid]=useState('')
@@ -378,7 +366,7 @@ const ApplyCourses = () => {
       classType: classtype,
       literacy_level: computerlevel, //nullable
     };
-    if (classtype === "Virtual") {
+    if (classtype === "Virtual" || classtype === "Exam") {
       
      formData = {
       studentid: studentId,
@@ -516,7 +504,14 @@ const ApplyCourses = () => {
               <Text style={{ color: colorred }}>{errormsg}</Text>
             </View>
           </View>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            nestedScrollEnabled
+            contentContainerStyle={{ paddingBottom: 40 }}
+            automaticallyAdjustKeyboardInsets
+          >
             <View className="px-5 mt-10">
               {course && (
                 <View  style={{ zIndex: 50, elevation: 50 }} className="absolute left-8 -top-2 bg-white">
@@ -759,6 +754,7 @@ const ApplyCourses = () => {
                     your admission
                   </Text>
                 </TouchableOpacity>
+                
               </View>
 
               {/* <TextInput
@@ -788,6 +784,7 @@ const ApplyCourses = () => {
               </TouchableOpacity>
             </View>
           </ScrollView>
+          </KeyboardAvoidingView>
         </View>
       </SafeAreaView>
     </>

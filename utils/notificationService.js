@@ -247,14 +247,14 @@ class NotificationService {
     }
   }
 
-  // Get notification settings
-  async getNotificationSettings() {
+  // Get system notification status (permissions)
+  async getSystemNotificationStatus() {
     try {
-      const settings = await Notifications.getNotificationSettingsAsync();
-      console.log('Notification settings:', settings);
-      return settings;
+      const perms = await Notifications.getPermissionsAsync();
+      console.log('System notification permissions:', perms);
+      return perms; // { status, canAskAgain, granted, expires } depending on Expo version
     } catch (error) {
-      console.error('Error getting notification settings:', error);
+      console.error('Error getting system notification status:', error);
       return null;
     }
   }
@@ -262,9 +262,8 @@ class NotificationService {
   // Check if notifications are enabled
   async areNotificationsEnabled() {
     try {
-      const settings = await this.getNotificationSettings();
-      return settings?.ios?.status === Notifications.IosAuthorizationStatus.AUTHORIZED ||
-             settings?.android?.importance === Notifications.AndroidImportance.MAX;
+      const perms = await Notifications.getPermissionsAsync();
+      return Boolean(perms?.granted || perms?.status === 'granted');
     } catch (error) {
       console.error('Error checking notification status:', error);
       return false;

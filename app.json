@@ -12,7 +12,9 @@
       "backgroundColor": "#ffffff"
     },
     "plugins": [
-      ["expo-document-picker"],
+      [
+        "expo-document-picker"
+      ],
       [
         "expo-image-picker",
         {
@@ -30,14 +32,21 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yomzeew.certmart"
+      "bundleIdentifier": "com.yomzeew.certmart",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.yomzeew.certmart"
+      "edgeToEdgeEnabled": true,
+      "package": "com.yomzeew.certmart",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",

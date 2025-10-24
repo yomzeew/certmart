@@ -45,7 +45,6 @@ const RegisterPage = () => {
        
 
         if (!Surname) return seterrormsg("Enter Surname");
-        if (!Middlename) return seterrormsg("Enter Middlename");
         if (!Firstname) return seterrormsg("Enter Firstname");
         if (!phonenumber) return seterrormsg("Enter Phone Number");
         if (!Agreement) return seterrormsg("Check the box for agreement and policy");
@@ -119,7 +118,7 @@ const RegisterPage = () => {
                     <View
                         style={{
                             backgroundColor: colorred,
-                            marginTop: Platform.OS === "ios" ? -50 : 0,
+                            marginTop: Platform.OS === "ios" ? -65 : 0,
                         }}
                         className="items-center w-full px-3 h-1/6 flex-row flex justify-between"
                     >
@@ -191,17 +190,17 @@ const RegisterPage = () => {
                                     </View>
 
                                     {/* Agreement Checkbox */}
-                                    <View className="w-3/4 flex flex-row items-center">
+                                    <TouchableOpacity onPress={() => setVisible(true)} className="w-3/4 flex flex-row items-center">
                                         <Checkbox
                                             status={Agreement ? "checked" : "unchecked"}
                                             theme={{ colors: { primary: colorred } }}
                                         />
-                                        <TouchableOpacity onPress={() => setVisible(true)}>
+                                       
                                             <Text style={{ color: certblue }}>
                                                 Agree to terms and conditions
                                             </Text>
-                                        </TouchableOpacity>
-                                    </View>
+                                        
+                                    </TouchableOpacity>
 
                                     {/* Submit Button */}
                                     <View className="w-3/4 mt-3">

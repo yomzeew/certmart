@@ -56,6 +56,12 @@ const truncateText = (text, maxWords) => {
 const detailsText = course?.details || '';
 const wordCount = getWordCount(detailsText);
 const shouldShowReadMore = wordCount > 50;
+
+const cleanImagePath = (path) => {
+  if (typeof path !== 'string') return '';
+  return path.replace(/^dps\//, '').replace(/\.jpg$/i, '');
+}
+
  
 
   return (
@@ -123,7 +129,7 @@ const shouldShowReadMore = wordCount > 50;
       <TouchableOpacity
         onPress={() => {
           setshowpayment(true);
-          setSelected(course)
+          setSelected({ ...course, dp:cleanImagePath(course.trainerdp) })
         }}
         className="bg-red-500 rounded-xl px-4 py-2 self-start"
       >

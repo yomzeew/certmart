@@ -17,6 +17,10 @@ import Issues from "../screens/student/dashboardcomponet/issues/issues";
 import TrainerProfile from "../screens/student/dashboardcomponet/trainerProfile";
 import ClassesDetails from "../screens/student/dashboardcomponet/classDetails";
 import TellAFriendScreen from "../screens/student/dashboardcomponet/tellafriend";
+import LatestNews from "../screens/student/dashboardcomponet/newspage";
+import Exam from "../screens/student/dashboardcomponet/exam";
+import examResult from "../screens/student/dashboardcomponet/examResult";
+import Changepassword from "../screens/student/dashboardcomponet/changepassword";
 
 const DrawerWrapper = () => {
   const Drawer = createDrawerNavigator();
@@ -87,6 +91,22 @@ const DrawerWrapper = () => {
       options={{gestureEnabled:false,gestureDirection:'vertical'}} 
       name="sharewithfriend" 
       component={TellAFriendScreen} />
+      <Drawer.Screen 
+      options={{gestureEnabled:false,gestureDirection:'vertical'}} 
+      name="newsdetail" 
+      component={LatestNews} />
+       <Drawer.Screen 
+      options={{gestureEnabled:false,gestureDirection:'vertical'}} 
+      name="exam" 
+      component={Exam} />
+      <Drawer.Screen 
+      options={{gestureEnabled:false,gestureDirection:'vertical'}} 
+      name="examResult" 
+      component={examResult} />
+      <Drawer.Screen 
+      options={{gestureEnabled:false,gestureDirection:'vertical'}} 
+      name="changepassword" 
+      component={Changepassword} />
       
     
     </Drawer.Navigator>

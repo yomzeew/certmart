@@ -24,6 +24,14 @@ import {
     ratingUrl,
     feedbackUrl,
     endClassUrl,
+    getlatestNews,
+    classesStatus,
+    examRequest,
+    enrollExam,
+    activateExam,
+    getExam,
+    changepassword,
+    uploadIdurl
 } from "../settings/endpoint";
 
 export const fetchCourses = async (course) => {
@@ -196,6 +204,45 @@ export const uploadProfilePicture = async (imageUri, studentId) => {
     }
 };
 
+export const uploadId = async (imageUri, studentId) => {
+    try {
+        console.log('uploadId called with:', { imageUri, studentId });
+        
+        if (!imageUri || !studentId) {
+            throw new Error('Image URI and Student ID are required');
+        }
+        
+        const formData = new FormData();
+        formData.append("idphoto", {
+            uri: imageUri,
+            type: "image/jpeg",
+            name: `${studentId}.jpg`,
+        });
+
+        const token = await AsyncStorage.getItem("token");
+        if (!token) {
+            throw new Error('Authentication token not found. Please login again.');
+        }
+        
+        console.log('Uploading ID to:', uploadIdurl);
+        const response = await axios.post(uploadIdurl, formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        console.log('Upload ID response:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('uploadId error details:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status
+        });
+        handleApiError(error);
+    }
+}
+
 export const convertCurrency = async (amount_ngn, convert_to) => {
     try {
         const token = await AsyncStorage.getItem("token");
@@ -304,6 +351,19 @@ export const fetchCoursesByCategory = async (category) => {
 // import axios from "axios";
 // import { getCourseStatus, classes, allTrainers, BaseURi } from "your/endpoints/path";
 
+// Fetch paid courses for a student (helper)
+export const fetchPaidCourses = async (studentIdParam) => {
+  const token = await AsyncStorage.getItem("token");
+  const studentId = studentIdParam || (await AsyncStorage.getItem("studentid"));
+  if (!token || !studentId) throw new Error("Missing token or student ID");
+  const headers = { Authorization: `Bearer ${token}` };
+  const res = await axios.get(`${classes}/students`, { params: { id: studentId }, headers });
+  return res?.data || [];
+};
+
+// Backward-compat alias if some components import paidCourse
+export const paidCourse = fetchPaidCourses;
+
 export const fetchStudentClasses = async () => {
     try {
       // --- 1) get token + studentId ---
@@ -327,13 +387,14 @@ export const fetchStudentClasses = async () => {
         axios.get(allTrainers, { headers })
       ]);
   
-      const approvedCourses = approvedRes?.data || [];
-      const paidCourses = paidRes?.data || [];
-      console.log(trainersRes.data.data,'trainersRes')
-      const trainers = trainersRes?.data.data || [];
-  
+      const approvedRaw = approvedRes?.data?.data ?? approvedRes?.data ?? [];
+      const approvedCourses = Array.isArray(approvedRaw) ? approvedRaw : (approvedRaw ? [approvedRaw] : []);
+      const paidRaw = paidRes?.data?.data ?? paidRes?.data ?? [];
+      const paidCourses = Array.isArray(paidRaw) ? paidRaw : (paidRaw ? [paidRaw] : []);
+      const trainers = trainersRes?.data?.data || [];
+      console.log(paidCourses, 'paidCourses')
       console.log("approvedCourses.length:", approvedCourses.length);
-      console.log("paidCourses.length:", paidCourses);
+      console.log("paidCourses.length:", paidCourses.length);
       console.log("trainers.length:", trainers.length);
   
       // --- 3) fetch availability per approved course and store in a map keyed by courseid ---
@@ -389,6 +450,7 @@ export const fetchStudentClasses = async () => {
           state: classItem.c_state,
           startdate: classItem.startdate,
           canceled: classItem.canceled,
+          progressstatus:classItem.progressstatus,
           duration: matchingAvailability?.duration ?? classItem.duration ?? null,
           days: matchingAvailability?.days ?? classItem.days ?? null,
           classType: matchingAvailability?.classType ?? classItem.classtype ?? classItem.classType ?? null,
@@ -463,11 +525,33 @@ export const sumbitForgotPassword = async (email) => {
 
 const handleApiError = (error) => {
     if (error.response) {
-        throw new Error(error.response.data.error || "An error occurred.");
+        // Server responded with error
+        const errorData = error.response.data;
+        const status = error.response.status;
+        console.error('API Error Response:', {
+            status,
+            data: errorData,
+            headers: error.response.headers
+        });
+        
+        // Extract error message from various possible formats
+        let errorMsg = errorData?.error || errorData?.message || errorData?.msg;
+        
+        // Handle validation errors (422)
+        if (status === 422 && errorData?.errors) {
+            const validationErrors = Object.entries(errorData.errors)
+                .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+                .join('; ');
+            errorMsg = validationErrors || errorMsg;
+        }
+        
+        throw new Error(errorMsg || `Server error (${status}). Please try again.`);
     } else if (error.request) {
-        throw new Error("No response from server. Please try again.");
+        console.error('API No Response:', error.request);
+        throw new Error("No response from server. Please check your connection.");
     } else {
-        throw new Error("An error occurred. Please try again.");
+        console.error('API Setup Error:', error.message);
+        throw new Error(error.message || "An error occurred. Please try again.");
     }
 };
 
@@ -675,3 +759,207 @@ export const reviewFn = async (data) => {
     }
   }
 };
+
+export const latestNewsFn = async (limit = 5) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+
+    const response = await axios.get(`${getlatestNews}?limit=${limit}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("✅ Latest news response:", response.data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error("❌ Latest news API error:", error.response.data);
+      console.error("❌ Status:", error.response.status);
+      return { error: error.response.data?.message || "Failed to fetch latest news" };
+    } else if (error.request) {
+      console.error("❌ No response received:", error.request);
+      return { error: "No response from server" };
+    } else {
+      console.error("❌ Unexpected error:", error.message);
+      return { error: error.message };
+    }
+  }
+};
+export const classesStatusFn = async (regid) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+
+    const response = await axios.get(`${classesStatus}/${regid}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("✅ Classes status response:", response.data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error("❌ Classes status API error:", error.response.data);
+      console.error("❌ Status:", error.response.status);
+      return { error: error.response.data?.message || "Failed to fetch classes status" };
+    } else if (error.request) {
+      console.error("❌ No response received:", error.request);
+      return { error: "No response from server" };
+    } else {
+      console.error("❌ Unexpected error:", error.message);
+      return { error: error.message };
+    }
+  }
+};
+
+export const examEnrollFn=async(regid)=>{
+    try {
+        const token = await AsyncStorage.getItem("token");
+
+        const response = await axios.post(`${enrollExam}/${regid}`, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          }
+        });
+
+        console.log("✅ Exam enroll response:", response.data);
+        return response.data;
+      } catch (error) {
+        if (error.response) {
+          console.error("❌ Exam enroll API error:", error.response.data);
+          console.error("❌ Status:", error.response.status);
+          return { error: error.response.data?.message || "Failed to enroll exam" };
+        } else if (error.request) {
+          console.error("❌ No response received:", error.request);
+          return { error: "No response from server" };
+        } else {
+          console.error("❌ Unexpected error:", error.message);
+          return { error: error.message };
+        }
+      }
+    }
+
+export const examGetFn=async(email)=>{
+    try {
+        const token = await AsyncStorage.getItem("token");
+
+        const response = await axios.get(`${getExam}?email=${email}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          }
+        });
+
+        console.log("✅ Exam get response:", response.data);
+        return response.data;
+      } catch (error) {
+        if (error.response) {
+          console.error("❌ Exam get API error:", error.response.data);
+          console.error("❌ Status:", error.response.status);
+          return { error: error.response.data?.message || "Failed to get exam" };
+        } else if (error.request) {
+          console.error("❌ No response received:", error.request);
+          return { error: "No response from server" };
+        } else {
+          console.error("❌ Unexpected error:", error.message);
+          return { error: error.message };
+        }
+      }
+    }
+  
+export const examActivateFn=async(regid,coursecode)=>{
+
+    try {
+        const token = await AsyncStorage.getItem("token");
+
+        const response = await axios.post(`${activateExam}?username=${regid}&coursecode=${coursecode}`, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          }
+        });
+
+        console.log("✅ Exam activate response:", response.data);
+        return response.data;
+      } catch (error) {
+        if (error.response) {
+          console.error("❌ Exam activate API error:", error.response.data);
+          console.error("❌ Status:", error.response.status);
+          return { error: error.response.data?.message || "Failed to activate exam" };
+        } else if (error.request) {
+          console.error("❌ No response received:", error.request);
+          return { error: "No response from server" };
+        } else {
+          console.error("❌ Unexpected error:", error.message);
+          return { error: error.message };
+        }
+      }
+    }
+
+export const examRequestFn = async (regid,coursecode) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+console.log(`${examRequest}?regid=${regid}&coursecode=${coursecode}`)
+    const response = await axios.post(`${examRequest}?regid=${regid}&coursecode=${coursecode}`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+
+      },
+    });
+
+    console.log("✅ Exam request response:", response.data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error("❌ Exam request API error:", error.response.data);
+      console.error("❌ Status:", error.response.status);
+      return { error: error.response.data?.message || "Failed to request exam" };
+    } else if (error.request) {
+      console.error("❌ No response received:", error.request);
+      return { error: "No response from server" };
+    } else {
+      console.error("❌ Unexpected error:", error.message);
+      return { error: error.message };
+    }
+  }
+};
+
+export const changepasswordFn = async (data) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    const response = await axios.post(`${changepassword}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+    console.log("✅ Change password response:", response.data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error("❌ Change password API error:", error.response.data);
+      console.error("❌ Status:", error.response.status);
+      return { error: error.response.data?.message || "Failed to change password" };
+    } else if (error.request) {
+      console.error("❌ No response received:", error.request);
+      return { error: "No response from server" };
+    } else {
+      console.error("❌ Unexpected error:", error.message);
+      return { error: error.message };
+    }
+  }
+};  
+  
+  

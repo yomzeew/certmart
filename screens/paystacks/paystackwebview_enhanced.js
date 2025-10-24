@@ -24,7 +24,7 @@ const PaymentScreen = ({amount, currency, email, classtype, studentid, eventcode
   const [loadingTimeout, setLoadingTimeout] = useState(null);
 
   // Enhanced payment processing function
-  const processPayment = async (transactionRef = null) => {
+  const processPayment = async (transactionRef =couponCode) => {
     setPaymentStatus(PAYMENT_STATUS.PROCESSING);
     setLoadingMessage('Processing your payment...');
     setPaymentError('');
@@ -38,6 +38,7 @@ const PaymentScreen = ({amount, currency, email, classtype, studentid, eventcode
         paymentref: transactionRef,
         currency,
       };
+      
 
       if (!validatePaymentFields(requiredFields)) {
         setPaymentStatus(PAYMENT_STATUS.FAILED);

@@ -10,12 +10,13 @@ import CustomTextInput from "../../../../components/CustomTextInput";
 import showToast from "../../../../utils/showToast";
 
 const PaymentScreenModal = ({ selected, setshowpayment, setShowLoader, setshowsuccess }) => {
+  console.log(selected,'selected')
   const [Email, setEmail] = useState("");
   const [currency, setCurrency] = useState("NGN");
   const [amount, setAmount] = useState(Number(selected?.price || 0));
   const initialamount = Number(selected?.price || 0);
   const [studentid, setStudentId] = useState("");
-  const [showcurrency, setShowCurrency] = useState(false);
+  // simplified currency selection (NGN / USD)
 
   // coupon states
   const [couponCode, setCouponCode] = useState("");
@@ -28,9 +29,6 @@ const PaymentScreenModal = ({ selected, setshowpayment, setShowLoader, setshowsu
   const currencydata = [
     { country: "Nigeria", code: "NGN" },
     { country: "United States", code: "USD" },
-    { country: "Ghana", code: "GHS" },
-    { country: "Kenya", code: "KES" },
-    { country: "South Africa", code: "ZAR" },
   ];
 
   const fetchdata = async () => {
@@ -47,16 +45,20 @@ const PaymentScreenModal = ({ selected, setshowpayment, setShowLoader, setshowsu
     fetchdata();
   }, []);
 
-  const handleCurrency = async (object) => {
-    setShowLoader(true);
-    const currencyCode = object.code;
+  const handleSelectCurrency = async (currencyCode) => {
     try {
-      const convertedAmount = await convertCurrency(selected.taval_cost, currencyCode);
+      setShowLoader(true);
+      if (currencyCode === 'NGN') {
+        setAmount(initialamount);
+        setCurrency('NGN');
+        return;
+      }
+      const base = Number(selected?.price || initialamount);
+      const convertedAmount = await convertCurrency(base, currencyCode);
       setAmount(convertedAmount);
       setCurrency(currencyCode);
-      setShowCurrency(false);
     } catch (error) {
-      console.error("Error converting currency:", error.message);
+      console.error('Error converting currency:', error.message);
     } finally {
       setShowLoader(false);
     }
@@ -184,10 +186,9 @@ const PaymentScreenModal = ({ selected, setshowpayment, setShowLoader, setshowsu
   const finalAmount = amount;
 
   return (
-    <>
-      {renderAddCoupon()}
-      <View style={{ zIndex: 40, elevation: 40 }} className="bg-red-300 opacity-70 h-full w-full absolute z-40" />
-      <View style={{ zIndex: 50, elevation: 50 }} className="absolute w-full justify-center h-full items-center">
+    <Modal transparent animationType="fade" visible={true}>
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+        {renderAddCoupon()}
         <View className="w-5/6 justify-center bg-white rounded-2xl h-auto border border-red-300 p-3">
           <TouchableOpacity
             style={{ zIndex: 50, elevation: 50 }}
@@ -215,34 +216,47 @@ const PaymentScreenModal = ({ selected, setshowpayment, setShowLoader, setshowsu
             <View>{selected.classtype}</View>
           </View>
 
-          <View className="mt-3 items-center">
-            <Text style={{ fontSize: 16 }}>Change your Currency</Text>
-            <TouchableOpacity
-              onPress={() => setShowCurrency(!showcurrency)}
-              className="bg-red-200 h-10 rounded-2xl w-full items-center justify-center"
-            >
-              <Text>{currency || "Choose your Currency"}</Text>
-            </TouchableOpacity>
+          <View className="mt-3">
+            <Text style={{ fontSize: 16, textAlign: 'center', marginBottom: 8 }}>Choose Currency</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 12 }}>
+              {currencydata.map((c) => {
+                const selectedCur = currency === c.code;
+                return (
+                  <TouchableOpacity
+                    key={c.code}
+                    onPress={() => handleSelectCurrency(c.code)}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      borderWidth: selectedCur ? 2 : 1,
+                      borderColor: selectedCur ? colorred : '#ddd',
+                      borderRadius: 20,
+                      paddingVertical: 8,
+                      paddingHorizontal: 14,
+                      backgroundColor: selectedCur ? '#ffe4e6' : '#fff'
+                    }}
+                  >
+                    <View style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: 9,
+                      borderWidth: 2,
+                      borderColor: selectedCur ? colorred : '#999',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 8
+                    }}>
+                      {selectedCur ? (
+                        <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colorred }} />
+                      ) : null}
+                    </View>
+                    <Text style={{ fontWeight: selectedCur ? '700' : '500' }}>{c.code}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
-            {showcurrency && (
-              <View className="bg-red-200 h-40 rounded-2xl w-full items-center justify-center py-3 px-3 mt-3">
-                <ScrollView showsVerticalScrollIndicator={false} className="w-full">
-                  {currencydata.map((item, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => handleCurrency(item)}
-                      className="bg-red-300 mt-2 w-full items-center justify-center rounded-full h-8"
-                    >
-                      <Text className="text-sm">
-                        {item.code} - <Text className="text-xs">{item.country}</Text>
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-
-            <Text className="text-lg mt-2">Amount Due for Payment:</Text>
+            <Text className="text-lg mt-3 font-semibold text-center">Amount Due for Payment</Text>
             {appliedCoupon ? (
               <View style={{ width: '100%', marginBottom: 10 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
@@ -259,7 +273,7 @@ const PaymentScreenModal = ({ selected, setshowpayment, setShowLoader, setshowsu
                 </View>
               </View>
             ) : (
-              <Text className="text-lg">{currency} {amount.toFixed(2)}</Text>
+              <Text className="text-lg text-center">{currency} {amount.toFixed(2)}</Text>
             )}
           </View>
 
@@ -324,7 +338,7 @@ const PaymentScreenModal = ({ selected, setshowpayment, setShowLoader, setshowsu
           />
         </View>
       </View>
-    </>
+    </Modal>
   );
 };
 

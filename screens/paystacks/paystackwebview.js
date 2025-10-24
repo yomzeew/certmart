@@ -1,7 +1,8 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Alert, ActivityIndicator, ScrollView, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator, ScrollView, Modal,StyleSheet } from 'react-native';
 import { Paystack } from 'react-native-paystack-webview';
+import { PayWithFlutterwave } from 'flutterwave-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { payreg } from '../../settings/endpoint';
 import { fetchCoupon,appliedCouponFn } from '../../utils/api';
@@ -33,6 +34,8 @@ const PaymentScreen = ({
   const [paymentStatus, setPaymentStatus] = useState(PAYMENT_STATUS.IDLE);
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);
   const [showPaystack, setShowPaystack] = useState(false); // 👈 NEW
+  const [paymentMethod, setPaymentMethod] = useState('paystack'); // 'paystack' | 'flutterwave'
+  const [showFlutterwave, setShowFlutterwave] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [retryCount, setRetryCount] = useState(0);
   const [showRetryOption, setShowRetryOption] = useState(false);
@@ -41,7 +44,7 @@ const PaymentScreen = ({
  
 
   // ---------------- Process payment ----------------
-  const processPayment = async (transactionRef = null) => {
+  const processPayment = async (transactionRef = couponCode) => {
     setPaymentStatus(PAYMENT_STATUS.PROCESSING);
     setLoadingMessage('Processing your payment...');
     setPaymentError('');
@@ -176,9 +179,14 @@ const PaymentScreen = ({
       return;
     }
 
-    // Handle paid courses - show Paystack
-    console.log('Opening Paystack for payment...');
-    setShowPaystack(true);
+    // Handle paid courses - show selected gateway
+    if (paymentMethod === 'paystack') {
+      console.log('Opening Paystack for payment...');
+      setShowPaystack(true);
+      return;
+    }
+    console.log('Opening Flutterwave for payment...');
+    setShowFlutterwave(true);
   };
 
   // ---------------- Paystack success ----------------
@@ -228,7 +236,7 @@ const PaymentScreen = ({
                   <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 10 }}>Course Details</Text>
                   <Text style={{ fontSize: 14, marginBottom: 5 }}>Course: {courseInfo.course || courseInfo.c_course}</Text>
                   <Text style={{ fontSize: 14, marginBottom: 5 }}>Duration: {courseInfo.duration} weeks</Text>
-                  <Text style={{ fontSize: 14 }}>Class Type: {courseInfo.classtype}</Text>
+                  <Text style={{ fontSize: 14 }}>Class Type: {courseInfo.classType}</Text>
                 </View>
               )}
               <View style={{ marginBottom: 20, padding: 15, backgroundColor: '#f8f9fa', borderRadius: UI_CONFIG.BORDER_RADIUS }}>
@@ -250,6 +258,42 @@ const PaymentScreen = ({
                   <Text style={{ fontSize: 14, fontWeight: '600' }}>{studentid}</Text>
                 </View>
               </View>
+              {amount>0 &&
+                <View style={{ marginBottom: 20, padding: 15, backgroundColor: '#f8f9fa', borderRadius: UI_CONFIG.BORDER_RADIUS }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 10 }}>Payment Method</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <TouchableOpacity
+                    onPress={() => setPaymentMethod('paystack')}
+                    style={{
+                      flex: 1,
+                      marginRight: 6,
+                      padding: 12,
+                      borderWidth: paymentMethod === 'paystack' ? 2 : 1,
+                      borderColor: paymentMethod === 'paystack' ? UI_CONFIG.PRIMARY_COLOR : '#ddd',
+                      borderRadius: UI_CONFIG.BORDER_RADIUS,
+                      alignItems: 'center',
+                      backgroundColor: paymentMethod === 'paystack' ? '#eef2ff' : 'white'
+                    }}
+                  >
+                    <Text style={{ fontWeight: '600' }}>Paystack</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setPaymentMethod('flutterwave')}
+                    style={{
+                      flex: 1,
+                      marginLeft: 6,
+                      padding: 12,
+                      borderWidth: paymentMethod === 'flutterwave' ? 2 : 1,
+                      borderColor: paymentMethod === 'flutterwave' ? UI_CONFIG.PRIMARY_COLOR : '#ddd',
+                      borderRadius: UI_CONFIG.BORDER_RADIUS,
+                      alignItems: 'center',
+                      backgroundColor: paymentMethod === 'flutterwave' ? '#eef2ff' : 'white'
+                    }}
+                  >
+                    <Text style={{ fontWeight: '600' }}>Flutterwave</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>}
               <TouchableOpacity
                 onPress={handlePaymentConfirmation}
                 style={{
@@ -261,7 +305,8 @@ const PaymentScreen = ({
                 }}
               >
                 <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
-                  Proceed to Payment
+
+                  {amount>0?paymentMethod === 'paystack' ? 'Proceed to Paystack' : 'Proceed to Flutterwave':'Proceed to Enroll Now'}
                 </Text>
               </TouchableOpacity>
             </ScrollView>
@@ -379,20 +424,126 @@ const PaymentScreen = ({
 
       {/* 👇 Paystack only renders when Proceed is clicked */}
       {showPaystack && (
-        <Paystack
-          paystackKey={PAYMENT_CONFIG.PAYSTACK_PUBLIC_KEY}
-          amount={amount}
-          billingEmail={email}
-          currency={currency}
-          activityIndicatorColor={UI_CONFIG.PRIMARY_COLOR}
-          channels={PAYMENT_CONFIG.PAYMENT_CHANNELS}
-          onCancel={handleCancel}
-          onSuccess={handleSuccess}
-          autoStart={true}
-        />
+        <Modal transparent animationType="slide" visible={showPaystack}>
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ backgroundColor: 'white', borderRadius: UI_CONFIG.BORDER_RADIUS, padding: 20, width: '90%', maxWidth: 420 }}>
+              <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 12, textAlign: 'center' }}>Paystack Payment</Text>
+              <View style={{ marginBottom: 16 }}>
+                <Text style={{ textAlign: 'center', marginBottom: 8 }}>
+                  Pay {formatCurrency(amount, currency)} with Paystack
+                </Text>
+                <Paystack
+                  paystackKey={PAYMENT_CONFIG.PAYSTACK_PUBLIC_KEY}
+                  amount={amount}
+                  billingEmail={email}
+                  currency={currency}
+                  activityIndicatorColor={UI_CONFIG.PRIMARY_COLOR}
+                  channels={PAYMENT_CONFIG.PAYMENT_CHANNELS}
+                  onCancel={() => { setShowPaystack(false); handleCancel(); }}
+                  onSuccess={handleSuccess}
+                  autoStart={true}
+                  refNumber={`PaystackMobile_${Date.now()}`}
+                />
+              </View>
+              <TouchableOpacity
+                onPress={() => { setShowPaystack(false); handleCancel(); }}
+                style={{ backgroundColor: '#f3f4f6', padding: 10, borderRadius: UI_CONFIG.BORDER_RADIUS, alignItems: 'center' }}
+              >
+                <Text style={{ color: '#111827', fontWeight: '600' }}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+      {showFlutterwave && (
+        <Modal transparent animationType="slide" visible={showFlutterwave}>
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ backgroundColor: 'white', borderRadius: UI_CONFIG.BORDER_RADIUS, padding: 20, width: '90%', maxWidth: 420 }}>
+              <Text style={{ fontSize: 18, fontWeight: '700', marginBottom: 12, textAlign: 'center' }}>Flutterwave Payment</Text>
+              <View style={{ marginBottom: 16 }}>
+                <Text style={{ textAlign: 'center', marginBottom: 8 }}>
+                  Pay {formatCurrency(amount, currency)} with Flutterwave
+                </Text>
+                <PayWithFlutterwave
+                  options={{
+                    tx_ref: `${'FlutterMobile'}+${studentid || 'tx'}_${Date.now()}`,
+                    authorization: PAYMENT_CONFIG.FLUTTERWAVE_PUBLIC_KEY,
+                    amount: Number(amount),
+                    currency,
+                    payment_options: 'card,banktransfer,ussd',
+                    customer: {
+                      email,
+                      phonenumber: '',
+                      name: courseInfo?.course || courseInfo?.c_course || 'Course Payment',
+                    },
+                    customizations: {
+                      title: 'Certmart Payment',
+                      description: 'Course payment',
+                      logo: 'https://certmart.org/favicon.ico',
+                    },
+                  }}
+                  onRedirect={async (data) => {
+                    console.log(data)
+                    // data.status: 'successful' | 'cancelled'
+                    if (data?.status === 'completed' || data?.status==='successful') {
+                      if (loadingTimeout) clearTimeout(loadingTimeout);
+                      setLoadingMessage('Verifying payment...');
+                      setShowFlutterwave(false);
+                      await processPayment(data?.tx_ref || data?.transaction_id);
+                    } else {
+                      if (loadingTimeout) clearTimeout(loadingTimeout);
+                      setLoadingMessage('Payment failed');
+                      setShowFlutterwave(false);
+                      handleCancel();
+                    }
+                  }}
+                   customButton={(props) => (
+    <TouchableOpacity
+      style={styles.paymentButton}
+      onPress={props.onPress}
+      isBusy={props.isInitializing}
+      disabled={props.disabled}>
+        <Text style={styles.paymentButtonText}>Pay {formatCurrency(amount, currency)}</Text>
+    </TouchableOpacity>
+  )}
+                
+                />
+              </View>
+              <TouchableOpacity
+                onPress={() => setShowFlutterwave(false)}
+                style={{ backgroundColor: '#f3f4f6', padding: 10, borderRadius: UI_CONFIG.BORDER_RADIUS, alignItems: 'center' }}
+              >
+                <Text style={{ color: '#111827', fontWeight: '600' }}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       )}
     </View>
   );
 };
 
 export default PaymentScreen;
+
+const styles = StyleSheet.create({
+  paymentButton: {
+    backgroundColor: UI_CONFIG.PRIMARY_COLOR,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: UI_CONFIG.BORDER_RADIUS,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  paymentButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+});

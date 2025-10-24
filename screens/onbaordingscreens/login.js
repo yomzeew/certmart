@@ -21,7 +21,8 @@ const Login = () => {
     const [showForgotPass, setShowForgotPass] = useState(false);
     const navigation = useNavigation();
     const route = useRoute();
-    const { platform } = route.params || "student";
+    //const { platform } = route.params || "student";
+    const platform  = "student";
 
     const handlePrevPage = () => {
         navigation.goBack();

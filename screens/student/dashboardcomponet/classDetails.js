@@ -3,8 +3,8 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { SafeAreaView, View, Text, Linking, ScrollView, TouchableOpacity, Modal, Dimensions,Vibration,TextInput, Keyboard, TouchableWithoutFeedback } from "react-native";
 import { Avatar, Divider } from "react-native-paper";
 import { colorred } from "../../../constant/color";
-import { useState } from "react";
-import { endClassFn, reviewFn,ratingFn } from "../../../utils/api";
+import { useState, useEffect } from "react";
+import { endClassFn, reviewFn,ratingFn, classesStatusFn, examEnrollFn } from "../../../utils/api";
 import moment from "moment";
 import { FontAwesome } from "@expo/vector-icons";
 import showToast from "../../../utils/showToast";
@@ -12,9 +12,11 @@ import { styles } from "../../../settings/layoutsetting";
 
 const ClassesDetails = () => {
      const { height } = Dimensions.get("window");
+    
      const route = useRoute();
         const navigation = useNavigation();
         const { item } = route.params;
+        console.log(item,'item trainerDp')
         const [selectedItem, setSelectedItem] = useState(null);
         const [modalVisible, setModalVisible] = useState(false);
         const [showEndClassModal, setShowEndClassModal] = useState(false);
@@ -22,6 +24,8 @@ const ClassesDetails = () => {
         const [showReviewModal, setShowReviewModal] = useState(false);
         const [experience, setExperience]=useState("")
         const [rating,setRating]=useState(1)
+        const [getStatus,setGetStatus]=useState("")
+
     const handleEmailPress = () => {
         Linking.openURL(`mailto:${item.trainerEmail}`);
     };
@@ -30,12 +34,53 @@ const ClassesDetails = () => {
         Linking.openURL(`tel:${item.trainerPhone}`);
     };
 
+
     const startDate = moment(item.startdate.split(" ")[0], "YYYY-MM-DD");
     const today = moment();
     const totalWeeks = item.duration;
     const totalDays = totalWeeks * 7; // Convert weeks to days
     const daysUsed = today.diff(startDate, "days");
     const percentageUsed = Math.min((daysUsed / totalDays) * 100, 100);
+
+    // get status 
+
+    const getStatusFn = async () => {
+        try {
+            const response = await classesStatusFn(item?.registrationid);
+            if (response && !response.error) {
+                console.log(response,'check')
+                const status=response?.data?.status
+                setGetStatus(status)
+            } else {
+                setGetStatus("")
+                return 
+            }
+        } catch (error) {
+            console.log("Error getting status:", error);
+            return "Unknown";
+        }
+    };
+
+    useEffect(() => {
+        getStatusFn();
+    }, [item]);
+
+    const enrollFn=async()=>{
+        try {
+            const response = await examEnrollFn(item?.registrationid);
+            if (response && !response.error) {
+                await getStatusFn()
+                showToast("success","Successful","Class enrolled successfully")
+                //navigation.goBack(); // Go back to classes list after enrollment
+               
+            } else {
+                showToast("error","Failed",response?.error)
+                console.error("Failed to enroll in class:", response?.error);
+            }
+        } catch (error) {
+            console.log("Error enrolling in class:", error);
+        }
+    }
 
     const handleEndClass = (item) => {
         setSelectedItem(item);
@@ -46,7 +91,11 @@ const ClassesDetails = () => {
 
 
     const confirmEndClass = async () => {
-        console.log(item)
+        console.log(item.endclassstudent)
+        if(item.endclassstudent==1){
+            showToast("error","You have already marked this class as ended")
+            return
+        }
         try {
             const response = await endClassFn(item?.registrationid);
             if (response && !response.error) {
@@ -295,7 +344,7 @@ const ClassesDetails = () => {
                      <Divider style={{marginVertical:10,backgroundColor:colorred}}/>
                     </View>
                         <View style={{ flex: 1 }}>
-        <ScrollView style={{ flex: 1, paddingHorizontal: 12 }} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 160 }} style={{ flex: 1, paddingHorizontal: 12 }} showsVerticalScrollIndicator={false}>
         <View style={{
             backgroundColor: 'white',
             borderRadius: 24,
@@ -309,17 +358,11 @@ const ClassesDetails = () => {
         }}>
             {/* Header Section with Trainer Info */}
             <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                {item.trainerDp ? (
+                {item.trainerDp &&(
                     <Avatar.Image
                         source={{
                             uri: `https://certmart.org/dps/${item.trainerDp}.jpg?timestamp=${new Date().getTime()}`,
                         }}
-                        size={80}
-                        style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }}
-                    />
-                ) : (
-                    <Avatar.Image
-                        source={require("../../images/avatermale.png")}
                         size={80}
                         style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }}
                     />
@@ -421,12 +464,12 @@ const ClassesDetails = () => {
             </View>
 
             <DayBooks day={item.days} />
-            {item.endclassstudent === 0 &&
+            {getStatus==="ongoing" &&
             <TouchableOpacity
                 onPress={() => handleEndClass(item.eventId)}
                 style={{
                     marginTop: 16,
-                    backgroundColor: '#F97316',
+                    backgroundColor:`${item.endclassstudent===1 ? 'rgba(249, 115, 22, 0.5)' : '#F97316'}`,
                     paddingVertical: 12,
                     borderRadius: 12,
                     alignItems: 'center',
@@ -435,12 +478,14 @@ const ClassesDetails = () => {
                     shadowOpacity: 0.2,
                     shadowRadius: 4
                 }}
+                disabled={item.endclassstudent===1}
             >
-                <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>End Class</Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>{item.endclassstudent===1 ? 'Class Ended' : 'End Class'}</Text>
             </TouchableOpacity>}
-            {item.endclassstudent === 1 && 
+            {getStatus === 'ended' && 
+            <>
              <TouchableOpacity
-             onPress={() => setShowRatingModal(true)}
+             onPress={() => enrollFn()}
              style={{
                  marginTop: 16,
                  backgroundColor: '#F97316',
@@ -453,8 +498,26 @@ const ClassesDetails = () => {
                  shadowRadius: 4
              }}
          >
-             <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>Give Rating and Feedback </Text>
+             <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>Enroll for an Exam</Text>
          </TouchableOpacity>
+             <TouchableOpacity
+             onPress={() => setShowRatingModal(true)}
+             style={{
+                 marginTop: 16,
+                 backgroundColor: '#ffffff',
+                 paddingVertical: 12,
+                 borderRadius: 12,
+                 alignItems: 'center',
+                 shadowColor: '#F97316',
+                 shadowOffset: { width: 0, height: 2 },
+                 shadowOpacity: 0.2,
+                 shadowRadius: 4
+             }}
+         >
+             <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'orange' }}>Give Rating and Feedback </Text>
+         </TouchableOpacity>
+         </>
+         
 
 }
         </View>

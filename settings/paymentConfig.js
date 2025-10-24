@@ -2,6 +2,9 @@ export const PAYMENT_CONFIG = {
   PAYSTACK_PUBLIC_KEY: __DEV__
     ? "pk_live_100d4761c8c122fe96c5e9d78e69265add54306b"  // Replace with your test key
     : "pk_live_100d4761c8c122fe96c5e9d78e69265add54306b", // Move to secure env in production
+  FLUTTERWAVE_PUBLIC_KEY: __DEV__
+    ?"FLWPUBK-74b0d6fda84c5308c666b3ba32ed316f-X"// "FLWPUBK_TEST-6b6f14ccde7c9436c92fd88e5d3a5958-X" //"FLWPUBK-74b0d6fda84c5308c666b3ba32ed316f-X"  // Replace with your Flutterwave TEST public key
+    : "FLWPUBK-74b0d6fda84c5308c666b3ba32ed316f-X", //"FLWPUBK_TEST-6b6f14ccde7c9436c92fd88e5d3a5958-X", // Move to secure env in production
 
   // Payment timeout settings
   PAYMENT_TIMEOUT: 360000, // 6 minutes

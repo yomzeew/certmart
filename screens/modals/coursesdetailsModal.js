@@ -11,6 +11,7 @@ import { FontAwesome, FontAwesome5, AntDesign } from "@expo/vector-icons";
 import { Avatar } from "react-native-paper";
 
 export const CourseDetailsModal = ({ content, setshowcontent, showcontent }) => {
+  console.log(content,'content')
   const handleshow = () => {
     setshowcontent(!showcontent);
   };

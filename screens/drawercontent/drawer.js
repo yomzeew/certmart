@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Avatar, Divider } from "react-native-paper";
-import { SafeAreaView, View, Text, TouchableOpacity } from "react-native";
+import { SafeAreaView, View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { FontAwesome5, FontAwesome } from "@expo/vector-icons";
 import { colorred, colorwhite, lightred } from "../../constant/color";
 import { styles } from "../../settings/layoutsetting";
@@ -98,24 +98,25 @@ const CustomDrawer = (props) => {
           />
         )}
         <View className="w-2" />
-        <Text style={{ fontSize: 18 }} className="font-light text-white">
+        <Text style={{ fontSize: 16 }} className="font-light text-white">
           Welcome {Firstname}.
         </Text>
       </View>
-      <View className="flex-1 mt-3 px-6">
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
+      <View className="mt-3 px-6">
         <TouchableOpacity
           onPress={() => handlePress("dashboardstudent", "home")}
           style={[getItemStyle("home"), styles.item]}
           className="rounded-2xl h-10 flex px-3 flex-row items-center"
         >
           <FontAwesome5
-            size={20}
+            size={18}
             color={getItemIconColor("home")}
             name="home"
           />
           <View className="w-2" />
           <Text
-            style={{ fontSize: 16, color: getItemTextColor("home") }}
+            style={{ fontSize: 14, color: getItemTextColor("home") }}
             className="text-white"
           >
             Home
@@ -127,13 +128,13 @@ const CustomDrawer = (props) => {
           className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
         >
           <FontAwesome5
-            size={20}
+            size={18}
             color={getItemIconColor("studentProfile")}
             name="user"
           />
           <View className="w-2" />
           <Text
-            style={{ fontSize: 16, color: getItemTextColor("studentProfile") }}
+            style={{ fontSize: 14, color: getItemTextColor("studentProfile") }}
             className="text-black"
           >
             Student Profile
@@ -145,13 +146,13 @@ const CustomDrawer = (props) => {
           className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
         >
           <FontAwesome
-            size={20}
+            size={18}
             color={getItemIconColor("applyForCourse")}
             name="pencil"
           />
           <View className="w-2" />
           <Text
-            style={{ fontSize: 16, color: getItemTextColor("applyForCourse") }}
+            style={{ fontSize: 14, color: getItemTextColor("applyForCourse") }}
             className="text-black"
           >
             Apply for Course
@@ -163,14 +164,14 @@ const CustomDrawer = (props) => {
           className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
         >
           <FontAwesome5
-            size={20}
+            size={18}
             color={getItemIconColor("checkApplicationStatus")}
             name="eye"
           />
           <View className="w-2" />
           <Text
             style={{
-              fontSize: 16,
+              fontSize: 14,
               color: getItemTextColor("checkApplicationStatus"),
             }}
             className="text-black"
@@ -184,13 +185,13 @@ const CustomDrawer = (props) => {
           className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
         >
           <FontAwesome5
-            size={20}
+            size={18}
             color={getItemIconColor("registration")}
             name="book"
           />
           <View className="w-2" />
           <Text
-            style={{ fontSize: 16, color: getItemTextColor("registration") }}
+            style={{ fontSize: 14, color: getItemTextColor("registration") }}
             className="text-black"
           >
             Registration
@@ -202,13 +203,13 @@ const CustomDrawer = (props) => {
           className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
         >
           <FontAwesome5
-            size={20}
+            size={18}
             color={getItemIconColor("classes")}
             name="home"
           />
           <View className="w-2" />
           <Text
-            style={{ fontSize: 16, color: getItemTextColor("classes") }}
+            style={{ fontSize: 14, color: getItemTextColor("classes") }}
             className="text-black"
           >
             Classes
@@ -220,16 +221,34 @@ const CustomDrawer = (props) => {
           className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
         >
           <FontAwesome5
-            size={20}
+            size={18}
             color={getItemIconColor("eResources")}
             name="file"
           />
           <View className="w-2" />
           <Text
-            style={{ fontSize: 16, color: getItemTextColor("eResources") }}
+            style={{ fontSize: 14, color: getItemTextColor("eResources") }}
             className="text-black"
           >
             E-Resources
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={()=>handlePress('exam','exam')}
+          style={[getItemStyle("exam"), styles.item]}
+          className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
+        >
+          <FontAwesome5
+            size={18}
+            color={getItemIconColor("exam")}
+            name="clipboard-list"
+          />
+          <View className="w-2" />
+          <Text
+            style={{ fontSize: 14, color: getItemTextColor("exam") }}
+            className="text-black"
+          >
+           Exam
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -238,13 +257,13 @@ const CustomDrawer = (props) => {
           className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
         >
           <FontAwesome5
-            size={20}
+            size={18}
             color={getItemIconColor("certificates")}
             name="comment"
           />
           <View className="w-2" />
           <Text
-            style={{ fontSize: 16, color: getItemTextColor("certificates") }}
+            style={{ fontSize: 14, color: getItemTextColor("certificates") }}
             className="text-black"
           >
             Certificates
@@ -256,13 +275,13 @@ const CustomDrawer = (props) => {
           className="rounded-2xl h-10 flex px-3 flex-row items-center mt-3"
         >
           <FontAwesome5
-            size={20}
+            size={18}
             color={getItemIconColor("issues")}
             name="certificate"
           />
           <View className="w-2" />
           <Text
-            style={{ fontSize: 16, color: getItemTextColor("issues") }}
+            style={{ fontSize: 14, color: getItemTextColor("issues") }}
             className="text-black"
           >
             Issues
@@ -270,27 +289,38 @@ const CustomDrawer = (props) => {
         </TouchableOpacity>
       </View>
 
-      <View className="mb-20">
+      <View className="mb-16 mt-3">
  <View className="px-4 ">
         <TouchableOpacity onPress={()=>handleShare()} className="flex flex-row">
-          <FontAwesome size={20} color={colorred} name="share" />
+          <FontAwesome size={18} color={colorred} name="share" />
           <View className="w-2" />
-          <Text style={{ fontSize: 16 }}>Tell a Friend</Text>
+          <Text style={{ fontSize: 14 }}>Tell a Friend</Text>
         </TouchableOpacity>
+      </View>
+      <View className="px-4 mt-5">
+        <TouchableOpacity
+          onPress={() => handlePress("changepassword", "changepassword")}
+          className="flex flex-row"
+        >
+          <FontAwesome size={18} color={colorred} name="lock" />
+          <View className="w-2" />
+          <Text style={{ color: colorred, fontSize: 14 }}>Change Password</Text>
+        </TouchableOpacity>
+        <Divider className="border-1 bg-red-300 border-red-200 w-full mt-3" />
       </View>
       <View className="px-4 mt-5">
         <TouchableOpacity
           onPress={() => handlePress("login", "logout")}
           className="flex flex-row"
         >
-          <FontAwesome size={20} color={colorred} name="sign-out" />
+          <FontAwesome size={18} color={colorred} name="sign-out" />
           <View className="w-2" />
-          <Text style={{ color: colorred, fontSize: 16 }}>Logout</Text>
+          <Text style={{ color: colorred, fontSize: 14 }}>Logout</Text>
         </TouchableOpacity>
         <Divider className="border-1 bg-red-300 border-red-200 w-full mt-3" />
       </View>
       </View>
-     
+      </ScrollView>
     </View>
   );
 };

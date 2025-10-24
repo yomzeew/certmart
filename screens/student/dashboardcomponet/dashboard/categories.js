@@ -114,7 +114,7 @@ const CourseCard = ({ item, handlepickvalue, isSelected }) => {
         )}
         <Text
           style={{
-            fontSize: 16,
+            fontSize: 12,
             fontWeight: "600",
             color: textColor,
             textAlign: "center",

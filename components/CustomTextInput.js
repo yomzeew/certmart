@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TextInput as RNTextInput } from 'react-native-paper';
 import { colorred } from '../constant/color';
 
@@ -23,6 +23,9 @@ const CustomTextInput = ({
     }
   };
 
+  // Track password visibility locally when secureTextEntry is enabled
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <RNTextInput
       label={label}
@@ -30,13 +33,24 @@ const CustomTextInput = ({
       onChangeText={onChangeText}
       mode={mode}
       theme={customTheme}
-      secureTextEntry={secureTextEntry}
+      secureTextEntry={secureTextEntry && !showPassword}
       style={{
         backgroundColor: '#ffffff', // Force white background
       }}
       underlineColor="transparent"
       activeUnderlineColor={colorred}
       textColor="#000000"
+      right={
+        secureTextEntry
+          ? (
+            <RNTextInput.Icon
+              icon={showPassword ? 'eye-off' : 'eye'}
+              onPress={() => setShowPassword((prev) => !prev)}
+              forceTextInputFocus={false}
+            />
+          )
+          : null
+      }
       {...props}
     />
   );

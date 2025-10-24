@@ -219,9 +219,6 @@ const CertificateCard = ({ item }) => {
                     <Text className="text-sm text-gray-700">
                         <Text className="font-medium">Address:</Text> {item.c_address}
                     </Text>
-                    <Text className="text-sm text-gray-700">
-                        <Text className="font-medium">Code:</Text> {item.centrecode}
-                    </Text>
                 </View>
             </View>
 
@@ -231,13 +228,7 @@ const CertificateCard = ({ item }) => {
                     <View className="flex-row items-center">
                         <FontAwesome5 name="id-badge" size={12} color="#6b7280" />
                         <Text className="text-xs text-gray-600 ml-1">
-                            Event ID: {item.eventid}
-                        </Text>
-                    </View>
-                    <View className="flex-row items-center">
-                        <FontAwesome5 name="hashtag" size={12} color="#6b7280" />
-                        <Text className="text-xs text-gray-600 ml-1">
-                            Reg ID: {item.registrationid}
+                            Event ID: {'#CM-'+item.eventid}
                         </Text>
                     </View>
                     <View className="flex-row items-center">

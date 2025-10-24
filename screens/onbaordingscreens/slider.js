@@ -6,6 +6,7 @@ import { StatusBar } from "expo-status-bar";
 import Sliderone from "./sliderone";
 import Slidertwo from "./slidertwo";
 import Sliderthree from "./sliderthree";
+import { styles } from "../../settings/layoutsetting";
 
 const Slider = ({navigation}) => {
   const [count, setCount] = useState(1);

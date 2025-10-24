@@ -23,12 +23,14 @@ const ApplicationCheckers = () => {
     const [showLoader, setShowLoader] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [data, setData] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
 
     const fetchData = useCallback(async () => {
         try {
             setShowLoader(true);
             const response = await fetchCourseStatus();
-            console.log(response,'responsejjjjj')
+            console.log(response,'responsejjjj')
             setData(response);
             setCoursesData(response); // Default to all
         } catch (error) {
@@ -59,7 +61,15 @@ const ApplicationCheckers = () => {
         [data]
     );
 
-    const renderItem = ({ item }) => <ApplicationCard item={item} />;
+    const renderItem = ({ item }) => (
+        <ApplicationCard
+            item={item}
+            onViewDetails={() => {
+                setSelectedItem(item);
+                setShowModal(true);
+            }}
+        />
+    );
 
     return (
         <>
@@ -157,7 +167,7 @@ const ApplicationCheckers = () => {
                                 </Text>
                             </View>
                         )}
-                        contentContainerStyle={{ padding: 16 }}
+                        contentContainerStyle={{ paddingBottom:160, paddingHorizontal:16, paddingTop:16 }}
                         refreshControl={
                             <RefreshControl
                                 refreshing={refreshing}
@@ -167,13 +177,23 @@ const ApplicationCheckers = () => {
                         }
                         showsVerticalScrollIndicator={false}
                     />
+                    {showModal && selectedItem && (
+                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' }}>
+                            <TouchableOpacity
+                                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                                onPress={() => setShowModal(false)}
+                                activeOpacity={1}
+                            />
+                            <CoursesVerifyModal data={selectedItem} />
+                        </View>
+                    )}
                 </SafeAreaView>
             </View>
         </>
     );
 };
 
-const ApplicationCard = ({ item }) => {
+const ApplicationCard = ({ item, onViewDetails }) => {
     // Get status color
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
@@ -203,6 +223,8 @@ const ApplicationCard = ({ item }) => {
         return `${item.state || ''}, ${item.country || ''}`.replace(/^,|,$/g, '');
     };
 
+    const displayCode = item.courseCode || item.course_code || item.code || item.courseid;
+
     return (
         <View className="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 overflow-hidden">
             {/* Header */}
@@ -213,7 +235,7 @@ const ApplicationCard = ({ item }) => {
                             {item.course}
                         </Text>
                         <Text className="text-sm text-gray-600">
-                            ID: {item.courseid}
+                            #{displayCode}
                         </Text>
                     </View>
                     <View
@@ -245,33 +267,18 @@ const ApplicationCard = ({ item }) => {
                         </Text>
                     </View>
 
-                    <View className="flex-row items-center">
+                    {/* <View className="flex-row items-center">
                         <FontAwesome5 name={getClassTypeIcon(item.classType)} size={12} color="#6b7280" />
                         <Text className="text-sm text-gray-600 ml-2">
                             Class Type: {item.classType}
                         </Text>
-                    </View>
+                    </View> */}
 
-                    <View className="flex-row items-center">
-                        <FontAwesome5 name="id-card" size={12} color="#6b7280" />
-                        <Text className="text-sm text-gray-600 ml-2">
-                            CV: {item.cv}
-                        </Text>
-                    </View>
+                    
                 </View>
             </View>
 
-            {/* Comment Section */}
-            {item.comment && item.comment !== 'Nil' && (
-                <View className="px-4 py-2 bg-blue-50">
-                    <View className="flex-row items-start">
-                        <FontAwesome5 name="comment" size={12} color="#3b82f6" />
-                        <Text className="text-sm text-gray-700 ml-2 flex-1">
-                            {item.comment}
-                        </Text>
-                    </View>
-                </View>
-            )}
+            
 
             {/* Decision Comment */}
             {item.decisioncomment && item.decisioncomment !== 'add decision comment' && (
@@ -293,10 +300,12 @@ const ApplicationCard = ({ item }) => {
                         Student ID: {item.studentid}
                     </Text>
                 </View>
-                <View className="flex-row items-center">
-                    <FontAwesome5 name="eye" size={12} color="#3b82f6" />
-                    <Text className="text-xs text-blue-600 ml-1 font-medium">View Details</Text>
-                </View>
+                <TouchableOpacity onPress={onViewDetails}>
+                    <View className="flex-row items-center">
+                        <FontAwesome5 name="eye" size={12} color="#3b82f6" />
+                        <Text className="text-xs text-blue-600 ml-1 font-medium">View Details</Text>
+                    </View>
+                </TouchableOpacity>
             </View>
         </View>
     );

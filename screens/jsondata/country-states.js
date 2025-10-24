@@ -28,6 +28,40 @@ export const getallcountries = async () => {
   }
 };
 
+// country by id
+export const getcountrybyid = async (countryid = 160) => {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await axios.get(`${countrieslist}`, { headers });
+    const list = response?.data?.data ?? response?.data ?? [];
+    const idNum = Number(countryid);
+    const match = Array.isArray(list)
+      ? list.find((item) => Number(item?.id) === idNum)
+      : null;
+    return match || null;
+  } catch (error) {
+    console.error("Error fetching countries:", error.message);
+    return null;
+  }
+};
+
+export const getstatebyid = async (stateid,countryid) => {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await axios.get(`${statelist}/${countryid}`, { headers });
+    const list = response?.data?.data ?? response?.data ?? [];
+    const idNum = Number(stateid);
+    const match = Array.isArray(list)
+      ? list.find((item) => Number(item?.id) === idNum)
+      : null;
+    return match || null;
+  } catch (error) {
+    console.error("Error fetching states:", error.message);
+    return null;
+  }
+};
+
+
 export const getallstates = async (country) => {
   try {
     const headers = await getAuthHeaders();

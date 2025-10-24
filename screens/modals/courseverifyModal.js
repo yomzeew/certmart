@@ -38,6 +38,13 @@ const CoursesVerifyModal = ({ data }) => {
               {data.classType}
             </Text>
           </View>
+          {data.comment && data.comment !== 'Nil' && (
+            <View className="mt-3">
+              <Text style={{ fontSize: 14 }} className="text-center">
+                {data.comment}
+              </Text>
+            </View>
+          )}
           
         </View>
       </View>

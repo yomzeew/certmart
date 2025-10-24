@@ -25,27 +25,38 @@ const TrainerProfile = () => {
     const [trainerData, setTrainerData] = useState({});
     const [courses, setCourses] = useState([]);
 
-    const fetchData = async () => {
-        try {
-            setShowLoader(true);
-            const data = await fetchTrainerProfile(trainerid);
-            setTrainerData({
-                dp: data.dp,
-                surname: data.surname,
-                firstname: getFirstLetter(data.firstname),
-                fullName: data.firstname,
-                gender: data.gender,
-                dob: convertDate(data.dob),
-                phone: data.phone,
-                email: data.email,
-            });
-            setCourses(data.availabilities ?? []);
-        } catch (error) {
-            console.error("Trainer fetch error:", error.message);
-        } finally {
-            setShowLoader(false);
-        }
-    };
+const fetchData = async () => {
+  try {
+    setShowLoader(true);
+    const data = await fetchTrainerProfile(trainerid);
+    console.log(data, "ffff");
+
+    // set trainer details
+    setTrainerData({
+      dp: data.dp || trainerdp,
+      surname: data.surname,
+      firstname: getFirstLetter(data.firstname),
+      fullName: data.firstname,
+      gender: data.gender,
+      dob: convertDate(data.dob),
+      phone: data.phone,
+      email: data.email,
+      trainerid: data.trainerid,
+    });
+
+    // add trainerdp as dp key in availabilities
+    const coursesWithDp = (data.availabilities ?? []).map((course) => ({
+      ...course,
+      dp: trainerdp, // ✅ key is dp
+    }));
+
+    setCourses(coursesWithDp);
+  } catch (error) {
+    console.error("Trainer fetch error:", error.message);
+  } finally {
+    setShowLoader(false);
+  }
+};
 
     useEffect(() => {
         fetchData();
@@ -125,7 +136,7 @@ const TrainerProfile = () => {
                             <KeyValue left="Gender" right={trainerData.gender} />
                             <Divider style={{ marginVertical: 12 }} />
                             <SectionTitle title="Courses" />
-                            <CoursesCard courses={courses} />
+                            <CoursesCard courses={courses} setshowpayment={setShowPayment} setSelected={setSelected} />
                         </ScrollView>
                     </View>
                 </View>
@@ -150,17 +161,18 @@ const KeyValue = ({ left, right }) => (
     </View>
 );
 
-const CoursesCard = ({ courses = [] }) => {
+const CoursesCard = ({ courses = [],setshowpayment,setSelected }) => {
     if (!courses.length) {
         return <Text className="text-slate-500 italic">No courses found.</Text>;
     }
+    
 
     return (
         <FlatList
             data={courses}
             keyExtractor={(_, idx) => idx.toString()}
             scrollEnabled={false}
-            renderItem={({ item }) => <CourseItem course={item} />}
+            renderItem={({ item }) => <CourseItem course={item} setshowpayment={setshowpayment} setSelected={setSelected} />}
             ItemSeparatorComponent={() => <Divider style={{ marginVertical: 10 }} />}
         />
     );
@@ -172,7 +184,8 @@ const MetaChip = ({ label }) => (
     </View>
 );
 
-const CourseItem = ({ course }) => {
+const CourseItem = ({ course,setshowpayment,setSelected }) => {
+
     const bannerUri = course?.banner
         ? `https://certmart.org/${course.banner.startsWith("/") ? course.banner.slice(1) : course.banner}`
         : null;
@@ -197,11 +210,20 @@ const CourseItem = ({ course }) => {
             </View>
             <View className="flex-row flex-wrap mb-2">
                 <MetaChip label={course.classType} />
-                <MetaChip label={`₦${Number(course.c_cost).toLocaleString()}`} />
-                <MetaChip label={`${course.c_duration} wk`} />
+                <MetaChip label={`₦${Number(course.price).toLocaleString()}`} />
+                <MetaChip label={`${course.ta_duration} wk`} />
                 {course.days ? <MetaChip label={course.days.trim()} /> : null}
             </View>
             <Text className="text-sm text-slate-600">{course.details || course.description}</Text>
+              <TouchableOpacity
+        onPress={() => {
+          setshowpayment(true);
+          setSelected(course)
+        }}
+        className="bg-red-500 rounded-xl px-4 py-2 self-start"
+      >
+        <Text className="text-white font-semibold text-sm">Register</Text>
+      </TouchableOpacity>
         </View>
     );
 };
