@@ -61,15 +61,25 @@ const RegisterPage = () => {
             Agreement: true,
         };
 
-        try {
-            setshowloader(true);
-            await registerUser(data); // Use the registerUser function
-            setshowsuccessmodal(true);
-        } catch (error) {
-            seterrormsg(error.message);
-        } finally {
-            setshowloader(false);
-        }
+       try {
+  setshowloader(true);
+  const response = await registerUser(data); // Use the registerUser function
+  console.log("✅ Backend response:", response);
+  setshowsuccessmodal(true);
+} catch (error) {
+  console.log("❌ Error during registration:", error?.response?.data || error);
+  
+  // Handle backend-provided error message
+  if (error.response && error.response.data) {
+    // If backend sends message as { message: "something went wrong" }
+    seterrormsg(error.response.data.message || JSON.stringify(error.response.data));
+  } else {
+    // Otherwise show a fallback
+    seterrormsg(error.message || "An unexpected error occurred");
+  }
+} finally {
+  setshowloader(false);
+}
     };
 
     const handleaction = () => {

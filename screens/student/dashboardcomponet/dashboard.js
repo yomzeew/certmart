@@ -1,5 +1,7 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import NetInfo from '@react-native-community/netinfo';
+import showToast from '../../../utils/showToast';
 import {
   SafeAreaView,
   View,
@@ -45,8 +47,42 @@ import NextClassAppointment from "./dashboard/nextClassAppointment";
 import ImageDisplay from "../../modals/imageDisplay";
 
 const Dashboard = () => {
-  const navigation = useNavigation();
+    const [isConnected, setIsConnected] = useState(true);
+    
+    // Check network status on component mount and focus
+    useFocusEffect(
+    useCallback(() => {
+      const checkNetwork = async () => {
+        const netInfoState = await NetInfo.fetch();
+        setIsConnected(netInfoState.isConnected);
 
+        if (!netInfoState.isConnected) {
+          showToast(
+            "error",
+            "No Internet Connection",
+            "Some features may not be available"
+          );
+        }
+      };
+
+      checkNetwork();
+
+      // Subscribe to network state updates
+      const unsubscribe = NetInfo.addEventListener((state) => {
+        setIsConnected(state.isConnected);
+        if (!state.isConnected) {
+          showToast(
+            "error",
+            "No Internet Connection",
+            "Some features may not be available"
+          );
+        }
+      });
+
+      return () => unsubscribe();
+    }, []))
+  
+  const navigation = useNavigation();
   if (!navigation) {
     console.warn("Navigation context not available");
     return null;

@@ -134,22 +134,20 @@ export const CourseDetailsModal = ({ content, setshowcontent, showcontent }) => 
 
           {/* Pricing */}
           <View className="px-6 mt-4 flex-row justify-between items-center">
-            <View>
-              <Text className="text-xs text-gray-500">Course Cost</Text>
-              <Text className="text-lg font-bold text-gray-600 line-through">
-                ₦
-                {content?.course_cost
-                  ? parseFloat(content.course_cost).toLocaleString()
-                  : "0"}
+            {parseFloat(content?.offer || '1') < 1 && (
+              <View>
+                <Text className="text-xs text-gray-500">Course Cost</Text>
+                <Text className="text-lg font-bold text-gray-600 line-through">
+                  ₦{content?.taval_cost ? parseFloat(content.taval_cost).toLocaleString() : "0"}
+                </Text>
+              </View>
+            )}
+            <View className={`items-end ${parseFloat(content?.offer || '1') < 1 ? '' : 'w-full'}`}>
+              <Text className="text-xs text-gray-500">
+                {parseFloat(content?.offer || '1') < 1 ? 'Offer Price' : 'Course Price'}
               </Text>
-            </View>
-            <View className="items-end">
-              <Text className="text-xs text-gray-500">Offer Price</Text>
               <Text className="text-2xl font-bold text-green-600">
-                ₦
-                {content?.price
-                  ? parseFloat(content.price).toLocaleString()
-                  : "0"}
+                ₦{content?.price ? parseFloat(content.price).toLocaleString() : "0"}
               </Text>
             </View>
           </View>

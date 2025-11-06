@@ -11,6 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "jsEngine": "hermes",
     "plugins": [
       [
         "expo-document-picker"
@@ -18,7 +19,14 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app accesses your photos to let you set your profile picture."
+          "photosPermission": "The app needs access to your photos to let you set your profile picture.",
+          "cameraPermission": "The app needs access to your camera to take a profile picture.",
+          "allowsEditing": true,
+          "allowsMultipleSelection": false,
+          "mediaTypes": "Images",
+          "android": {
+            "useMediaPicker": true
+          }
         }
       ],
       [
@@ -27,6 +35,17 @@
           "icon": "./assets/icon.png",
           "color": "#ffffff",
           "defaultChannel": "default"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "minifyEnabled": true,
+            "shrinkResources": true,
+            "proguardRules": "-keep class com.facebook.** { *; }\n-keep class com.facebook.react.** { *; }\n-keep class androidx.** { *; }\n# keep RN bridge, don't obfuscate methods used by reflection\n-keepclassmembers class * {\n  @android.webkit.JavascriptInterface <methods>;\n}"
+          }
         }
       ]
     ],

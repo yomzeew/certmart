@@ -1,20 +1,20 @@
-export const BaseURi = `https://certmart.org/backend/api/v1`;
+const baseUrl = process.env.EXPO_PUBLIC_BASE_URL;
+export const BaseURi = baseUrl;
 export const registerstudent = `${BaseURi}/students`;
 export const loginstudent = `${BaseURi}/students/login`;
 export const updatedetails = `${BaseURi}/students`;
 export const updateProfilePic = `${BaseURi}/upload`;
 export const uploadcvurl = `${BaseURi}/upload_cv`;
-export const uploadIdurl=`${BaseURi}/upload-id`
+export const uploadIdurl = `${BaseURi}/upload-id`;
 export const getotp = `${BaseURi}/password/get_otp`;
 export const verifyotp = `${BaseURi}/password/verify_otp`;
 export const resetpassword = `${BaseURi}/password/reset`;
 export const studentdetails = `${BaseURi}/students/me`;
-export const forgotpassword=`${BaseURi}/student/forgot-password`
+export const forgotpassword = `${BaseURi}/student/forgot-password`;
 
 export const applyAdmission = `${BaseURi}/admissions`;
 export const getCourseStatus = `${BaseURi}/admissions`;
-export const getallcourseregdetails=`${BaseURi}/`
-//https://certmart.org/backend/api/v1/admissions/registrations/approved?studentid=JIT/S/08
+export const getallcourseregdetails = `${BaseURi}/`;
 
 export const coursescategories = `${BaseURi}/courses/categories`;
 export const coursescategoriesfilter = `${BaseURi}/traineravailabilities?`;

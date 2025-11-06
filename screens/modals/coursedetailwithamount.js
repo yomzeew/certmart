@@ -133,13 +133,13 @@ export const DirectPayment = ({
               key={index}
               className="rounded-2xl w-full p-4 bg-white mt-4 shadow-md"
             >
-              <View className="absolute right-3 top-3">
+              {/* <View className="absolute right-3 top-3">
                 {trainer?.paymentstatus === undefined ? (
                   <FontAwesome name="exclamation-circle" size={24} color="orange" />
                 ) : (
                   <FontAwesome name="check-circle" size={24} color="green" />
                 )}
-              </View>
+              </View> */}
 
               <View className="flex-row items-center">
                 <Avatar.Image

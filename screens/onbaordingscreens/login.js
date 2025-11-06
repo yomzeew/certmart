@@ -4,7 +4,8 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { certblue, colorred, colorwhite } from "../../constant/color";
 import { TextInput, Button } from "react-native-paper";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import NetInfo from '@react-native-community/netinfo';
 import { StatusBar } from "expo-status-bar";
 import Preloader from "../preloadermodal/preloaderwhite";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -32,7 +33,24 @@ const Login = () => {
         navigation.navigate("dashboard", { screen: "bottomnav" });
     };
 
+    const [isConnected, setIsConnected] = useState(true);
+
+    // Check network status on component mount
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener(state => {
+            setIsConnected(state.isConnected);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     const handleSubmit = async () => {
+        // Check network connection before making the API call
+        const netInfoState = await NetInfo.fetch();
+        if (!netInfoState.isConnected) {
+            showToast('error', 'No internet connection', 'Please check your network settings and try again.');
+            return;
+        }
         setShowLoader(true);
 
         if (!email) {
