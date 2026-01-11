@@ -37,6 +37,8 @@ import Preloader from "../../preloadermodal/preloaderwhite";
 import DisplayModal from "../../modals/datadisplay";
 import Toptrainer from "./dashboard/toptrainer";
 import { fetchallavailablecourse } from "./fetchdata";
+import DiscountedCourses from "./dashboard/discountedCourses";
+import { fetchDiscountedCourses } from "../../../utils/api";
 import CustomTextInput from "../../../components/CustomTextInput";
 import { useDispatch } from "react-redux";
 import { login } from "../../../store/sliceReducer";
@@ -97,6 +99,7 @@ const Dashboard = () => {
   const [availablecourse, setavailablecourse] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [filteredCourses, setFilteredCourses] = useState([]);
+  const [discountedCourses, setDiscountedCourses] = useState([]);
 
   const dispatch = useDispatch();
 
@@ -143,9 +146,21 @@ const Dashboard = () => {
     }
   };
 
+  const fetchDiscountedCoursesData = async () => {
+    try {
+      const response = await fetchDiscountedCourses();
+      if (response && Array.isArray(response)) {
+        setDiscountedCourses(response);
+      }
+    } catch (error) {
+      console.error("Error fetching discounted courses:", error);
+    }
+  };
+
   useEffect(() => {
     fetchdata();
     fetchStudentId();
+    fetchDiscountedCoursesData();
   }, []);
 
   const translateY = useSharedValue(300);
@@ -386,7 +401,7 @@ const Dashboard = () => {
             <View className="px-4 mt-4">
               <View className="items-center mb-3">
                 <Text className="text-2xl font-bold text-gray-800 mb-2">
-                  Welcome Back! 👋
+                  Welcome! 👋
                 </Text>
                 <Text className="text-gray-600 text-center">
                   Discover amazing courses and enhance your skills
@@ -434,6 +449,22 @@ const Dashboard = () => {
               />
             </View>
           </View>
+           {/* Discounted Courses - Only show if 4+ courses */}
+          {discountedCourses.length >= 4 && (
+            <View className="px-4 mt-3">
+              <View className="flex-row justify-between items-center">
+                <Text className="text-lg font-bold text-gray-800">
+                  🏷️ Discounts & Offers
+                </Text>
+              </View>
+              <ScrollView showsHorizontalScrollIndicator={false} horizontal>
+                <DiscountedCourses
+                  data={discountedCourses}
+                  onSeeAll={() => navigation.navigate('discountedCoursesList')}
+                />
+              </ScrollView>
+            </View>
+          )}
 
           {/* Top Trainers */}
           <View className="px-4 mb-6">

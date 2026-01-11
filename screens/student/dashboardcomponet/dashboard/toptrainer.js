@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { Avatar } from "react-native-paper";
+import { FontAwesome } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { shuffleArray } from "../../../../utility/randomizefunction";
@@ -39,13 +40,27 @@ const TopTrainer = () => {
                     key={index}
                 >
                     {item.dp ? (
-                        <Avatar.Image
-                            source={{
-                                uri: `https://certmart.org/dps/${item.dp}.jpg?timestamp=${new Date().getTime()}`,
-                            }}
-                        />
+                        <View>
+                            <Avatar.Image
+                                source={{
+                                    uri: `https://certmart.org/dps/${item.dp}.jpg?timestamp=${new Date().getTime()}`,
+                                }}
+                            />
+                            {item.verified === 1 && (
+                                <View style={{ position: 'absolute', bottom: 0, right: 0, backgroundColor: '#3B82F6', borderRadius: 10, padding: 3 }}>
+                                    <FontAwesome name="check" size={10} color="white" />
+                                </View>
+                            )}
+                        </View>
                     ) : (
-                        <Avatar.Image source={require("../../../images/avatermale.png")} />
+                        <View>
+                            <Avatar.Image source={require("../../../images/avatermale.png")} />
+                            {item.verified === 1 && (
+                                <View style={{ position: 'absolute', bottom: 0, right: 0, backgroundColor: '#3B82F6', borderRadius: 10, padding: 3 }}>
+                                    <FontAwesome name="check" size={10} color="white" />
+                                </View>
+                            )}
+                        </View>
                     )}
                     <Text className="font-semibold">{item.surname}</Text>
                 </TouchableOpacity>

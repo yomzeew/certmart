@@ -23,6 +23,7 @@ export const popularcourses = `${BaseURi}/courses?filter=popular&count=6`;
 export const allcourses = `${BaseURi}/courses?field=coursecode,course`;
 //list availablibities courses
 export const allavailablecourse=`${BaseURi}/traineravailabilities`
+export const discountedCoursesUrl=`${BaseURi}/traineravailabilities?filter=discounted`
 
 export const topTrainers = `${BaseURi}/trainers?filter=popular&count=6`;
 export const allTrainers=`${BaseURi}/trainers`
@@ -66,6 +67,9 @@ export const examRequest=`${BaseURi}/exam/request`
 
 //Change Password
 export const changepassword=`${BaseURi}/student/reset-password`
+
+//Referral Sources
+export const referralSourcesUrl=`${BaseURi}/referral_sources`
 
 
 

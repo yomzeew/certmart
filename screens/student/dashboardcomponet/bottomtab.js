@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from "react-native";
 import { FontAwesome5, FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Dashboard from './dashboard';
 import StudentProfile from './studentprofile';
 import Classes from './studentclasses';
@@ -10,12 +11,18 @@ import { colorred, lightred } from "../../../constant/color";
 const Tab = createBottomTabNavigator();
 
 const BottomNav = () => {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       initialRouteName="dashboardstudent"
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarStyle: { backgroundColor: "#fff", height: 60, paddingBottom: 5 },
+        tabBarStyle: { 
+          backgroundColor: "#fff", 
+          height: 60 + insets.bottom, 
+          paddingBottom: insets.bottom + 5 
+        },
         tabBarLabel: ({ focused, color }) => {
           let label = "";
           if (route.name === "dashboardstudent") label = "Home";

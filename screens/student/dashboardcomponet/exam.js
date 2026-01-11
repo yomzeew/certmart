@@ -8,6 +8,7 @@ import Header from "./header";
 import { styles } from "../../../settings/layoutsetting";
 import { colorred } from "../../../constant/color";
 import { examGetFn, examRequestFn, examActivateFn } from "../../../utils/api";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const getCardStatusMeta = (status) => {
   switch ((status || '').toLowerCase()) {
@@ -120,15 +121,25 @@ const ExamCard = ({ item, index, onRequestExam, onActivateExam, onViewCredential
   );
 };
 
+const ITEMS_PER_PAGE = 10;
+
 const Exam = () => {
   const navigation = useNavigation();
   const { email } = useSelector((state) => state.activePage);
+  const insets = useSafeAreaInsets();
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [actionLoadingId, setActionLoadingId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
+  const paginatedData = data.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const fetchExams = useCallback(async (isRefreshing = false) => {
     try {
@@ -242,11 +253,11 @@ const Exam = () => {
         </View>
       ) : (
         <FlatList
-          data={data}
+          data={paginatedData}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
           ItemSeparatorComponent={ItemSeparator}
-          contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 80, flexGrow: data?.length ? 0 : 1 }}
+          contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: insets.bottom + 80, flexGrow: paginatedData?.length ? 0 : 1 }}
           ListEmptyComponent={EmptyComponent}
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -256,6 +267,47 @@ const Exam = () => {
               colors={[colorred]}
               tintColor={colorred}
             />
+          }
+          ListFooterComponent={
+            totalPages > 1 ? (
+              <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 16 }}>
+                <TouchableOpacity
+                  onPress={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  style={{
+                    paddingHorizontal: 16,
+                    paddingVertical: 8,
+                    backgroundColor: '#E5E7EB',
+                    borderTopLeftRadius: 8,
+                    borderBottomLeftRadius: 8,
+                    opacity: currentPage === 1 ? 0.5 : 1
+                  }}
+                >
+                  <FontAwesome name="chevron-left" size={14} color="#374151" />
+                </TouchableOpacity>
+                
+                <View style={{ paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#F3F4F6' }}>
+                  <Text style={{ color: '#374151', fontWeight: '600' }}>
+                    {currentPage} / {totalPages}
+                  </Text>
+                </View>
+                
+                <TouchableOpacity
+                  onPress={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    paddingHorizontal: 16,
+                    paddingVertical: 8,
+                    backgroundColor: '#E5E7EB',
+                    borderTopRightRadius: 8,
+                    borderBottomRightRadius: 8,
+                    opacity: currentPage === totalPages ? 0.5 : 1
+                  }}
+                >
+                  <FontAwesome name="chevron-right" size={14} color="#374151" />
+                </TouchableOpacity>
+              </View>
+            ) : null
           }
         />
       )}

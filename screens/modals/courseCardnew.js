@@ -1,5 +1,6 @@
 import { View, Text, Image, TouchableOpacity,Linking,Alert } from "react-native";
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 
 const MetaChip = ({ label }) => (
   <View className="border rounded-full px-2 py-0.5 border-slate-300 mr-1 mb-1">
@@ -10,6 +11,16 @@ const MetaChip = ({ label }) => (
 export const CourseItem = ({ course, showpayment, setshowpayment, setSelected  }) => {
   console.log(course,'course')
   const [isExpanded, setIsExpanded] = useState(false);
+  const navigation = useNavigation();
+
+  const handleTrainerProfile = () => {
+    if (course?.trainerid) {
+      navigation.navigate("trainerProfileScreen", { 
+        trainerid: course.trainerid, 
+        trainerdp: course.trainerdp?.replace(/^dps\//, '').replace(/\.jpg$/i, '') 
+      });
+    }
+  };
 
   const bannerUri = course?.banner
   ? `https://certmart.org/${course.banner.startsWith("/") ? course.banner.slice(1) : course.banner}`
@@ -87,11 +98,20 @@ const cleanImagePath = (path) => {
       <View className="flex-row justify-between items-center mb-2">
         <View className="flex-row items-center">
         {trainerAvatarUri && (
-          <Image
-            source={{ uri: trainerAvatarUri }}
-            className="w-8 h-8 rounded-full mr-2"
-            resizeMode="cover"
-          />
+          <TouchableOpacity onPress={handleTrainerProfile}>
+            <View>
+              <Image
+                source={{ uri: trainerAvatarUri }}
+                className="w-8 h-8 rounded-full mr-2"
+                resizeMode="cover"
+              />
+              {course.verified === 1 && (
+                <View style={{ position: 'absolute', bottom: -2, right: 4, backgroundColor: '#3B82F6', borderRadius: 8, padding: 2 }}>
+                  <Text style={{ fontSize: 8, color: 'white' }}>✓</Text>
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         )}
         <Text className="text-sm font-semibold">{course.tsurname?.trim()}</Text>
 

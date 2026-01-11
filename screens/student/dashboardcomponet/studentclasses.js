@@ -9,13 +9,22 @@ import { useNavigation } from "@react-navigation/native";
 import { styles } from "../../../settings/layoutsetting";
 import { ScrollView } from "react-native";
 
+const ITEMS_PER_PAGE = 10;
+
 const Classes = () => {
     const [data, setData] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [errorMsg, setErrorMsg] = useState("");
     const [refreshing, setRefreshing] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const navigation = useNavigation();
+
+    const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
+    const paginatedData = data.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
     const fetchData = useCallback(async () => {
         try {
@@ -66,25 +75,67 @@ const Classes = () => {
                 >
                 <View style={{ paddingHorizontal: 12, paddingBottom: 80 }}>
                     {Array.isArray(data) && data.length > 0 ? (
-                        data.map((item, index) => {
-                            if (!item || typeof item !== 'object') {
+                        <>
+                            {paginatedData.map((item, index) => {
+                                if (!item || typeof item !== 'object') {
+                                    return (
+                                        <View key={`invalid-${index}`} style={{ padding: 16 }}>
+                                            <Text>Invalid class data</Text>
+                                        </View>
+                                    );
+                                }
                                 return (
-                                    <View key={`invalid-${index}`} style={{ padding: 16 }}>
-                                        <Text>Invalid class data</Text>
+                                    <View key={index}>
+                                        <ClassCard
+                                            item={item}
+                                            index={(currentPage - 1) * ITEMS_PER_PAGE + index}
+                                            onPress={() => handleShowDetails(item)}
+                                        />
+                                        {index < paginatedData.length - 1 && <View style={{ height: 8 }} />}
                                     </View>
                                 );
-                            }
-                            return (
-                                <View key={index}>
-                                    <ClassCard
-                                        item={item}
-                                        index={index}
-                                        onPress={() => handleShowDetails(item)}
-                                    />
-                                    {index < data.length - 1 && <View style={{ height: 8 }} />}
+                            })}
+                            
+                            {totalPages > 1 && (
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 16, marginTop: 8 }}>
+                                    <TouchableOpacity
+                                        onPress={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                        disabled={currentPage === 1}
+                                        style={{
+                                            paddingHorizontal: 16,
+                                            paddingVertical: 8,
+                                            backgroundColor: '#E5E7EB',
+                                            borderTopLeftRadius: 8,
+                                            borderBottomLeftRadius: 8,
+                                            opacity: currentPage === 1 ? 0.5 : 1
+                                        }}
+                                    >
+                                        <FontAwesome name="chevron-left" size={14} color="#374151" />
+                                    </TouchableOpacity>
+                                    
+                                    <View style={{ paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#F3F4F6' }}>
+                                        <Text style={{ color: '#374151', fontWeight: '600' }}>
+                                            {currentPage} / {totalPages}
+                                        </Text>
+                                    </View>
+                                    
+                                    <TouchableOpacity
+                                        onPress={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                        disabled={currentPage === totalPages}
+                                        style={{
+                                            paddingHorizontal: 16,
+                                            paddingVertical: 8,
+                                            backgroundColor: '#E5E7EB',
+                                            borderTopRightRadius: 8,
+                                            borderBottomRightRadius: 8,
+                                            opacity: currentPage === totalPages ? 0.5 : 1
+                                        }}
+                                    >
+                                        <FontAwesome name="chevron-right" size={14} color="#374151" />
+                                    </TouchableOpacity>
                                 </View>
-                            );
-                        })
+                            )}
+                        </>
                     ) : (
                         <View style={{
                             alignItems: 'center',

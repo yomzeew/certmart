@@ -13,6 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import ForgotPasswordEmailModal from "./forgotpassword"
 import NumericKeyboard from "../modals/customkeyboardnumeric"
 import Animated, { useAnimatedStyle, useSharedValue,withSpring } from "react-native-reanimated"
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 const OtpPage = () => {
     const navigation=useNavigation()
     const route=useRoute()
@@ -22,6 +23,7 @@ const OtpPage = () => {
     const [showpreloader, setshowpreloader]=useState(false)
     const [countdown,setCountdown]=useState(300)
     const [errorMsg,seterrorMsg]=useState('')
+    const insets = useSafeAreaInsets()
     useEffect(() => {
         // Start countdown
         const timer = countdown > 0 && setInterval(() => setCountdown(countdown - 1), 1000);
@@ -200,7 +202,7 @@ const OtpPage = () => {
                     
 
                     </View>
-                 {showkeyboard &&<View className="absolute bottom-8  items-center w-full">
+                 {showkeyboard &&<View className="absolute items-center w-full" style={{ bottom: insets.bottom + 32 }}>
                     <Animated.View style={[animatedStyles]} className="items-center">
                     <NumericKeyboard
                     onKeyPress={(value)=>handleKeyPress(value)}

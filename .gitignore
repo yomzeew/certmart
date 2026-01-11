@@ -2,8 +2,7 @@
 
 # dependencies
 node_modules/
-android/
-ios/
+gusguest
 # Expo
 .expo/
 dist/

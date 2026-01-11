@@ -21,6 +21,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { downloadFile } from "../../../utility/downloadfunction";
 import CustomTextInput from "../../../components/CustomTextInput";
 import showToast from "../../../utils/showToast";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Eresources = () => {
     const [preloader, setPreloader] = useState(false);
@@ -28,6 +29,7 @@ const Eresources = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [selectedResource, setSelectedResource] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const insets = useSafeAreaInsets();
 
     const user = useSelector((state) => state.activePage.user);
     const studentId = user?.studentid;
@@ -102,7 +104,7 @@ const Eresources = () => {
                 data={data}
                 keyExtractor={(item, index) => item.id?.toString() || index.toString()}
                 renderItem={renderItem}
-                contentContainerStyle={{ padding: 16, flexGrow: 1 }}
+                contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 80, flexGrow: 1 }}
                 ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
                 ListEmptyComponent={() => (
                     <View className="flex-1 justify-center items-center mt-10">

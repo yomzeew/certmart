@@ -416,7 +416,7 @@ const PaymentScreen = ({
             <ActivityIndicator color="white" size="small" />
           ) : (
             <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
-              {amount === 0 ? 'Enroll Now' : `Pay ${formatCurrency(amount, currency)}`}
+              {amount === 0 ? 'Enroll Now' : `Enroll With${formatCurrency(amount, currency)}`}
             </Text>
           )}
         </TouchableOpacity>

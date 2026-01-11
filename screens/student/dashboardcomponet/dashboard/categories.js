@@ -5,10 +5,10 @@ import { colorred } from "../../../../constant/color";
 import { fetchCategories } from "../../../../utils/api"; // Import the fetchCategories function
 
 const itemConfig = {
-  ACAD: { icon: <Ionicons name="school" size={40} />, label: "Academy" },
+  ACAD: { icon: <Ionicons name="school" size={40} />, label: "Academic" },
   TECH: { icon: <FontAwesome5 name="cogs" size={40} />, label: "Tech" },
   VOC: { icon: <MaterialIcons name="engineering" size={40} />, label: "Vocational" },
-  OTHER: { icon: null, label: "Other" },
+  OTHER: { icon: "", label: "Others" },
 };
 
 const Categories = ({ handlecallbackvalue, showModal, setshowModal, handleactionseeall }) => {
@@ -106,23 +106,25 @@ const CourseCard = ({ item, handlepickvalue, isSelected }) => {
         }}
       >
         {itemConfig[item]?.icon ? (
-          React.cloneElement(itemConfig[item].icon, { color: textColor })
+          <>
+            {React.cloneElement(itemConfig[item].icon, { color: textColor })}
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "600",
+                color: textColor,
+                textAlign: "center",
+                marginTop: 8,
+              }}
+            >
+              {itemConfig[item]?.label}
+            </Text>
+          </>
         ) : (
           <Text style={{ color: textColor, fontSize: 16, fontWeight: "bold" }}>
             {itemConfig[item]?.label}
           </Text>
         )}
-        <Text
-          style={{
-            fontSize: 12,
-            fontWeight: "600",
-            color: textColor,
-            textAlign: "center",
-            marginTop: 8,
-          }}
-        >
-          {itemConfig[item]?.label}
-        </Text>
       </TouchableOpacity>
     </View>
   );

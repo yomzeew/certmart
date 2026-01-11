@@ -11,12 +11,14 @@ import {  FontAwesome5 } from '@expo/vector-icons';
 import { downloadFile } from '../../../utility/downloadfunction';
 import showToast from '../../../utils/showToast';
 import * as Linking from 'expo-linking';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 const Certificate = () => {
     const [preloader, setPreloader] = useState(false)
     const [data,setdata]=useState([])
     const user = useSelector((state) => state.activePage.user);
+    const insets = useSafeAreaInsets();
     console.log(user)
     const studentId = user.studentid
     const handledata = async () => {
@@ -44,7 +46,7 @@ const Certificate = () => {
                     <Divider theme={{ colors: { primary: colorred } }} />
                 </View>
                 <View className="flex-1 w-full">
-                    <ScrollView contentContainerStyle={{paddingVertical:10, paddingHorizontal: 12}}>
+                    <ScrollView contentContainerStyle={{paddingVertical:10, paddingHorizontal: 12, paddingBottom: insets.bottom + 80}}>
                         {preloader ? (
                             <View className="items-center justify-center py-16">
                                 <ActivityIndicator size="large" color={colorred} />

@@ -32,11 +32,13 @@ import { currentDate } from "../../../utility/get-date-time";
 import SuccessModal from "../../modals/successfulmodal";
 import { useRoute } from "@react-navigation/native";
 import showToast from "../../../utils/showToast";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 const ApplyCourses = () => {
   const route = useRoute();
   const { courseName,courseCodeName } = route.params;
+  const insets = useSafeAreaInsets();
   const [showLoader, setShowLoader] = useState(false);
   const [showphysical, setshowphysical] = useState(false);
   const [showmodalcourse, setshowmodalcourse] = useState(false);
@@ -509,7 +511,7 @@ const ApplyCourses = () => {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             nestedScrollEnabled
-            contentContainerStyle={{ paddingBottom: 40 }}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
             automaticallyAdjustKeyboardInsets
           >
             <View className="px-5 mt-10">

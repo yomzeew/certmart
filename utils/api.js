@@ -31,7 +31,9 @@ import {
     activateExam,
     getExam,
     changepassword,
-    uploadIdurl
+    uploadIdurl,
+    referralSourcesUrl,
+    discountedCoursesUrl
 } from "../settings/endpoint";
 
 export const fetchCourses = async (course) => {
@@ -115,6 +117,45 @@ export const registerUser = async (data) => {
     }
 };
 
+export const fetchReferralSources = async () => {
+    try {
+        const response = await axios.get(referralSourcesUrl, {
+            headers: {
+                Accept: "application/json",
+            },
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message || "An error occurred.");
+        } else if (error.request) {
+            throw new Error("No response from server. Please try again.");
+        } else {
+            throw new Error("An error occurred. Please try again.");
+        }
+    }
+};
+
+export const fetchDiscountedCourses = async () => {
+    try {
+        const token = await AsyncStorage.getItem("token");
+        const response = await axios.get(discountedCoursesUrl, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message || "An error occurred.");
+        } else if (error.request) {
+            throw new Error("No response from server. Please try again.");
+        } else {
+            throw new Error("An error occurred. Please try again.");
+        }
+    }
+};
+
 export const fetchCategories = async () => {
     try {
         const token = await AsyncStorage.getItem("token");
@@ -184,62 +225,93 @@ export const updateStudentProfile = async (id, updatedData) => {
 
 export const uploadProfilePicture = async (imageUri, studentId) => {
     try {
+        // Create a file object from the URI
+        const filename = imageUri.split('/').pop();
+        const match = /^\.(\w+)$/.exec(filename) || [];
+        const ext = match[1] || 'jpg';
+        const type = `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+        
+        // Create form data
         const formData = new FormData();
-        formData.append("file", {
+        formData.append('image', {
             uri: imageUri,
-            type: "image/jpeg",
-            name: `${studentId}.jpg`,
+            name: `${studentId}_${Date.now()}.${ext}`,
+            type: type,
         });
 
         const token = await AsyncStorage.getItem("token");
-        const response = await axios.post(updateProfilePic, formData, {
+        const response = await axios({
+            method: 'post',
+            url: updateProfilePic,
+            data: formData,
             headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "multipart/form-data",
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+                'Accept': 'application/json',
+            },
+            transformRequest: (data, headers) => {
+                // Let Axios handle the FormData transformation
+                return formData;
             },
         });
+
         return response.data;
     } catch (error) {
-        handleApiError(error);
+        console.error('Upload error details:', error.response?.data || error.message);
+        throw error; // Re-throw to handle in the component
     }
 };
 
 export const uploadId = async (imageUri, studentId) => {
     try {
-        console.log('uploadId called with:', { imageUri, studentId });
-        
         if (!imageUri || !studentId) {
             throw new Error('Image URI and Student ID are required');
         }
+
+        // Create a file object from the URI
+        const filename = imageUri.split('/').pop();
+        const match = /\.(\w+)$/.exec(filename) || [];
+        const ext = match[1] || 'jpg';
+        const type = `image/${ext === 'jpg' ? 'jpeg' : ext}`;
         
+        // Create form data
         const formData = new FormData();
-        formData.append("idphoto", {
+        formData.append('idphoto', {
             uri: imageUri,
-            type: "image/jpeg",
-            name: `${studentId}.jpg`,
+            name: `${studentId}_id_${Date.now()}.${ext}`,
+            type: type,
         });
 
         const token = await AsyncStorage.getItem("token");
         if (!token) {
             throw new Error('Authentication token not found. Please login again.');
         }
-        
+
         console.log('Uploading ID to:', uploadIdurl);
-        const response = await axios.post(uploadIdurl, formData, {
+        const response = await axios({
+            method: 'post',
+            url: uploadIdurl,
+            data: formData,
             headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "multipart/form-data",
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+                'Accept': 'application/json',
+            },
+            transformRequest: (data, headers) => {
+                return formData;
             },
         });
+
         console.log('Upload ID response:', response.data);
         return response.data;
     } catch (error) {
-        console.error('uploadId error details:', {
+        console.error('ID upload error details:', {
             message: error.message,
             response: error.response?.data,
             status: error.response?.status
         });
         handleApiError(error);
+        throw error; // Re-throw to ensure the error is handled by the caller
     }
 }
 
@@ -397,19 +469,24 @@ export const fetchStudentClasses = async () => {
       console.log("paidCourses.length:", paidCourses.length);
       console.log("trainers.length:", trainers.length);
   
-      // --- 3) fetch availability per approved course and store in a map keyed by courseid ---
+      // --- 3) fetch availability per unique course and store in a map keyed by courseid ---
       const availabilityMap = {}; // { [courseid]: [availabilities] }
+      
+      // Deduplicate courses by courseid to avoid duplicate API calls
+      const uniqueCourses = approvedCourses.filter((course, index, self) => 
+        index === self.findIndex(c => c.courseid === course.courseid)
+      );
   
       await Promise.all(
-        approvedCourses.map(async (course) => {
+        uniqueCourses.map(async (course) => {
           try {
-            // use orderBy param if API expects it (adjust if API expects a different query param)
             const orderBy = course.classtype || course.classType || "";
             const url = `${BaseURi}/traineravailabilites/${course.courseid}`;
             const res = await axios.get(url, { params: orderBy ? { orderBy } : {}, headers });
             availabilityMap[course.courseid] = res?.data || [];
           } catch (err) {
-            console.error(`Failed to get availability for course ${course.courseid}:`, err?.message || err);
+            // Log once per unique course, not as error since backend returns 500
+            console.log(`Availability unavailable for ${course.courseid}`);
             availabilityMap[course.courseid] = []; // fallback to empty
           }
         })

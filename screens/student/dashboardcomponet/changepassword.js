@@ -16,12 +16,14 @@ import { colorred } from "../../../constant/color";
 import Header from './header';
 import { changepasswordFn } from '../../../utils/api';
 import showToast from '../../../utils/showToast';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Changepassword = () => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const handlechange = async () => {
     if (!oldPassword || !newPassword || !newPasswordConfirm) {
@@ -75,7 +77,7 @@ const Changepassword = () => {
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
+          contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 40 }}
         >
           <View style={{ gap: 16 }}>
             {/* Current Password */}

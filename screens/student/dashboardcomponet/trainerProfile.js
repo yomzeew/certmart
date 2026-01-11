@@ -29,7 +29,6 @@ const fetchData = async () => {
   try {
     setShowLoader(true);
     const data = await fetchTrainerProfile(trainerid);
-    console.log(data, "ffff");
 
     // set trainer details
     setTrainerData({
@@ -42,6 +41,7 @@ const fetchData = async () => {
       phone: data.phone,
       email: data.email,
       trainerid: data.trainerid,
+      verified: data.verified,
     });
 
     // add trainerdp as dp key in availabilities
@@ -113,17 +113,31 @@ const fetchData = async () => {
                     <View className="w-full justify-center items-center">
                         <View style={{ elevation: 4 }} className="absolute elevation z-50">
                             {trainerdp ? (
-                                <Avatar.Image
-                                    size={96}
-                                    source={{
-                                        uri: `https://certmart.org/dps/${trainerdp}.jpg?ts=${Date.now()}`,
-                                    }}
-                                />
+                                <View>
+                                    <Avatar.Image
+                                        size={96}
+                                        source={{
+                                            uri: `https://certmart.org/dps/${trainerdp}.jpg?ts=${Date.now()}`,
+                                        }}
+                                    />
+                                    {trainerData.verified === 1 && (
+                                        <View style={{ position: 'absolute', bottom: 0, right: 0, backgroundColor: '#3B82F6', borderRadius: 12, padding: 4 }}>
+                                            <FontAwesome name="check" size={12} color="white" />
+                                        </View>
+                                    )}
+                                </View>
                             ) : (
-                                <Avatar.Image
-                                    size={96}
-                                    source={require("../../images/avatermale.png")}
-                                />
+                                <View>
+                                    <Avatar.Image
+                                        size={96}
+                                        source={require("../../images/avatermale.png")}
+                                    />
+                                    {trainerData.verified === 1 && (
+                                        <View style={{ position: 'absolute', bottom: 0, right: 0, backgroundColor: '#3B82F6', borderRadius: 12, padding: 4 }}>
+                                            <FontAwesome name="check" size={12} color="white" />
+                                        </View>
+                                    )}
+                                </View>
                             )}
                         </View>
                     </View>
@@ -134,6 +148,7 @@ const fetchData = async () => {
                             <SectionTitle title="Biodata" />
                             <KeyValue left="Fullname" right={`${trainerData.surname} ${trainerData.firstname}`} />
                             <KeyValue left="Gender" right={trainerData.gender} />
+                            <KeyValue left="Verified" right={trainerData.verified === 1 ? "Yes ✓" : "No"} />
                             <Divider style={{ marginVertical: 12 }} />
                             <SectionTitle title="Courses" />
                             <CoursesCard courses={courses} setshowpayment={setShowPayment} setSelected={setSelected} />

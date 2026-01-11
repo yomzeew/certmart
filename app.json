@@ -2,7 +2,7 @@
   "expo": {
     "name": "certmart",
     "slug": "certmart",
-    "version": "1.0.0",
+    "version": "1.0.8",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -13,19 +13,19 @@
     },
     "jsEngine": "hermes",
     "plugins": [
-      [
-        "expo-document-picker"
-      ],
+      "./app.plugin.js",
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app needs access to your photos to let you set your profile picture.",
           "cameraPermission": "The app needs access to your camera to take a profile picture.",
+          "photosPermission": "The app needs access to your photos to let you set your profile picture.",
           "allowsEditing": true,
           "allowsMultipleSelection": false,
-          "mediaTypes": "Images",
+          "mediaTypes": [
+            "images"
+          ],
           "android": {
-            "useMediaPicker": true
+            "usePhotoPicker": true
           }
         }
       ],
@@ -43,28 +43,36 @@
           "android": {
             "enableProguardInReleaseBuilds": true,
             "minifyEnabled": true,
-            "shrinkResources": true,
-            "proguardRules": "-keep class com.facebook.** { *; }\n-keep class com.facebook.react.** { *; }\n-keep class androidx.** { *; }\n# keep RN bridge, don't obfuscate methods used by reflection\n-keepclassmembers class * {\n  @android.webkit.JavascriptInterface <methods>;\n}"
+            "shrinkResources": true
           }
         }
       ]
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yomzeew.certmart",
+      "bundleIdentifier": "com.certmart.app",
+      "buildNumber": "3",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
+      "versionCode": 9,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.yomzeew.certmart",
+      "package": "com.certmart.app",
       "permissions": [
-        "android.permission.RECORD_AUDIO"
+        "android.permission.CAMERA"
+      ],
+      "blockedPermissions": [
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO",
+        "android.permission.READ_MEDIA_AUDIO",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_EXTERNAL_STORAGE"
       ]
     },
     "web": {

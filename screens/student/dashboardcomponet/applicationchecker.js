@@ -17,6 +17,7 @@ import { colorred } from "../../../constant/color";
 import { useState, useEffect, useCallback } from "react";
 import { fetchCourseStatus } from "../../../utils/api";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ApplicationCheckers = () => {
     const [coursesData, setCoursesData] = useState([]);
@@ -25,6 +26,7 @@ const ApplicationCheckers = () => {
     const [data, setData] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const insets = useSafeAreaInsets();
 
     const fetchData = useCallback(async () => {
         try {
@@ -167,7 +169,7 @@ const ApplicationCheckers = () => {
                                 </Text>
                             </View>
                         )}
-                        contentContainerStyle={{ paddingBottom:160, paddingHorizontal:16, paddingTop:16 }}
+                        contentContainerStyle={{ paddingBottom: insets.bottom + 160, paddingHorizontal:16, paddingTop:16 }}
                         refreshControl={
                             <RefreshControl
                                 refreshing={refreshing}

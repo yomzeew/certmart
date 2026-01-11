@@ -5,6 +5,7 @@ import axios from "axios";
 import { BaseURi, classes } from "../../settings/endpoint";
 import { Avatar } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
 export const DirectPayment = ({
   item,
@@ -15,10 +16,20 @@ export const DirectPayment = ({
   setshowcontent,
   onClickPayment,
 }) => {
+  const navigation = useNavigation();
   const [data, setdata] = useState([]);
   const [showsuccess, setshowsuccess] = useState(false);
   const [selectedTab, setSelectedTab] = useState("Virtual");
   const [isLoading, setIsLoading] = useState(true);
+
+  const handleTrainerProfile = (trainer) => {
+    if (trainer?.trainerid) {
+      navigation.navigate("trainerProfileScreen", { 
+        trainerid: trainer.trainerid, 
+        trainerdp: trainer.dp 
+      });
+    }
+  };
 
   const courseid = item?.courseid || item?.courses;
   const classtype = item?.classtype;
@@ -142,16 +153,25 @@ export const DirectPayment = ({
               </View> */}
 
               <View className="flex-row items-center">
-                <Avatar.Image
-                  size={70}
-                  source={
-                    trainer.dp
-                      ? {
-                          uri: `https://certmart.org/dps/${trainer.dp}.jpg?timestamp=${new Date().getTime()}`,
-                        }
-                      : require("../images/avatermale.png")
-                  }
-                />
+                <TouchableOpacity onPress={() => handleTrainerProfile(trainer)}>
+                  <View>
+                    <Avatar.Image
+                      size={70}
+                      source={
+                        trainer.dp
+                          ? {
+                              uri: `https://certmart.org/dps/${trainer.dp}.jpg?timestamp=${new Date().getTime()}`,
+                            }
+                          : require("../images/avatermale.png")
+                      }
+                    />
+                    {trainer.verified === 1 && (
+                      <View style={{ position: 'absolute', bottom: 0, right: 0, backgroundColor: '#3B82F6', borderRadius: 10, padding: 3 }}>
+                        <FontAwesome name="check" size={10} color="white" />
+                      </View>
+                    )}
+                  </View>
+                </TouchableOpacity>
 
                 <View className="ml-4 flex-1">
                   <Text className="text-lg font-semibold">{trainer.surname}</Text>

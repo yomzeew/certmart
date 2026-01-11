@@ -6,10 +6,13 @@ import { useRoute,useNavigation } from "@react-navigation/native"
 import { useState } from "react"
 import { StatusBar } from "expo-status-bar"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+
 const Welcomepage=()=>{
     const navigation=useNavigation()
     const route = useRoute();
-    const { platform } = route.params || {}; 
+    const { platform } = route.params || {};
+    const insets = useSafeAreaInsets(); 
     const [getplatform,setplatform]=useState('')
     const handleprevpage=()=>{
         navigation.goBack()
@@ -46,7 +49,7 @@ const Welcomepage=()=>{
 
             </View>
 
-            <View className="w-full items-center mb-5">
+            <View className="w-full items-center" style={{ paddingBottom: insets.bottom + 20 }}>
                 <TouchableOpacity onPress={handlelogin}  style={{backgroundColor:colorred}} className="rounded-xl w-64 items-center flex justify-center h-12">
                     <Text style={{fontSize:20}} className="text-white">Login as {platform}</Text>
                 </TouchableOpacity>

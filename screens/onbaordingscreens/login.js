@@ -13,6 +13,7 @@ import ForgotPasswordEmailModal from "./forgotpassword";
 import { loginUser } from "../../utils/api";
 import CustomTextInput from "../../components/CustomTextInput";
 import showToast from "../../utils/showToast";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -22,6 +23,7 @@ const Login = () => {
     const [showForgotPass, setShowForgotPass] = useState(false);
     const navigation = useNavigation();
     const route = useRoute();
+    const insets = useSafeAreaInsets();
     //const { platform } = route.params || "student";
     const platform  = "student";
 
@@ -179,7 +181,7 @@ const Login = () => {
                         </View>
 
                         {/* Forgot Password and Register Links */}
-                        <View className="w-3/4 flex justify-between flex-row mt-3">
+                        <View className="w-3/4 flex justify-between flex-row mt-3" style={{ paddingBottom: insets.bottom + 20 }}>
                             <TouchableOpacity onPress={handleForgotPasswordShow}>
                                 <Text style={{ color: colorred }}>Forgot Password</Text>
                             </TouchableOpacity>

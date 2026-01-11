@@ -71,9 +71,12 @@ const StudentProfile = () => {
 
     const handleImageUpload = async () => {
         try {
+            // Launch image picker (uses Android Photo Picker, no permission needed)
             const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
-                quality: 1,
+                aspect: [1, 1],
+                quality: 0.8,
             });
 
             if (!result.canceled) {
@@ -108,9 +111,12 @@ const StudentProfile = () => {
 
     const handleUploadId = async () => {
         try {
+            // Launch image picker (uses Android Photo Picker, no permission needed)
             const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
-                quality: 1,
+                aspect: [4, 3],
+                quality: 0.8,
             });
 
             if (!result.canceled) {
@@ -161,8 +167,8 @@ const StudentProfile = () => {
                     <View className="items-center w-full -mt-10">
                         <View>
                             <TouchableOpacity
-                                style={{ elevation: 30 }}
-                                className="absolute right-0 bottom-0 z-50 bg-white w-8 h-8 rounded-full flex justify-center items-center"
+                                style={{ elevation: 5 }}
+                                className="absolute right-0 bottom-0 z-30 bg-white w-8 h-8 rounded-full flex justify-center items-center"
                                 onPress={handleImageUpload}
                             >
                                 <FontAwesome size={20} color={colorred} name="pencil" />
@@ -279,12 +285,12 @@ const StudentProfile = () => {
                 </View>
             </SafeAreaView>
             {showLoader && (
-                <View className="absolute z-50 w-full h-full">
+                <View style={{ elevation: 50 }} className="absolute z-50 w-full h-full">
                     <Preloader />
                 </View>
             )}
             {showProfileUpdate && (
-                <View className="absolute z-40 w-full h-full">
+                <View style={{ elevation: 40 }} className="absolute z-40 w-full h-full">
                     <ProfileUpdateModal
                         close={(value) => setShowProfileUpdate(value)}
                         data={formData}

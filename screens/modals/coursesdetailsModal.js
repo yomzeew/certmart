@@ -138,7 +138,7 @@ export const CourseDetailsModal = ({ content, setshowcontent, showcontent }) => 
               <View>
                 <Text className="text-xs text-gray-500">Course Cost</Text>
                 <Text className="text-lg font-bold text-gray-600 line-through">
-                  ₦{content?.taval_cost ? parseFloat(content.taval_cost).toLocaleString() : "0"}
+                  ₦{content?.course_cost ? parseFloat(content.course_cost).toLocaleString() : "0"}
                 </Text>
               </View>
             )}

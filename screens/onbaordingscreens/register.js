@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     SafeAreaView,
     View,
@@ -8,6 +8,8 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
+    Modal,
+    TouchableWithoutFeedback
 } from "react-native";
 import { styles } from "../../settings/layoutsetting";
 import { FontAwesome } from "@expo/vector-icons";
@@ -18,8 +20,9 @@ import { StatusBar } from "expo-status-bar";
 import Preloader from "../preloadermodal/preloaderwhite";
 import SuccessModal from "../modals/successfulmodal";
 import TermsModal from "../modals/termsModal";
-import { registerUser } from "../../utils/api"; // Import the registerUser function
+import { registerUser, fetchReferralSources } from "../../utils/api";
 import CustomTextInput from "../../components/CustomTextInput";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const RegisterPage = () => {
     const [Email, setEmail] = useState("");
@@ -33,9 +36,28 @@ const RegisterPage = () => {
     const [showloader, setshowloader] = useState(false);
     const [showsuccessmodal, setshowsuccessmodal] = useState(false);
     const [visible, setVisible] = useState(false);
+    const [referralSources, setReferralSources] = useState([]);
+    const [selectedReferral, setSelectedReferral] = useState("");
+    const [customReferral, setCustomReferral] = useState("");
+    const [showDropdown, setShowDropdown] = useState(false);
     const navigation = useNavigation();
     const route = useRoute();
     const { platform } = route.params || {};
+    const insets = useSafeAreaInsets();
+
+    useEffect(() => {
+        const loadReferralSources = async () => {
+            try {
+                const response = await fetchReferralSources();
+                if (response.status && response.data) {
+                    setReferralSources(response.data);
+                }
+            } catch (error) {
+                console.log("Error fetching referral sources:", error);
+            }
+        };
+        loadReferralSources();
+    }, []);
 
     const handleprevpage = () => {
         navigation.goBack();
@@ -51,6 +73,11 @@ const RegisterPage = () => {
         if (!Gender) return seterrormsg("Select your gender");
         if (!Email) return seterrormsg("Enter your Email");
 
+        let referralValue = selectedReferral;
+        if (selectedReferral === "Others" && customReferral) {
+            referralValue = `Others: ${customReferral}`;
+        }
+
         const data = {
             surname: Surname,
             firstname: Firstname,
@@ -59,6 +86,7 @@ const RegisterPage = () => {
             gender: Gender.toLowerCase(),
             phone: phonenumber,
             Agreement: true,
+            referral: referralValue,
         };
 
        try {
@@ -199,6 +227,110 @@ const RegisterPage = () => {
                                         </View>
                                     </View>
 
+                                    {/* Referral Source Selection */}
+                                    <View className="w-3/4 mt-3">
+                                        <Text style={{ fontSize: 16, marginBottom: 8 }}>How did you hear about us?</Text>
+                                        
+                                        {/* Dropdown Trigger */}
+                                        <TouchableOpacity 
+                                            onPress={() => setShowDropdown(!showDropdown)}
+                                            style={{
+                                                borderWidth: 1,
+                                                borderColor: colorred,
+                                                borderRadius: 5,
+                                                padding: 12,
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                backgroundColor: 'white'
+                                            }}
+                                        >
+                                            <Text style={{ color: selectedReferral ? 'black' : 'gray' }}>
+                                                {selectedReferral || 'Select an option'}
+                                            </Text>
+                                            <FontAwesome 
+                                                name={showDropdown ? 'chevron-up' : 'chevron-down'} 
+                                                size={16} 
+                                                color="gray" 
+                                            />
+                                        </TouchableOpacity>
+
+                                        {/* Dropdown List Modal */}
+                                        <Modal
+                                            visible={showDropdown}
+                                            transparent={true}
+                                            animationType="fade"
+                                            onRequestClose={() => setShowDropdown(false)}
+                                        >
+                                            <TouchableWithoutFeedback onPress={() => setShowDropdown(false)}>
+                                                <View style={{
+                                                    flex: 1,
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+                                                }}>
+                                                    <TouchableWithoutFeedback>
+                                                        <View style={{
+                                                            width: '80%',
+                                                            maxHeight: '60%',
+                                                            backgroundColor: 'white',
+                                                            borderRadius: 10,
+                                                            padding: 15
+                                                        }}>
+                                                            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' }}>
+                                                                How did you hear about us?
+                                                            </Text>
+                                                            <ScrollView>
+                                                                {referralSources.map((item) => (
+                                                                    <TouchableOpacity
+                                                                        key={item.id}
+                                                                        onPress={() => {
+                                                                            setSelectedReferral(item.source);
+                                                                            setShowDropdown(false);
+                                                                            if (item.source !== "Others") {
+                                                                                setCustomReferral("");
+                                                                            }
+                                                                        }}
+                                                                        style={{
+                                                                            padding: 15,
+                                                                            borderBottomWidth: 1,
+                                                                            borderBottomColor: '#f0f0f0'
+                                                                        }}
+                                                                    >
+                                                                        <Text style={{ fontSize: 16 }}>{item.source}</Text>
+                                                                    </TouchableOpacity>
+                                                                ))}
+                                                            </ScrollView>
+                                                            <TouchableOpacity
+                                                                onPress={() => setShowDropdown(false)}
+                                                                style={{
+                                                                    marginTop: 15,
+                                                                    padding: 12,
+                                                                    backgroundColor: colorred,
+                                                                    borderRadius: 5,
+                                                                    alignItems: 'center'
+                                                                }}
+                                                            >
+                                                                <Text style={{ color: 'white', fontWeight: 'bold' }}>Close</Text>
+                                                            </TouchableOpacity>
+                                                        </View>
+                                                    </TouchableWithoutFeedback>
+                                                </View>
+                                            </TouchableWithoutFeedback>
+                                        </Modal>
+
+                                        {/* Other Source Input */}
+                                        {selectedReferral === "Others" && (
+                                            <View className="mt-2">
+                                                <CustomTextInput
+                                                    label="Please specify"
+                                                    value={customReferral}
+                                                    onChangeText={(text) => setCustomReferral(text)}
+                                                />
+                                            </View>
+                                        )}
+                                    </View>
+
                                     {/* Agreement Checkbox */}
                                     <TouchableOpacity onPress={() => setVisible(true)} className="w-3/4 flex flex-row items-center">
                                         <Checkbox
@@ -225,7 +357,7 @@ const RegisterPage = () => {
                                         </Button>
                                     </View>
                                 </View>
-                                <View className="items-center">
+                                <View className="items-center" style={{ paddingBottom: insets.bottom + 20 }}>
                                     <View className="w-3/4 flex justify-between flex-row mt-3">
                                         <TouchableOpacity onPress={handleaction}>
                                             <Text style={{ color: colorred }}>

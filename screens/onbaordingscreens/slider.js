@@ -7,11 +7,13 @@ import Sliderone from "./sliderone";
 import Slidertwo from "./slidertwo";
 import Sliderthree from "./sliderthree";
 import { styles } from "../../settings/layoutsetting";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Slider = ({navigation}) => {
   const [count, setCount] = useState(1);
   const { height } = Dimensions.get('window');
   const { width } = Dimensions.get('window');
+  const insets = useSafeAreaInsets();
 
   const showComponent = () => {
     if (count === 1) {
@@ -65,7 +67,7 @@ const Slider = ({navigation}) => {
        {showComponent()}
       </View>
 
-      <View className="items-center h-1/6">
+      <View className="items-center h-1/6" style={{ paddingBottom: insets.bottom + 20 }}>
         <View className="items-center justify-center flex flex-row">
           <TouchableOpacity onPress={handlePrev}>
             <FontAwesome name="arrow-circle-left" size={30} color={colorred} />

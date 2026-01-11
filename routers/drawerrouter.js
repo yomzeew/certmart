@@ -21,6 +21,7 @@ import LatestNews from "../screens/student/dashboardcomponet/newspage";
 import Exam from "../screens/student/dashboardcomponet/exam";
 import examResult from "../screens/student/dashboardcomponet/examResult";
 import Changepassword from "../screens/student/dashboardcomponet/changepassword";
+import DiscountedCoursesList from "../screens/student/dashboardcomponet/discountedCoursesList";
 
 const DrawerWrapper = () => {
   const Drawer = createDrawerNavigator();
@@ -107,6 +108,10 @@ const DrawerWrapper = () => {
       options={{gestureEnabled:false,gestureDirection:'vertical'}} 
       name="changepassword" 
       component={Changepassword} />
+      <Drawer.Screen 
+      options={{gestureEnabled:false,gestureDirection:'vertical'}} 
+      name="discountedCoursesList" 
+      component={DiscountedCoursesList} />
       
     
     </Drawer.Navigator>

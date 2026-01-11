@@ -358,14 +358,23 @@ const ClassesDetails = () => {
         }}>
             {/* Header Section with Trainer Info */}
             <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                {item.trainerDp &&(
-                    <Avatar.Image
-                        source={{
-                            uri: `https://certmart.org/dps/${item.trainerDp}.jpg?timestamp=${new Date().getTime()}`,
-                        }}
-                        size={80}
-                        style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }}
-                    />
+                {item.trainerDp && (
+                    <TouchableOpacity onPress={() => navigation.navigate("trainerProfileScreen", { trainerid: item.trainerId, trainerdp: item.trainerDp })}>
+                        <View>
+                            <Avatar.Image
+                                source={{
+                                    uri: `https://certmart.org/dps/${item.trainerDp}.jpg?timestamp=${new Date().getTime()}`,
+                                }}
+                                size={80}
+                                style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 }}
+                            />
+                            {item.trainerVerified === 1 && (
+                                <View style={{ position: 'absolute', bottom: 0, right: 0, backgroundColor: '#3B82F6', borderRadius: 12, padding: 4 }}>
+                                    <FontAwesome name="check" size={12} color="white" />
+                                </View>
+                            )}
+                        </View>
+                    </TouchableOpacity>
                 )}
                 <View style={{ alignItems: 'center', marginTop: 12 }}>
                     <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1F2937' }}>

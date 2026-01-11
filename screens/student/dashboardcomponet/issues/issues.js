@@ -12,6 +12,7 @@ import Preloader from "../../../preloadermodal/preloaderwhite";
 import { FontAwesome5 } from "@expo/vector-icons";
 import showToast from "../../../../utils/showToast";
 import CustomTextInput from "../../../../components/CustomTextInput";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Issues = () => {
     const [active,setactive]=useState('View')
@@ -26,6 +27,7 @@ const Issues = () => {
     const [selectedIssue, setSelectedIssue] = useState(null);
     const [showIssueDetail, setShowIssueDetail] = useState(false);
     const [replyMessage, setReplyMessage] = useState('');
+    const insets = useSafeAreaInsets();
 
     const fetchIssues=async()=>{
         try {
@@ -205,7 +207,7 @@ const Issues = () => {
                <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                    <ScrollView 
-                       contentContainerStyle={{ flexGrow: 1, justifyContent: "center", paddingHorizontal: 12 }}
+                       contentContainerStyle={{ flexGrow: 1, justifyContent: "center", paddingHorizontal: 12, paddingBottom: insets.bottom + 40 }}
                        keyboardShouldPersistTaps="handled"
                        
                    >
@@ -290,7 +292,7 @@ const Issues = () => {
     // when empty, center the empty component; otherwise let content scroll
     (!data || data.length === 0)
       ? { flex: 1, justifyContent: "center" }
-      : { paddingBottom: 20 }
+      : { paddingBottom: insets.bottom + 80 }
   }
 />
                     

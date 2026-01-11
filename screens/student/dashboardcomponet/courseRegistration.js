@@ -10,9 +10,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { getCourseStatus } from "../../../settings/endpoint";
 import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const CourseReg = () => {
     const navigation = useNavigation();
+    const insets = useSafeAreaInsets();
     const [showLoader, setShowLoader] = useState(false);
     const [datareg, setdatareg] = useState([]);
     const [data,setData]=useState([])
@@ -97,6 +99,7 @@ const CourseReg = () => {
                     </View>
                     <ScrollView
                      style={{ marginTop: 16, paddingHorizontal: 12 }}
+                     contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
                      refreshControl={
                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colorred]} />
                      }
